@@ -1,0 +1,3 @@
+astyle -A1 -U -xd *.hpp
+rm *~
+rm *.orig
