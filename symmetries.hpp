@@ -7,7 +7,7 @@
 #include <vector>
 #include "sek.hpp"
 
-namespace detail
+namespace hidden
 {
     using Permutation = sek<size_t>;
     using Group = sek<Permutation>;

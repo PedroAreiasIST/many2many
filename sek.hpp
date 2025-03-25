@@ -12,13 +12,12 @@
 #include <random>
 #include "basics.hpp"
 
-namespace detail
+namespace hidden
 {
     static constexpr size_t STACKSIZE = 10;
 }
-using detail::STACKSIZE;
 
-template<typename V, size_t S = STACKSIZE, auto P = std::execution::par>
+template<typename V, size_t S = hidden::STACKSIZE, auto P = std::execution::par>
 struct sek
 {
     static constexpr size_t stacksize = S;

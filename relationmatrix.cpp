@@ -28,6 +28,7 @@ void indicesfromorder(relationmatrix &m, size_t elementtype, size_t nodetype, se
     indicesfromorder(m(elementtype, nodetype), order, oldfromnew, newfromold);
 }
 
+
 void depthfirstsearch(relationmatrix &m, size_t startnodetype, size_t startnode, sek<size_t> &affectedelements,
                       sek<size_t> &affectedtypes)
 {
