@@ -92,7 +92,14 @@ int main(int argc, char *argv[])
     insertentity(rm, quad);
     insertentity(rm, tet);
     insertentity(rm, hex);
+    insertentity(rm, wedge);
     closeelementnoderelation(rm, quad.type, node.type);
-    std::cout << "tet" << rm.operator()(tet.type, node.type).nodesfromelement.lnods << std::endl;
-    std::cout << "hex" << rm.operator()(hex.type, node.type).nodesfromelement.lnods << std::endl;
+    std::cout << "tet " << rm.operator()(tet.type, node.type).nodesfromelement.lnods << std::endl;
+    std::cout << "hex " << rm.operator()(hex.type, node.type).nodesfromelement.lnods << std::endl;
+    entity hex2;
+    settype(hex2, hex.type);
+    appendnodesofonetype(hex2, node.type, {8, 7, 6, 5, 4, 3, 2, 9});
+    insertentity(rm, hex2);
+    std::cout << "wedge" << rm(wedge.type, node.type).nodesfromelement.lnods << std::endl;
+    std::cout << "hex2 " << rm.operator()(hex.type, node.type).nodesfromelement.lnods << std::endl;
 }
