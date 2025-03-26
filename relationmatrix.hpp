@@ -4,14 +4,14 @@
 #include <map>
 #include <stack>
 #include <utility>
-#include "relationmodel.hpp"
 #include "relmanytomany.hpp"
 #include "symmetries.hpp"
 
 /**
  * @brief Structure representing a relation matrix.
  */
-namespace hidden {
+namespace hidden
+{
     using matrix = sek<sek<relmanytomany>>;
 }
 
@@ -125,6 +125,8 @@ void indicesfromorder(relationmatrix &m, size_t elementtype, size_t nodetype, se
  * @param nodetype The node type.
  */
 void closeelementnoderelation(relationmatrix &m, size_t elementype, size_t nodetype);
+
+void closeeverything(relationmatrix &m);
 
 /**
  * @brief Retrieves elements from nodes using symmetry reduction.

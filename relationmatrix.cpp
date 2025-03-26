@@ -168,6 +168,13 @@ void closeelementnoderelation(relationmatrix &m, size_t elementype, size_t nodet
     setfromonetomany(m(elementype, nodetype));
 }
 
+void closeeverything(relationmatrix &m)
+{
+    for (size_t elementtype = 0; elementtype < getsize(m.m); ++elementtype)
+        for (size_t nodetype = 0; nodetype < getsize(m.m); ++nodetype)
+            closeelementnoderelation(m, elementtype, nodetype);
+}
+
 sek<size_t> getselementsfromnodes(relationmatrix &matrix, size_t elementtype, size_t nodestype,
                                   sek<size_t> const &nodes)
 {

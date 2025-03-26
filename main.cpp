@@ -4,7 +4,6 @@
 #include "entity.hpp"
 #include "godoftypes.hpp"
 #include "relationmatrix.hpp"
-#include "relationmodel.hpp"
 #include "relationonetomany.hpp"
 #include "sek.hpp"
 #include "test.hpp"
