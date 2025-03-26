@@ -136,7 +136,7 @@ static void testInsertErase()
 
     // sekerase(s, index) => "swap with last"
     erase(s1, 2);
-    // e.g. removing element at index 2 => put last in index 2, then size--
+    // e.g. removing element at index 2 => put last const& index 2, then size--
     assert(s1.size == 7);
 
     // sekeraseinplace(s, index, n) => "shift left"
@@ -206,7 +206,7 @@ static void testComparisons()
 static void testSorting()
 {
     sek<int> s1{5, 1, 3, 4, 2};
-    setsorted(s1);
+    setordered(s1);
     // check sorted => [1,2,3,4,5]
     for (int i = 0; i < 5; ++i)
         assert(s1[i] == i + 1);
@@ -276,8 +276,8 @@ static void testSetOps()
 {
     sek<int> s1{1, 2, 3, 3, 5};
     sek<int> s2{2, 3, 3, 4, 7};
-    setsorted(s1);
-    setsorted(s2);
+    setordered(s1);
+    setordered(s2);
 
     // intersection => [2,3,3]
     auto inter = getintersection(s1, s2);
@@ -299,7 +299,7 @@ static void testSetOps()
 
     // includes => s1 includes subset?
     sek<int> subset{2, 3};
-    setsorted(subset);
+    setordered(subset);
     assert(getincludessubset(s1, subset) == true);
 
     std::cout << "testSetOps passed.\n";
@@ -319,14 +319,14 @@ static void testAlgorithms()
     assert(sum1 == 15);
 
     // sekgetmapped (unary)
-    auto squared = getmap(s1, [](int x) { return x * x; });
+    auto squared = getmapped(s1, [](int x) { return x * x; });
     // [1,2,3,4,5] => [1,4,9,16,25]
     for (size_t i = 0; i < squared.size; ++i)
         assert(squared[i] == (s1[i] * s1[i]));
 
     // sekgetmapped (binary)
     sek<int> s2{10, 10, 10, 10, 10};
-    auto summed = getmap(s1, s2, [](int a, int b) { return a + b; });
+    auto summed = getmapped(s1, s2, [](int a, int b) { return a + b; });
     // => [11,12,13,14,15]
     assert(summed[0] == 11 && summed[4] == 15);
 
@@ -346,7 +346,7 @@ static void testAlgorithms()
         big[i] = int(i);
     auto sample10 = getasample(big, 10);
     assert(sample10.size == 10);
-    // check each is in [0..99]
+    // check each is const& [0..99]
     for (size_t i = 0; i < sample10.size; ++i)
     {
         assert(sample10[i] >= 0 && sample10[i] < 100);

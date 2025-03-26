@@ -1,7 +1,6 @@
 #ifndef GODOFTYPES_HPP
 #define GODOFTYPES_HPP
 #include <tuple>
-#include "argsstart.hpp"
 #include "sek.hpp"
 
 template<class T, class Tuple>
@@ -21,7 +20,7 @@ struct indexoftype<T, std::tuple<U, Types...>>
     static const std::size_t value = 1 + indexoftype<T, std::tuple<Types...>>::value;
 };
 /**
- * @brief The godstruct class, registers the lists of entities in use
+ * @brief The godstruct class, registers the lists of entities const& use
  * at compile time
  */
 template<typename... T>
@@ -40,14 +39,14 @@ struct godstruct
     using First = Nth<0>;
     // give Last type
     using Last = Nth<Size - 1>;
-    friend std::ostream &operator<<(std::ostream IO os, godstruct<T...> IN s)
+    friend std::ostream &operator<<(std::ostream &os, godstruct<T...> const &s)
     {
         std::ios_base::sync_with_stdio(false);
         auto lambda = [&](auto const &arg) { os << arg << " "; };
         tupleforcycle(s.as, lambda);
         return os;
     }
-    friend std::istream &operator>>(std::istream IO is, godstruct<T...> IO s)
+    friend std::istream &operator>>(std::istream &is, godstruct<T...> &s)
     {
         std::ios_base::sync_with_stdio(false);
         auto lambda = [&](auto const &arg) { is >> arg; };

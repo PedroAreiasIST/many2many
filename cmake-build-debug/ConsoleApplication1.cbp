@@ -88,6 +88,12 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/entity.cpp">
+			<Option target="ConsoleApplication1"/>
+		</Unit>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/entity.hpp">
+			<Option target="ConsoleApplication1"/>
+		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/main.cpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
@@ -104,12 +110,6 @@
 			<Option target="ConsoleApplication1"/>
 		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/relationmatrix.hpp">
-			<Option target="ConsoleApplication1"/>
-		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/relationmodel.cpp">
-			<Option target="ConsoleApplication1"/>
-		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/relationmodel.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/relationonetomany.cpp">

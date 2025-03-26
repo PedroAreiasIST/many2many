@@ -1,7 +1,117 @@
-//
-// Created by pedro on 20-03-2025.
-//
 #include "relationmatrix.hpp"
+#include <map>
+#include <utility>
+
+size_t relationmatrix::nnode(size_t elementtype, size_t element, size_t nodetype)
+{
+    return getsize(m[elementtype][nodetype].nodesfromelement.lnods[element]);
+}
+
+size_t relationmatrix::nelem(size_t nodetype, size_t node, size_t elementtype)
+{
+    return getsize(m[elementtype][nodetype].elementsfromnode.lnods[node]);
+}
+
+sek<std::pair<size_t, size_t>> getallelements(relationmatrix &m, std::pair<size_t, size_t> const &node)
+{
+    sek<std::pair<size_t, size_t>> ret;
+    auto [nodetype, nodenumber] = node;
+    size_t nret = 0;
+
+    // First pass: count total elements.
+    for (size_t elementtype = 0; elementtype < getsize(m.m); ++elementtype)
+    {
+        nret += m.nelem(nodetype, nodenumber, elementtype);
+    }
+
+    setsize(ret, nret);
+    nret = 0;
+
+    // Second pass: collect (element type, element number) pairs.
+    for (size_t elementtype = 0; elementtype < getsize(m.m); ++elementtype)
+    {
+        const size_t numElems = m.nelem(nodetype, nodenumber, elementtype);
+        for (size_t localelement = 0; localelement < numElems; ++localelement)
+        {
+            size_t element = m(elementtype, nodetype).elementsfromnode.lnods[nodenumber][localelement];
+            ret[nret++] = std::make_pair(elementtype, element);
+        }
+    }
+    setordered(ret);
+    setunique(ret);
+    return ret;
+}
+
+sek<std::pair<size_t, size_t>> getallnodes(relationmatrix &m, std::pair<size_t, size_t> const &element)
+{
+    sek<std::pair<size_t, size_t>> ret;
+    auto [elementtype, elementnumber] = element;
+    size_t nret = 0;
+
+    // First pass: count total nodes.
+    for (size_t nodetype = 0; nodetype < getsize(m.m); ++nodetype)
+    {
+        nret += m.nnode(elementtype, elementnumber, nodetype);
+    }
+    setsize(ret, nret);
+    nret = 0;
+
+    // Second pass: collect (node type, node number) pairs.
+    for (size_t nodetype = 0; nodetype < getsize(m.m); ++nodetype)
+    {
+        const size_t numNodes = m.nnode(elementtype, elementnumber, nodetype);
+        for (size_t localnode = 0; localnode < numNodes; ++localnode)
+        {
+            size_t node = m(elementtype, nodetype).nodesfromelement.lnods[elementnumber][localnode];
+            ret[nret++] = std::make_pair(nodetype, node);
+        }
+    }
+    setordered(ret);
+    setunique(ret);
+    return ret;
+}
+
+sek<std::pair<size_t, size_t>> depthfirstsearchfromanode(relationmatrix &m, std::pair<size_t, size_t> const &node)
+{
+    using P = std::pair<size_t, size_t>;
+    using SP = sek<P>;
+    std::map<P, bool> visited;
+    std::stack<P> stack;
+    stack.push(node);
+    sek<P> ret;
+
+    while (!stack.empty())
+    {
+        P current = stack.top();
+        stack.pop();
+        if (!visited[current])
+        {
+            visited[current] = true;
+            append(ret, current);
+            SP elements = getallelements(m, current);
+            for (size_t i = 0; i < getsize(elements); ++i)
+            {
+                if (!visited[elements[i]])
+                    stack.push(elements[i]);
+            }
+        }
+    }
+    setordered(ret);
+    setunique(ret);
+    return ret;
+}
+
+sek<std::pair<size_t, size_t>> depthfirstsearch(relationmatrix &m, size_t node)
+{
+    sek<std::pair<size_t, size_t>> ret;
+    for (size_t nodetype = 0; nodetype < getsize(m.m); ++nodetype)
+    {
+        ret = getunion(ret, depthfirstsearchfromanode(m, std::make_pair(nodetype, node)));
+    }
+    setordered(ret);
+    setunique(ret);
+    return ret;
+}
 
 void setnumberoftypes(relationmatrix &m, size_t ntypes)
 {
@@ -10,11 +120,22 @@ void setnumberoftypes(relationmatrix &m, size_t ntypes)
     {
         setsize(m.m[i], ntypes);
     }
+    setsize(m.groups, ntypes);
+    for (size_t i = 0; i < ntypes; ++i)
+    {
+        setsize(m.groups[i], ntypes);
+    }
+}
+
+void setsymmetrygroup(relationmatrix &m, size_t elementype, size_t nodetype, sek<sek<size_t>> const &group)
+{
+    m.groups[elementype][nodetype] = group;
 }
 
 size_t appendelement(relationmatrix &m, size_t elementype, size_t nodetype, sek<size_t> const &nodes)
 {
-    return appendelement(m(elementype, nodetype).nodesfromelement, nodes);
+    return appendelement(m(elementype, nodetype).nodesfromelement,
+                         getcanonicalform(nodes, m.groups[elementype][nodetype]));
 }
 
 void lexiorder(relationmatrix &m, size_t elementype, size_t nodetype, sek<size_t> &order)
@@ -28,30 +149,17 @@ void indicesfromorder(relationmatrix &m, size_t elementtype, size_t nodetype, se
     indicesfromorder(m(elementtype, nodetype), order, oldfromnew, newfromold);
 }
 
-
-void depthfirstsearch(relationmatrix &m, size_t startnodetype, size_t startnode, sek<size_t> &affectedelements,
-                      sek<size_t> &affectedtypes)
-{
-    sek<size_t> startingtypes{getsize(m.m)};
-    size_t nst = 0;
-    for (size_t i = 0; i < getsize(m.m); ++i)
-        if (m(i, startnodetype).elementsfromnode.nelem > 0)
-        {
-            startingtypes[nst++] = i;
-        }
-    for (size_t ist = 0; ist < nst; ++ist)
-    {
-    }
-}
-
 void compress(relationmatrix &m, size_t elementtype, sek<size_t> const &oldelementfromnew,
               sek<size_t> const &newelementfromold)
 {
     for (size_t nodetype = 0; nodetype < getsize(m.m); ++nodetype)
     {
         compresselements(m(elementtype, nodetype), oldelementfromnew);
-        for (size_t elementype = 0; elementtype < getsize(m.m); ++elementtype)
-            compressnodes(m(nodetype, elementtype), newelementfromold);
+        // Note: the inner loop variable was shadowing the outer element type; renamed it to avoid confusion.
+        for (size_t et = 0; et < getsize(m.m); ++et)
+        {
+            compressnodes(m(nodetype, et), newelementfromold);
+        }
     }
 }
 
@@ -63,35 +171,6 @@ void closeelementnoderelation(relationmatrix &m, size_t elementype, size_t nodet
 sek<size_t> getselementsfromnodes(relationmatrix &matrix, size_t elementtype, size_t nodestype,
                                   sek<size_t> const &nodes)
 {
-    return getelementsfromnodes(matrix(elementtype, nodestype), nodes);
-}
-
-void getnodesfromanelement(relationmatrix &matrix, size_t elementtype, size_t element, size_t nodestype,
-                           sek<size_t> &nodes)
-{
-    nodes = matrix(elementtype, nodestype).nodesfromelement.onetomany[element];
-}
-
-void getelementsfromnode(relationmatrix &matrix, size_t nodetype, size_t node, size_t elementstype,
-                         sek<size_t> &elements)
-{
-    elements = matrix(elementstype, nodetype).elementsfromnode.onetomany[node];
-}
-
-void getnodes(relationmatrix &matrix, size_t type1, size_t element1, size_t type2, sek<size_t> &nodelist)
-{
-    sek<size_t> nodes1 = matrix(type1, type2).nodesfromelement.onetomany[element1];
-    sek<size_t> nodes2 = matrix(type2, type1).elementsfromnode.onetomany[element1];
-    nodelist = getunion(nodes1, nodes2);
-    setunique(nodelist);
-}
-
-void getsallnodes(relationmatrix &matrix, size_t elementtype, size_t element, sek<sek<size_t>> &nodes)
-{
-    erase(nodes);
-    setsize(nodes, getsize(matrix.m));
-    for (size_t i = 0; i < getsize(matrix.m); ++i)
-    {
-        getnodesfromanelement(matrix, elementtype, element, i, nodes[i]);
-    }
+    return getelementsfromnodes(matrix(elementtype, nodestype),
+                                getcanonicalform(nodes, matrix.groups[elementtype][nodestype]));
 }

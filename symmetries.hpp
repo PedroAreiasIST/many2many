@@ -1,29 +1,30 @@
 #ifndef SYMMETRIES_HPP
 #define SYMMETRIES_HPP
+
 #include <algorithm>
-#include <iostream>
 #include <limits>
 #include <stdexcept>
 #include <vector>
 #include "sek.hpp"
 
-namespace hidden
-{
+namespace hidden {
+
     using Permutation = sek<size_t>;
     using Group = sek<Permutation>;
     static const size_t UNSET = (std::numeric_limits<size_t>::max)();
 
-    bool isvalidfullpermutation(const sek<size_t> &position, const Group &G)
+    inline bool isvalidfullpermutation(const sek<size_t>& position, const Group& G)
     {
-        for (const auto &g: G)
+        const size_t posSize = getsize(position);
+        for (const auto &perm : G)
         {
-            // Quick check on size match:
-            if (getsize(g) != getsize(position))
+            if (getsize(perm) != posSize)
                 continue;
+
             bool match = true;
-            for (size_t i = 0; i < getsize(position); i++)
+            for (size_t i = 0; i < posSize; ++i)
             {
-                if (g[i] != position[i])
+                if (perm[i] != position[i])
                 {
                     match = false;
                     break;
@@ -31,23 +32,24 @@ namespace hidden
             }
             if (match)
             {
-                return true; // Found a match
+                return true; // Found a matching permutation in the group
             }
         }
         return false;
     }
 
-    bool canextend(const sek<size_t> &position, size_t upTo, const Group &G)
+    inline bool canextend(const sek<size_t>& position, size_t upTo, const Group& G)
     {
-        for (const auto &g: G)
+        for (const auto &perm : G)
         {
-            if (g.size() != position.size())
+            if (getsize(perm) != getsize(position))
                 continue;
 
             bool match = true;
-            for (size_t k = 0; k <= upTo; k++)
+            // Check consistency up to 'upTo' index
+            for (size_t k = 0; k <= upTo; ++k)
             {
-                if (position[k] != UNSET && position[k] != g[k])
+                if (position[k] != UNSET && position[k] != perm[k])
                 {
                     match = false;
                     break;
@@ -55,24 +57,24 @@ namespace hidden
             }
             if (match)
             {
-                return true; // at least one permutation is consistent so far
+                return true; // At least one permutation is consistent so far
             }
         }
         return false;
     }
 
-    bool assignslot(size_t level, sek<size_t> &position, const sek<size_t> &sortedIndices, sek<bool> &used,
-                    const Group &G)
+    inline bool assignslot(size_t level, sek<size_t>& position, const sek<size_t>& sortedIndices, sek<bool>& used,
+                            const Group& G)
     {
-        size_t n = getsize(position);
-
-        // If all slots assigned, check membership
+        const size_t n = getsize(position);
+        // If all slots are assigned, check if the permutation is valid in G
         if (level == n)
         {
             return isvalidfullpermutation(position, G);
         }
 
-        for (size_t idx: sortedIndices)
+        // Try each candidate index (in sorted order) that has not been used yet.
+        for (size_t idx : sortedIndices)
         {
             if (!used[idx])
             {
@@ -86,45 +88,48 @@ namespace hidden
                     }
                     used[idx] = false;
                 }
+                // Reset the position slot if assignment failed
                 position[level] = UNSET;
             }
         }
         return false;
     }
-} // namespace detail
-sek<size_t> getcanonicalform(const sek<size_t> &labels, const Group &G)
+
+} // namespace hidden
+
+inline sek<size_t> getcanonicalform(const sek<size_t>& labels, const hidden::Group& G)
 {
-    using detail;
-    size_t n = getsize(labels);
-    // Basic check
-    if (G.empty() || G[0].size() != n)
+    using namespace hidden;
+    const size_t n = getsize(labels);
+
+    // If the group is empty or the permutation sizes do not match, return the original labels.
+    if (getsize(G) == 0 || getsize(G[0]) != n)
     {
-        throw std::runtime_error("Group dimension does not match label size.");
+        return labels;
     }
 
-    // (1) Build sortedIndices by ascending label
-    std::vector<size_t> sortedIndices(n);
-    for (size_t i = 0; i < n; i++)
+    // (1) Build sortedIndices sorted by corresponding label values in ascending order.
+    sek<size_t> sortedIndices(n);
+    for (size_t i = 0; i < n; ++i)
     {
         sortedIndices[i] = i;
     }
-    std::sort(sortedIndices.begin(), sortedIndices.end(), [&](size_t a, size_t b) { return labels[a] < labels[b]; });
+    std::sort(sortedIndices.begin(), sortedIndices.end(),
+              [&labels](size_t a, size_t b) { return labels[a] < labels[b]; });
 
-    // (2) Initialize position[] = UNSET, used[] = false
-    std::vector<size_t> position(n, UNSET);
-    std::vector<bool> used(n, false);
+    // (2) Initialize position with UNSET and a boolean array for used indices.
+    sek<size_t> position(n, UNSET);
+    sek<bool> used(n, false);
 
-    // (3) Recursively assign
-    bool success = assignSlot(0, position, sortedIndices, used, G);
-
-    if (!success)
+    // (3) Recursively assign slots to obtain a canonical permutation.
+    if (!assignslot(0, position, sortedIndices, used, G))
     {
-        throw std::runtime_error("No valid labeling found in the group.");
+        throw std::runtime_error("No valid labeling found for the group.");
     }
 
-    // Build final canonical labeling
-    std::vector<size_t> canonical(n);
-    for (size_t k = 0; k < n; k++)
+    // Build the final canonical labeling by mapping indices to original labels.
+    sek<size_t> canonical(n);
+    for (size_t k = 0; k < n; ++k)
     {
         canonical[k] = labels[position[k]];
     }

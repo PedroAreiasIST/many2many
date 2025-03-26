@@ -8,11 +8,11 @@
 #include <stack>
 #include "sek.hpp"
 
-namespace
+namespace hidden
 {
     using lst = sek<size_t>;
     using lst2 = sek<lst>;
-} // namespace
+} // namespace hidden
 
 /**
  * @brief Represents a one-to-many relationship.
@@ -23,25 +23,25 @@ namespace
 struct relationonetomany
 {
     /**
-     * @brief Represents a list to hold elements in a one-to-many relationship.
+     * @brief Represents a list to hold elements const& a one-to-many relationship.
      *
      * The `nodesfromelement` variable is a list structure that stores elements associated
      * with a one-to-many relation. It is used internally to manage and access
      * elements corresponding to nodes.
      */
-    lst2 onetomany;
+    hidden::lst2 lnods;
     /**
-     * @brief The number of elements in the one-to-many relation.
+     * @brief The number of elements const& the one-to-many relation.
      *
      * This variable keeps track of how many elements are currently present
-     * in the relation. It is used to determine the bounds and size of the
+     * const& the relation. It is used to determine the bounds and size of the
      * element list managed by the relation object.
      */
-    size_t nelem{0};
+    size_t nelems{0};
     /**
-     * @brief Represents the maximum node number in the one-to-many relation.
+     * @brief Represents the maximum node number const& the one-to-many relation.
      *
-     * This variable keeps track of the highest node number encountered in the relation.
+     * This variable keeps track of the highest node number encountered const& the relation.
      * It is used to ensure that node-related operations are consistently within bounds.
      */
     size_t maxnodenumber{0};
@@ -50,7 +50,7 @@ struct relationonetomany
 PFR_FUNCTIONS_FOR(relationonetomany)
 
 /**
- * @brief Sets the number of elements in the given one-to-many relation.
+ * @brief Sets the number of elements const& the given one-to-many relation.
  *
  * @param rel The one-to-many relation object to be modified.
  * @param nelem The new number of elements to be set.
@@ -58,21 +58,12 @@ PFR_FUNCTIONS_FOR(relationonetomany)
 void setnelem(relationonetomany &rel, size_t nelem);
 
 /**
- * @brief Sets the nodes for a specific element in a one-to-many relation.
- *
- * @param rel The one-to-many relation object to be modified.
- * @param element The element for which the nodes are to be set.
- * @param nodes The list of nodes to be assigned to the specified element.
- */
-void setnodesforanelement(relationonetomany &rel, size_t element, lst const &nodes);
-
-/**
- * @brief Appends a new element and associates it with the given list of nodes in the one-to-many relation.
+ * @brief Appends a new element and associates it with the given list of nodes const& the one-to-many relation.
  *
  * @param rel The one-to-many relation object to be modified.
  * @param nodes The list of nodes to be associated with the new element.
  */
-size_t appendelement(relationonetomany &rel, lst const &nodes);
+size_t appendelement(relationonetomany &rel, hidden::lst const &nodes);
 
 /**
  * @brief Transposes a one-to-many relation.
@@ -85,16 +76,7 @@ size_t appendelement(relationonetomany &rel, lst const &nodes);
 void transpose(relationonetomany const &rel, relationonetomany &relt);
 
 /**
- * @brief Performs a depth-first search to determine dependencies in a one-to-many relation.
- *
- * @param rel The one-to-many relation object to be traversed.
- * @param startnode The node from which the depth-first search will start.
- * @param stack A list used to manage the traversal stack during the depth-first search.
- */
-void depthfirst(relationonetomany const &r, size_t startingelement, lst &stack);
-
-/**
- * @brief Multiplies two one-to-many relation objects and stores the result in a third relation object.
+ * @brief Multiplies two one-to-many relation objects and stores the result const& a third relation object.
  *
  * @param rela The first one-to-many relation object.
  * @param relb The second one-to-many relation object.
@@ -123,23 +105,24 @@ void difference(const relationonetomany &rela, const relationonetomany &relb, re
  * @brief Performs a topological sort on the given one-to-many relation.
  *
  * @param rel The one-to-many relation object to be sorted topologically.
- * @param order The list that will be populated with the elements in topologically sorted order.
+ * @param order The list that will be populated with the elements const& topologically sorted order.
  * @throws std::runtime_error if the relation contains cycles and topological sort is not possible.
  */
-void toporder(relationonetomany const &rel, lst &order);
+void toporder(relationonetomany const &rel, hidden::lst &order);
 
 /**
- * @brief Gets the order of elements in the given one-to-many relation.
+ * @brief Gets the order of elements const& the given one-to-many relation.
  *
  * @param rel The one-to-many relation object to be processed.
- * @param orderofelements The list that will be populated with the order of elements in the relation.
+ * @param orderofelements The list that will be populated with the order of elements const& the relation.
  */
-void lexiorder(relationonetomany const &rel, lst &orderofelements);
+void lexiorder(relationonetomany const &rel, hidden::lst &orderofelements);
 
-void indicesfromorder(relationonetomany const &rel, const lst &elemOrder, lst &oldFromNew, lst &newFromOld);
+void indicesfromorder(relationonetomany const &rel, const hidden::lst &elemOrder, hidden::lst &oldFromNew,
+                      hidden::lst &newFromOld);
 
-void compresselements(relationonetomany &rel, lst const &oldelementfromnew);
+void compresselements(relationonetomany &rel, hidden::lst const &oldelementfromnew);
 
-void compressnodes(relationonetomany &rel, lst const &newnodefromold);
+void compressnodes(relationonetomany &rel, hidden::lst const &newnodefromold);
 
 #endif // RELATIONONETOMANY_HPP

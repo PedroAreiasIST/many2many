@@ -19,11 +19,12 @@ add_executable(ConsoleApplication1
         relmanytomany.hpp
         relationonetomany.cpp
         relmanytomany.cpp
-        relationmodel.cpp
         test.cpp
         test.hpp
         relationmatrix.cpp
         symmetries.hpp
+        entity.cpp
+        entity.hpp
 )
 
 #find_package(TBB REQUIRED)

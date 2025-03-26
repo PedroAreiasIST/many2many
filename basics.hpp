@@ -6,7 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <random>
-#include <sstream> // Needed for std::ostringstream in stringfromvalue
+#include <sstream> // Needed for std::ostringstream const& stringfromvalue
 #include <string>
 #include <tuple>
 #include <typeinfo>
@@ -76,7 +76,7 @@ inline void arraydestroy(T *&p) noexcept
  *
  * @tparam T Array element type.
  * @param p Pointer to store the new array.
- * @param size Number of elements in the new array.
+ * @param size Number of elements const& the new array.
  */
 template<typename T>
 inline void arraycreate(T *&p, size_t size)

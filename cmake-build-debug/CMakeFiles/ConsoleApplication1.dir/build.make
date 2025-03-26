@@ -105,22 +105,9 @@ CMakeFiles/ConsoleApplication1.dir/relmanytomany.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ConsoleApplication1.dir/relmanytomany.cpp.s"
 	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/pedro/SimPlas/ConsoleApplication1/relmanytomany.cpp -o CMakeFiles/ConsoleApplication1.dir/relmanytomany.cpp.s
 
-CMakeFiles/ConsoleApplication1.dir/relationmodel.cpp.o: CMakeFiles/ConsoleApplication1.dir/flags.make
-CMakeFiles/ConsoleApplication1.dir/relationmodel.cpp.o: /home/pedro/SimPlas/ConsoleApplication1/relationmodel.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/ConsoleApplication1.dir/relationmodel.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ConsoleApplication1.dir/relationmodel.cpp.o -c /home/pedro/SimPlas/ConsoleApplication1/relationmodel.cpp
-
-CMakeFiles/ConsoleApplication1.dir/relationmodel.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ConsoleApplication1.dir/relationmodel.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/pedro/SimPlas/ConsoleApplication1/relationmodel.cpp > CMakeFiles/ConsoleApplication1.dir/relationmodel.cpp.i
-
-CMakeFiles/ConsoleApplication1.dir/relationmodel.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ConsoleApplication1.dir/relationmodel.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/pedro/SimPlas/ConsoleApplication1/relationmodel.cpp -o CMakeFiles/ConsoleApplication1.dir/relationmodel.cpp.s
-
 CMakeFiles/ConsoleApplication1.dir/test.cpp.o: CMakeFiles/ConsoleApplication1.dir/flags.make
 CMakeFiles/ConsoleApplication1.dir/test.cpp.o: /home/pedro/SimPlas/ConsoleApplication1/test.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/ConsoleApplication1.dir/test.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/ConsoleApplication1.dir/test.cpp.o"
 	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ConsoleApplication1.dir/test.cpp.o -c /home/pedro/SimPlas/ConsoleApplication1/test.cpp
 
 CMakeFiles/ConsoleApplication1.dir/test.cpp.i: cmake_force
@@ -133,7 +120,7 @@ CMakeFiles/ConsoleApplication1.dir/test.cpp.s: cmake_force
 
 CMakeFiles/ConsoleApplication1.dir/relationmatrix.cpp.o: CMakeFiles/ConsoleApplication1.dir/flags.make
 CMakeFiles/ConsoleApplication1.dir/relationmatrix.cpp.o: /home/pedro/SimPlas/ConsoleApplication1/relationmatrix.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/ConsoleApplication1.dir/relationmatrix.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/ConsoleApplication1.dir/relationmatrix.cpp.o"
 	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ConsoleApplication1.dir/relationmatrix.cpp.o -c /home/pedro/SimPlas/ConsoleApplication1/relationmatrix.cpp
 
 CMakeFiles/ConsoleApplication1.dir/relationmatrix.cpp.i: cmake_force
@@ -144,14 +131,27 @@ CMakeFiles/ConsoleApplication1.dir/relationmatrix.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ConsoleApplication1.dir/relationmatrix.cpp.s"
 	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/pedro/SimPlas/ConsoleApplication1/relationmatrix.cpp -o CMakeFiles/ConsoleApplication1.dir/relationmatrix.cpp.s
 
+CMakeFiles/ConsoleApplication1.dir/entity.cpp.o: CMakeFiles/ConsoleApplication1.dir/flags.make
+CMakeFiles/ConsoleApplication1.dir/entity.cpp.o: /home/pedro/SimPlas/ConsoleApplication1/entity.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/ConsoleApplication1.dir/entity.cpp.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ConsoleApplication1.dir/entity.cpp.o -c /home/pedro/SimPlas/ConsoleApplication1/entity.cpp
+
+CMakeFiles/ConsoleApplication1.dir/entity.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ConsoleApplication1.dir/entity.cpp.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/pedro/SimPlas/ConsoleApplication1/entity.cpp > CMakeFiles/ConsoleApplication1.dir/entity.cpp.i
+
+CMakeFiles/ConsoleApplication1.dir/entity.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ConsoleApplication1.dir/entity.cpp.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/pedro/SimPlas/ConsoleApplication1/entity.cpp -o CMakeFiles/ConsoleApplication1.dir/entity.cpp.s
+
 # Object files for target ConsoleApplication1
 ConsoleApplication1_OBJECTS = \
 "CMakeFiles/ConsoleApplication1.dir/main.cpp.o" \
 "CMakeFiles/ConsoleApplication1.dir/relationonetomany.cpp.o" \
 "CMakeFiles/ConsoleApplication1.dir/relmanytomany.cpp.o" \
-"CMakeFiles/ConsoleApplication1.dir/relationmodel.cpp.o" \
 "CMakeFiles/ConsoleApplication1.dir/test.cpp.o" \
-"CMakeFiles/ConsoleApplication1.dir/relationmatrix.cpp.o"
+"CMakeFiles/ConsoleApplication1.dir/relationmatrix.cpp.o" \
+"CMakeFiles/ConsoleApplication1.dir/entity.cpp.o"
 
 # External object files for target ConsoleApplication1
 ConsoleApplication1_EXTERNAL_OBJECTS =
@@ -159,9 +159,9 @@ ConsoleApplication1_EXTERNAL_OBJECTS =
 ConsoleApplication1: CMakeFiles/ConsoleApplication1.dir/main.cpp.o
 ConsoleApplication1: CMakeFiles/ConsoleApplication1.dir/relationonetomany.cpp.o
 ConsoleApplication1: CMakeFiles/ConsoleApplication1.dir/relmanytomany.cpp.o
-ConsoleApplication1: CMakeFiles/ConsoleApplication1.dir/relationmodel.cpp.o
 ConsoleApplication1: CMakeFiles/ConsoleApplication1.dir/test.cpp.o
 ConsoleApplication1: CMakeFiles/ConsoleApplication1.dir/relationmatrix.cpp.o
+ConsoleApplication1: CMakeFiles/ConsoleApplication1.dir/entity.cpp.o
 ConsoleApplication1: CMakeFiles/ConsoleApplication1.dir/build.make
 ConsoleApplication1: CMakeFiles/ConsoleApplication1.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable ConsoleApplication1"
