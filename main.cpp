@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     setfromonetomany(mm);
     cout << "mm.nodesfromelement=" << mm.nodesfromelement.lnods << std::endl;
     cout << "mm.elementsfromnodes=" << mm.elementsfromnode.lnods << std::endl;
-    cout << "mm.locn" << mm.locn << std::endl;
+    cout << "mm.nodelocation" << mm.nodelocation << std::endl;
 
     entity canbeanelement;
     entity hascoordinates;
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
     insertentity(rm, hex2);
     closeeverything(rm);
     std::cout << " rm" << rm(tet.type, node.type).elementsfromnode << std::endl;
-    std::cout << "rm locn" << rm(tet.type, node.type).locn << std::endl;
+    std::cout << "rm nodelocation" << rm(tet.type, node.type).nodelocation << std::endl;
     std::cout << "wedge" << rm(wedge.type, node.type).nodesfromelement.lnods << std::endl;
     std::cout << "hex2 " << rm.operator()(hex.type, node.type).nodesfromelement.lnods << std::endl;
 }

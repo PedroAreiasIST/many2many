@@ -6,22 +6,39 @@ size_t relmanytomany::nelems(size_t node) { return getsize(elementsfromnode.lnod
 void setfromonetomany(relmanytomany &rel)
 {
     transpose(rel.nodesfromelement, rel.elementsfromnode);
-    setsize(rel.locn, rel.elementsfromnode.nelems);
-    for (size_t node = 0; node < rel.elementsfromnode.nelems; ++node)
+    setsize(rel.nodelocation, rel.elementsfromnode.nelems);
+    for (size_t localnode = 0; localnode < rel.elementsfromnode.nelems; ++localnode)
     {
-        setsize(rel.locn[node], getsize(rel.elementsfromnode.lnods[node]));
+        setsize(rel.nodelocation[localnode], getsize(rel.elementsfromnode.lnods[localnode]));
     }
-
-    lst nextIndex;
-    setsize(nextIndex, rel.elementsfromnode.nelems);
-    for (size_t element = 0, elementCount = getsize(rel.nodesfromelement.lnods); element < elementCount; ++element)
+    setsize(rel.elementlocation, rel.nodesfromelement.nelems);
+    for (size_t localelement = 0; localelement < rel.nodesfromelement.nelems; ++localelement)
     {
-        const lst &nodes = rel.nodesfromelement.lnods[element];
-        for (size_t nodePos = 0, nodeCount = getsize(nodes); nodePos < nodeCount; ++nodePos)
+        setsize(rel.elementlocation[localelement], getsize(rel.nodesfromelement.lnods[localelement]));
+    }
+    lst nextlocalelementofnode;
+    setsize(nextlocalelementofnode, rel.elementsfromnode.nelems);
+    for (size_t localelement = 0, elementCount = getsize(rel.nodesfromelement.lnods); localelement < elementCount;
+         ++localelement)
+    {
+        const lst &nodes = rel.nodesfromelement.lnods[localelement];
+        for (size_t localnode = 0, nodeCount = getsize(nodes); localnode < nodeCount; ++localnode)
         {
-            size_t node = nodes[nodePos];
-            rel.locn[node][nextIndex[node]] = nodePos;
-            nextIndex[node]++;
+            size_t node = nodes[localnode];
+            rel.nodelocation[node][nextlocalelementofnode[node]] = localnode;
+            nextlocalelementofnode[node]++;
+        }
+    }
+    lst nextlocalnodeofelement;
+    setsize(nextlocalnodeofelement, rel.nodesfromelement.nelems);
+    for (size_t localnode = 0, nodeCount = getsize(rel.elementsfromnode.lnods); localnode < nodeCount; ++localnode)
+    {
+        const lst &elements = rel.elementsfromnode.lnods[localnode];
+        for (size_t localelement = 0, elemCount = getsize(elements); localelement < elemCount; ++localelement)
+        {
+            size_t element = elements[localelement];
+            rel.elementlocation[element][nextlocalnodeofelement[element]] = localelement;
+            nextlocalnodeofelement[element]++;
         }
     }
 }
@@ -48,7 +65,8 @@ lst getelementsfromnodes(relmanytomany const &rel, lst const &nodes)
     elems = rel.elementsfromnode.lnods[nodes[bestNodeIndex]];
     for (size_t j = 0, n = getsize(nodes); j < n; ++j)
     {
-        if (j == bestNodeIndex) continue;
+        if (j == bestNodeIndex)
+            continue;
         elems = getintersection(elems, rel.elementsfromnode.lnods[nodes[j]]);
     }
     return elems;
@@ -94,21 +112,25 @@ void compressnodes(relmanytomany &rel, lst const &newnodefromold)
     setfromonetomany(rel);
 }
 
-void lexiorder(relmanytomany const &rel, lst &orderofelements)
-{
-    lexiorder(rel.nodesfromelement, orderofelements);
-}
+void lexiorder(relmanytomany const &rel, lst &orderofelements) { lexiorder(rel.nodesfromelement, orderofelements); }
 
 void toporder(relmanytomany const &rel, bool transpose, lst &order)
 {
-    if (!transpose) {
+    if (!transpose)
+    {
         toporder(rel.nodesfromelement, order);
-    } else {
+    } else
+    {
         toporder(rel.elementsfromnode, order);
     }
 }
 
 size_t getlocalnodeposition(relmanytomany const &rel, size_t node, size_t localelement)
 {
-    return rel.locn[node][localelement];
+    return rel.nodelocation[node][localelement];
+}
+
+size_t getlocalelementposition(relmanytomany const &rel, size_t element, size_t localnode)
+{
+    return rel.elementlocation[element][localnode];
 }
