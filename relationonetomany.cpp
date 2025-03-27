@@ -11,16 +11,16 @@
 // No parallel work needed here.
 void setnelem(relationonetomany &rel, size_t nelem)
 {
-    rel.nelems = nelem;
+    rel.nelem = nelem;
     setsize(rel.lnods, nelem);
 }
 
-size_t appendelement(relationonetomany &rel, const hidden::lst &nodes)
+size_t appendelement(relationonetomany &rel, sek<size_t> const &nodes)
 {
-    rel.nelems++;
-    setsize(rel.lnods, rel.nelems);
-    assert(getsize(rel.lnods) == rel.nelems);
-    rel.lnods[rel.nelems - 1] = nodes;
+    rel.nelem++;
+    setsize(rel.lnods, rel.nelem);
+    assert(getsize(rel.lnods) == rel.nelem);
+    rel.lnods[rel.nelem - 1] = nodes;
     // Compute the maximum node in 'nodes' in parallel.
     {
         size_t local_max = rel.maxnodenumber;
@@ -33,20 +33,20 @@ size_t appendelement(relationonetomany &rel, const hidden::lst &nodes)
         }
         rel.maxnodenumber = local_max;
     }
-    return rel.nelems - 1;
+    return rel.nelem - 1;
 }
 
 void transpose(const relationonetomany &rel, relationonetomany &relt)
 {
-    const size_t numNodes = rel.maxnodenumber + 1;
-    std::vector<size_t> counts(numNodes, 0);
+    const size_t numberofnodes = rel.maxnodenumber + 1;
+    std::vector<size_t> counts(numberofnodes, 0);
     // Parallelize counting across the rows using atomic increments.
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (size_t i = 0; i < getsize(rel.lnods); ++i)
+    for (size_t localelement = 0; localelement < getsize(rel.lnods); ++localelement)
     {
-        for (size_t node: rel.lnods[i])
+        for (size_t node: rel.lnods[localelement])
         {
 #ifdef _OPENMP
 #pragma omp atomic
@@ -54,30 +54,30 @@ void transpose(const relationonetomany &rel, relationonetomany &relt)
             counts[node]++;
         }
     }
-    setnelem(relt, numNodes);
+    setnelem(relt, numberofnodes);
     // Set sizes for each node’s list in 'relt'
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (size_t i = 0; i < numNodes; ++i)
+    for (size_t localnode = 0; localnode < numberofnodes; ++localnode)
     {
-        setsize(relt.lnods[i], counts[i]);
+        setsize(relt.lnods[localnode], counts[localnode]);
     }
     // Here the original code used a shared marker and generation.
     // For thread safety we leave this loop sequential.
-    std::vector<size_t> genMarker(numNodes, 0);
-    size_t currentGeneration = 1;
-    for (size_t e = 0; e < rel.nelems; ++e)
+    std::vector<size_t> genmarker(numberofnodes, 0);
+    size_t currentgeneration = 1;
+    for (size_t element = 0; element < rel.nelem; ++element)
     {
-        for (size_t node: rel.lnods[e])
+        for (size_t node: rel.lnods[element])
         {
-            if (genMarker[node] != currentGeneration)
+            if (genmarker[node] != currentgeneration)
             {
                 counts[node] = 0;
-                genMarker[node] = currentGeneration;
+                genmarker[node] = currentgeneration;
             }
-            relt.lnods[node][counts[node]++] = e;
-            relt.maxnodenumber = std::max(relt.maxnodenumber, e);
+            relt.lnods[node][counts[node]++] = element;
+            relt.maxnodenumber = std::max(relt.maxnodenumber, element);
         }
     }
 }
@@ -85,19 +85,19 @@ void transpose(const relationonetomany &rel, relationonetomany &relt)
 void times(const relationonetomany &rela, const relationonetomany &relb, relationonetomany &relc)
 {
     // Preallocate result storage.
-    setnelem(relc, rela.nelems);
+    setnelem(relc, rela.nelem);
     relc.maxnodenumber = relb.maxnodenumber;
     // Instead of using a shared marker and generation, allocate a local marker for each row.
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (size_t r = 0; r < rela.nelems; ++r)
+    for (size_t aRow = 0; aRow < rela.nelem; ++aRow)
     {
         // Allocate a local marker for this row.
         std::vector<size_t> local_marker(relc.maxnodenumber + 1, 0);
         size_t count = 0;
         // First pass: count distinct bCols.
-        for (size_t aCol: rela.lnods[r])
+        for (size_t aCol: rela.lnods[aRow])
         {
             for (size_t bCol: relb.lnods[aCol])
             {
@@ -108,17 +108,17 @@ void times(const relationonetomany &rela, const relationonetomany &relb, relatio
                 }
             }
         }
-        setsize(relc.lnods[r], count);
+        setsize(relc.lnods[aRow], count);
         size_t idx = 0;
         // Second pass: write out the bCols.
-        for (size_t aCol: rela.lnods[r])
+        for (size_t aCol: rela.lnods[aRow])
         {
             for (size_t bCol: relb.lnods[aCol])
             {
                 if (local_marker[bCol] == 1)
                 {
                     local_marker[bCol] = 2; // mark as written
-                    relc.lnods[r][idx++] = bCol;
+                    relc.lnods[aRow][idx++] = bCol;
                 }
             }
         }
@@ -127,7 +127,7 @@ void times(const relationonetomany &rela, const relationonetomany &relb, relatio
 
 void plusunion(const relationonetomany &rela, const relationonetomany &relb, relationonetomany &relc)
 {
-    size_t maxelem = std::max(rela.nelems, relb.nelems);
+    size_t maxelem = std::max(rela.nelem, relb.nelem);
     setnelem(relc, maxelem);
     relc.maxnodenumber = std::max(rela.maxnodenumber, relb.maxnodenumber);
     // Process each row independently by allocating a local marker.
@@ -138,7 +138,7 @@ void plusunion(const relationonetomany &rela, const relationonetomany &relb, rel
     {
         std::vector<size_t> local_marker(relc.maxnodenumber + 1, 0);
         size_t len = 0;
-        if (row < rela.nelems)
+        if (row < rela.nelem)
         {
             for (size_t node: rela.lnods[row])
             {
@@ -146,7 +146,7 @@ void plusunion(const relationonetomany &rela, const relationonetomany &relb, rel
                 local_marker[node] = len;
             }
         }
-        if (row < relb.nelems)
+        if (row < relb.nelem)
         {
             for (size_t node: relb.lnods[row])
             {
@@ -167,7 +167,7 @@ void plusunion(const relationonetomany &rela, const relationonetomany &relb, rel
     {
         std::vector<size_t> local_marker(relc.maxnodenumber + 1, 0);
         size_t len = 0;
-        if (row < rela.nelems)
+        if (row < rela.nelem)
         {
             for (size_t node: rela.lnods[row])
             {
@@ -176,7 +176,7 @@ void plusunion(const relationonetomany &rela, const relationonetomany &relb, rel
                 local_marker[node] = len;
             }
         }
-        if (row < relb.nelems)
+        if (row < relb.nelem)
         {
             for (size_t node: relb.lnods[row])
             {
@@ -193,7 +193,7 @@ void plusunion(const relationonetomany &rela, const relationonetomany &relb, rel
 
 void intersection(const relationonetomany &a, const relationonetomany &b, relationonetomany &c)
 {
-    const size_t nRows = std::min(a.nelems, b.nelems);
+    const size_t nRows = std::min(a.nelem, b.nelem);
     setnelem(c, nRows);
     c.maxnodenumber = std::max(a.maxnodenumber, b.maxnodenumber);
     // Process each row independently using a local marker.
@@ -229,7 +229,7 @@ void intersection(const relationonetomany &a, const relationonetomany &b, relati
 
 void difference(const relationonetomany &rela, const relationonetomany &relb, relationonetomany &relc)
 {
-    const size_t nRows = std::min(rela.nelems, relb.nelems);
+    const size_t nRows = std::min(rela.nelem, relb.nelem);
     setnelem(relc, nRows);
     relc.maxnodenumber = std::max(rela.maxnodenumber, relb.maxnodenumber);
     // Process each row independently.
@@ -266,7 +266,7 @@ void difference(const relationonetomany &rela, const relationonetomany &relb, re
 void toporder(const relationonetomany &rel, hidden::lst &order)
 {
     setsize(order, 0);
-    std::vector<size_t> inDegree(rel.nelems, 0);
+    std::vector<size_t> inDegree(rel.nelem, 0);
     // Compute in-degrees in parallel (using atomic increments)
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -320,7 +320,7 @@ void indicesfromorder(const relationonetomany &rel, const hidden::lst &elemOrder
 void compresselements(relationonetomany &rel, const hidden::lst &oldelementfromnew)
 {
     rel.lnods = rel.lnods(oldelementfromnew);
-    rel.nelems = getsize(oldelementfromnew);
+    rel.nelem = getsize(oldelementfromnew);
     // Compute the maximum node via a parallel reduction.
     size_t local_max = 0;
 #ifdef _OPENMP

@@ -14,7 +14,7 @@ namespace hidden {
 
 struct relationonetomany {
     hidden::lst2 lnods;
-    size_t nelems{0};
+    size_t nelem{0};
     size_t maxnodenumber{0};
 };
 

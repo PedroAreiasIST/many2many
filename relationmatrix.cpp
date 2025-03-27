@@ -30,8 +30,8 @@ sek<std::pair<size_t, size_t>> getallelements(relationmatrix &m, std::pair<size_
     // Second pass: collect (element type, element number) pairs.
     for (size_t elementtype = 0; elementtype < m.ntypes; ++elementtype)
     {
-        const size_t numElems = m.nelem(nodetype, nodenumber, elementtype);
-        for (size_t localelement = 0; localelement < numElems; ++localelement)
+        const size_t numberofelements = m.nelem(nodetype, nodenumber, elementtype);
+        for (size_t localelement = 0; localelement < numberofelements; ++localelement)
         {
             size_t element = m(elementtype, nodetype).elementsfromnode.lnods[nodenumber][localelement];
             ret[nret++] = std::make_pair(elementtype, element);
@@ -59,8 +59,8 @@ sek<std::pair<size_t, size_t>> getallnodes(relationmatrix &m, std::pair<size_t, 
     // Second pass: collect (node type, node number) pairs.
     for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype)
     {
-        const size_t numNodes = m.nnode(elementtype, elementnumber, nodetype);
-        for (size_t localnode = 0; localnode < numNodes; ++localnode)
+        const size_t numberofnodes = m.nnode(elementtype, elementnumber, nodetype);
+        for (size_t localnode = 0; localnode < numberofnodes; ++localnode)
         {
             size_t node = m(elementtype, nodetype).nodesfromelement.lnods[elementnumber][localnode];
             ret[nret++] = std::make_pair(nodetype, node);
@@ -117,9 +117,9 @@ void setnumberoftypes(relationmatrix &m, size_t ntypes)
     m.ntypes = ntypes;
     setsize(m.m, ntypes * (ntypes + 1) / 2);
     setsize(m.groups, ntypes);
-    for (size_t i = 0; i < ntypes; ++i)
+    for (size_t type = 0; type < ntypes; ++type)
     {
-        setsize(m.groups[i], ntypes);
+        setsize(m.groups[type], ntypes);
     }
 }
 
@@ -151,11 +151,11 @@ void compress(relationmatrix &m, size_t elementtype, sek<size_t> const &oldeleme
     for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype)
     {
         compresselements(m(elementtype, nodetype), oldelementfromnew);
-        // Note: the inner loop variable was shadowing the outer element type; renamed it to avoid confusion.
-        for (size_t et = 0; et < m.ntypes; ++et)
-        {
-            compressnodes(m(nodetype, et), newelementfromold);
-        }
+    }
+    // Note: the inner loop variable was shadowing the outer element type; renamed it to avoid confusion.
+    for (size_t otherelementtype = 0; otherelementtype < m.ntypes; ++otherelementtype)
+    {
+        compressnodes(m(otherelementtype, elementtype), newelementfromold);
     }
 }
 
@@ -169,7 +169,6 @@ void closeeverything(relationmatrix &m)
     for (size_t elementtype = 0; elementtype < m.ntypes; ++elementtype)
         for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype)
         {
-            std::cout << "closing " << elementtype << " " << nodetype << std::endl;
             closeelementnoderelation(m, elementtype, nodetype);
         }
 }

@@ -31,5 +31,5 @@ void indicesfromorder(relmanytomany const &rel, const lst &elementorder, lst &ol
 void compresselements(relmanytomany &rel, lst const &oldelementfromnew);
 void compressnodes(relmanytomany &rel, lst const &newnodefromold);
 size_t getlocalnodeposition(relmanytomany const &rel, size_t node, size_t localelement);
-
+size_t getlocalelementposition(relmanytomany const &rel, size_t element, size_t localnode);
 #endif
