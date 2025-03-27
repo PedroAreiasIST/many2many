@@ -131,7 +131,8 @@ int main(int argc, char *argv[])
     appendnodesofonetype(hex2, node.type, {8, 7, 6, 5, 4, 3, 2, 9});
     insertentity(rm, hex2);
     closeeverything(rm);
-    std::cout << " rm" << rm.operator()(tet.type, node.type).elementsfromnode << std::endl;
+    std::cout << " rm" << rm(tet.type, node.type).elementsfromnode << std::endl;
+    std::cout << "rm locn" << rm(tet.type, node.type).locn << std::endl;
     std::cout << "wedge" << rm(wedge.type, node.type).nodesfromelement.lnods << std::endl;
     std::cout << "hex2 " << rm.operator()(hex.type, node.type).nodesfromelement.lnods << std::endl;
 }

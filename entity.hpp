@@ -15,6 +15,8 @@ PFR_FUNCTIONS_FOR(entity)
 
 void settype(entity &e, size_t type);
 
+void settype(sek<entity> &es, size_t type);
+
 void appendnodesofonetype(entity &e, size_t nodetype, sek<size_t> const &nodes);
 
 void insertentity(relationmatrix &m, entity const &e);

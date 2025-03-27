@@ -1,35 +1,27 @@
-// Created by pedro on 9/18/24.
 #include "relmanytomany.hpp"
 
 size_t relmanytomany::nnodes(size_t element) { return getsize(nodesfromelement.lnods[element]); }
-
 size_t relmanytomany::nelems(size_t node) { return getsize(elementsfromnode.lnods[node]); }
 
 void setfromonetomany(relmanytomany &rel)
 {
-    // Transpose the element-to-node mapping into node-to-element mapping.
     transpose(rel.nodesfromelement, rel.elementsfromnode);
-
-    // Resize the local indices array for each node.
     setsize(rel.locn, rel.elementsfromnode.nelems);
     for (size_t node = 0; node < rel.elementsfromnode.nelems; ++node)
     {
         setsize(rel.locn[node], getsize(rel.elementsfromnode.lnods[node]));
     }
 
-    // Initialize a counter for each node.
     lst nextIndex;
     setsize(nextIndex, rel.elementsfromnode.nelems);
-
-    // Record local indices for each node for every element.
     for (size_t element = 0, elementCount = getsize(rel.nodesfromelement.lnods); element < elementCount; ++element)
     {
-        for (size_t nodePos = 0, nodeCount = getsize(rel.nodesfromelement.lnods[element]); nodePos < nodeCount;
-             ++nodePos)
+        const lst &nodes = rel.nodesfromelement.lnods[element];
+        for (size_t nodePos = 0, nodeCount = getsize(nodes); nodePos < nodeCount; ++nodePos)
         {
-            size_t node = rel.nodesfromelement.lnods[element][nodePos];
+            size_t node = nodes[nodePos];
             rel.locn[node][nextIndex[node]] = nodePos;
-            nextIndex[node]++; // increment the local index counter for this node
+            nextIndex[node]++;
         }
     }
 }
@@ -37,15 +29,27 @@ void setfromonetomany(relmanytomany &rel)
 lst getelementsfromnodes(relmanytomany const &rel, lst const &nodes)
 {
     lst elems;
-    if (getsize(nodes) > 0)
+    if (getsize(nodes) == 0)
     {
-        // Start with the element list of the first node
-        elems = rel.elementsfromnode.lnods[nodes[0]];
-        // Intersect with element lists of all subsequent nodes
-        for (size_t i = 1, n = getsize(nodes); i < n; ++i)
+        return elems;
+    }
+    size_t bestNodeIndex = 0;
+    size_t minSize = getsize(rel.elementsfromnode.lnods[nodes[0]]);
+    for (size_t j = 1, n = getsize(nodes); j < n; ++j)
+    {
+        size_t node = nodes[j];
+        size_t size_j = getsize(rel.elementsfromnode.lnods[node]);
+        if (size_j < minSize)
         {
-            elems = getintersection(elems, rel.elementsfromnode.lnods[nodes[i]]);
+            minSize = size_j;
+            bestNodeIndex = j;
         }
+    }
+    elems = rel.elementsfromnode.lnods[nodes[bestNodeIndex]];
+    for (size_t j = 0, n = getsize(nodes); j < n; ++j)
+    {
+        if (j == bestNodeIndex) continue;
+        elems = getintersection(elems, rel.elementsfromnode.lnods[nodes[j]]);
     }
     return elems;
 }
@@ -53,32 +57,18 @@ lst getelementsfromnodes(relmanytomany const &rel, lst const &nodes)
 lst getneighbours(relmanytomany const &rel, size_t element)
 {
     lst neighbours;
-    size_t neighbourCount = 0;
-    // First pass: count the total number of neighboring elements.
-    for (size_t nodePos = 0, nodeCount = getsize(rel.nodesfromelement.lnods[element]); nodePos < nodeCount; ++nodePos)
+    setsize(neighbours, 0);
+    const lst &elementNodes = rel.nodesfromelement.lnods[element];
+    for (size_t nodePos = 0, nodeCount = getsize(elementNodes); nodePos < nodeCount; ++nodePos)
     {
-        size_t node = rel.nodesfromelement.lnods[element][nodePos];
-        for (size_t elemPos = 0, elemCount = getsize(rel.elementsfromnode.lnods[node]); elemPos < elemCount; ++elemPos)
+        size_t node = elementNodes[nodePos];
+        const lst &nodeElements = rel.elementsfromnode.lnods[node];
+        for (size_t elemPos = 0, elemCount = getsize(nodeElements); elemPos < elemCount; ++elemPos)
         {
-            if (rel.elementsfromnode.lnods[node][elemPos] != element)
-            {
-                neighbourCount++;
-            }
-        }
-    }
-    setsize(neighbours, neighbourCount);
-
-    // Second pass: collect all neighboring elements.
-    neighbourCount = 0;
-    for (size_t nodePos = 0, nodeCount = getsize(rel.nodesfromelement.lnods[element]); nodePos < nodeCount; ++nodePos)
-    {
-        size_t node = rel.nodesfromelement.lnods[element][nodePos];
-        for (size_t elemPos = 0, elemCount = getsize(rel.elementsfromnode.lnods[node]); elemPos < elemCount; ++elemPos)
-        {
-            size_t otherElem = rel.elementsfromnode.lnods[node][elemPos];
+            size_t otherElem = nodeElements[elemPos];
             if (otherElem != element)
             {
-                neighbours[neighbourCount++] = otherElem;
+                append(neighbours, otherElem);
             }
         }
     }
@@ -89,7 +79,6 @@ lst getneighbours(relmanytomany const &rel, size_t element)
 
 void indicesfromorder(relmanytomany const &rel, const lst &elementorder, lst &oldfromnew, lst &newfromold)
 {
-    // Forward to the one-to-many version of indicesfromorder
     indicesfromorder(rel.nodesfromelement, elementorder, oldfromnew, newfromold);
 }
 
@@ -107,17 +96,14 @@ void compressnodes(relmanytomany &rel, lst const &newnodefromold)
 
 void lexiorder(relmanytomany const &rel, lst &orderofelements)
 {
-    // Generate a lexicographical order of elements using the one-to-many relation
-    toporder(rel.nodesfromelement, orderofelements);
+    lexiorder(rel.nodesfromelement, orderofelements);
 }
 
 void toporder(relmanytomany const &rel, bool transpose, lst &order)
 {
-    if (!transpose)
-    {
+    if (!transpose) {
         toporder(rel.nodesfromelement, order);
-    } else
-    {
+    } else {
         toporder(rel.elementsfromnode, order);
     }
 }

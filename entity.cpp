@@ -1,5 +1,12 @@
 #include "entity.hpp"
 void settype(entity &e, size_t type) { e.type = type; }
+void settype(sek<entity> &es, size_t type)
+{
+    for (auto e: es)
+    {
+        settype(e, type);
+    }
+}
 void appendnodesofonetype(entity &e, size_t nodetype, sek<size_t> const &nodes)
 {
     append(e.typeandnodes, std::make_pair(nodetype, nodes));
