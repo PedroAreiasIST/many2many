@@ -1,0 +1,12 @@
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <vector>
+#include "basics.hpp"
+#include "sek.hpp"
+void testsek();
