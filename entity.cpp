@@ -26,7 +26,6 @@ void appendbuilder(entity &eparent, entity &echildren, sek<std::pair<size_t, sek
         }
     }
 }
-
 void insertentity(relationmatrix &m, entity const &e)
 {
     for (size_t types = 0; types < getsize(e.typeandnodes); ++types)
