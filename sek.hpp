@@ -28,9 +28,28 @@ struct sek
     V *heapdata = nullptr;
     size_t heapsize = 0;
     V *actual = stackdata;
-    sek() { std::fill(stackdata, stackdata + stacksize, V()); }
+    // Modified constructor: use an OpenMP-parallel loop to initialize the stack.
+    sek()
+    {
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+        for (size_t i = 0; i < stacksize; i++)
+        {
+            stackdata[i] = V();
+        }
+    }
     explicit sek(size_t newSize) : sek() { setsize(*this, newSize); }
-    sek(size_t newSize, V value) : sek(newSize) { std::fill(actual, actual + size, value); }
+    sek(size_t newSize, V value) : sek(newSize)
+    {
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+        for (size_t i = 0; i < size; i++)
+        {
+            actual[i] = value;
+        }
+    }
     sek(std::initializer_list<V> initList) : sek(initList.size())
     {
         std::move(initList.begin(), initList.end(), actual);
@@ -56,7 +75,13 @@ struct sek
     }
     sek &operator=(V value)
     {
-        std::fill(actual, actual + size, value);
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+        for (size_t i = 0; i < size; i++)
+        {
+            actual[i] = value;
+        }
         return *this;
     }
     sek &operator=(std::initializer_list<V> initList)
@@ -108,7 +133,13 @@ private:
                 heapdata = nullptr;
                 heapsize = 0;
             }
-            std::fill(stackdata, stackdata + stacksize, V());
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+            for (size_t i = 0; i < stacksize; i++)
+            {
+                stackdata[i] = V();
+            }
             size = other.size;
             if (other.actual == other.stackdata)
             {
@@ -139,7 +170,13 @@ public:
     {
         heapsize = newCapacity;
         arraycreate(heapdata, newCapacity);
-        std::move(stackdata, stackdata + size, heapdata);
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+        for (size_t i = 0; i < size; i++)
+        {
+            heapdata[i] = std::move(stackdata[i]);
+        }
         actual = heapdata;
     }
     void _switchfromheapstostack()
@@ -151,7 +188,13 @@ public:
             arraydestroy(heapdata);
             heapdata = nullptr;
         }
-        std::fill(stackdata + moveCount, stackdata + stacksize, V());
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+        for (size_t i = moveCount; i < stacksize; i++)
+        {
+            stackdata[i] = V();
+        }
         heapsize = 0;
         actual = stackdata;
     }
@@ -205,6 +248,10 @@ template<typename V, size_t S, auto P>
 void save(auto archiver, sek<V, S, P> const &container)
 {
     archiver(container.size);
+    // Note: Assuming the archiver is thread-safe.
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (size_t index = 0; index < container.size; ++index)
     {
         archiver(container.actual[index]);
@@ -216,6 +263,7 @@ void load(auto archiver, sek<V, S, P> &container)
     size_t loadedSize = 0;
     archiver(loadedSize);
     setsize(container, loadedSize);
+    // Caution: Input order is important; parallelizing I/O may not be safe.
     for (size_t index = 0; index < container.size; ++index)
     {
         archiver(container.actual[index]);

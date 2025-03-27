@@ -4,12 +4,12 @@
 
 size_t relationmatrix::nnode(size_t elementtype, size_t element, size_t nodetype)
 {
-    return getsize(m[elementtype][nodetype].nodesfromelement.lnods[element]);
+    return getsize(operator()(elementtype, nodetype).nodesfromelement.lnods[element]);
 }
 
 size_t relationmatrix::nelem(size_t nodetype, size_t node, size_t elementtype)
 {
-    return getsize(m[elementtype][nodetype].elementsfromnode.lnods[node]);
+    return getsize(operator()(elementtype, nodetype).elementsfromnode.lnods[node]);
 }
 
 sek<std::pair<size_t, size_t>> getallelements(relationmatrix &m, std::pair<size_t, size_t> const &node)
@@ -19,7 +19,7 @@ sek<std::pair<size_t, size_t>> getallelements(relationmatrix &m, std::pair<size_
     size_t nret = 0;
 
     // First pass: count total elements.
-    for (size_t elementtype = 0; elementtype < getsize(m.m); ++elementtype)
+    for (size_t elementtype = 0; elementtype < m.ntypes; ++elementtype)
     {
         nret += m.nelem(nodetype, nodenumber, elementtype);
     }
@@ -28,7 +28,7 @@ sek<std::pair<size_t, size_t>> getallelements(relationmatrix &m, std::pair<size_
     nret = 0;
 
     // Second pass: collect (element type, element number) pairs.
-    for (size_t elementtype = 0; elementtype < getsize(m.m); ++elementtype)
+    for (size_t elementtype = 0; elementtype < m.ntypes; ++elementtype)
     {
         const size_t numElems = m.nelem(nodetype, nodenumber, elementtype);
         for (size_t localelement = 0; localelement < numElems; ++localelement)
@@ -49,7 +49,7 @@ sek<std::pair<size_t, size_t>> getallnodes(relationmatrix &m, std::pair<size_t, 
     size_t nret = 0;
 
     // First pass: count total nodes.
-    for (size_t nodetype = 0; nodetype < getsize(m.m); ++nodetype)
+    for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype)
     {
         nret += m.nnode(elementtype, elementnumber, nodetype);
     }
@@ -57,7 +57,7 @@ sek<std::pair<size_t, size_t>> getallnodes(relationmatrix &m, std::pair<size_t, 
     nret = 0;
 
     // Second pass: collect (node type, node number) pairs.
-    for (size_t nodetype = 0; nodetype < getsize(m.m); ++nodetype)
+    for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype)
     {
         const size_t numNodes = m.nnode(elementtype, elementnumber, nodetype);
         for (size_t localnode = 0; localnode < numNodes; ++localnode)
@@ -79,7 +79,6 @@ sek<std::pair<size_t, size_t>> depthfirstsearchfromanode(relationmatrix &m, std:
     std::stack<P> stack;
     stack.push(node);
     sek<P> ret;
-
     while (!stack.empty())
     {
         P current = stack.top();
@@ -104,7 +103,7 @@ sek<std::pair<size_t, size_t>> depthfirstsearchfromanode(relationmatrix &m, std:
 sek<std::pair<size_t, size_t>> depthfirstsearch(relationmatrix &m, size_t node)
 {
     sek<std::pair<size_t, size_t>> ret;
-    for (size_t nodetype = 0; nodetype < getsize(m.m); ++nodetype)
+    for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype)
     {
         ret = getunion(ret, depthfirstsearchfromanode(m, std::make_pair(nodetype, node)));
     }
@@ -115,11 +114,8 @@ sek<std::pair<size_t, size_t>> depthfirstsearch(relationmatrix &m, size_t node)
 
 void setnumberoftypes(relationmatrix &m, size_t ntypes)
 {
-    setsize(m.m, ntypes);
-    for (size_t i = 0; i < ntypes; ++i)
-    {
-        setsize(m.m[i], ntypes);
-    }
+    m.ntypes = ntypes;
+    setsize(m.m, ntypes * (ntypes + 1) / 2);
     setsize(m.groups, ntypes);
     for (size_t i = 0; i < ntypes; ++i)
     {
@@ -152,11 +148,11 @@ void indicesfromorder(relationmatrix &m, size_t elementtype, size_t nodetype, se
 void compress(relationmatrix &m, size_t elementtype, sek<size_t> const &oldelementfromnew,
               sek<size_t> const &newelementfromold)
 {
-    for (size_t nodetype = 0; nodetype < getsize(m.m); ++nodetype)
+    for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype)
     {
         compresselements(m(elementtype, nodetype), oldelementfromnew);
         // Note: the inner loop variable was shadowing the outer element type; renamed it to avoid confusion.
-        for (size_t et = 0; et < getsize(m.m); ++et)
+        for (size_t et = 0; et < m.ntypes; ++et)
         {
             compressnodes(m(nodetype, et), newelementfromold);
         }
@@ -170,9 +166,12 @@ void closeelementnoderelation(relationmatrix &m, size_t elementype, size_t nodet
 
 void closeeverything(relationmatrix &m)
 {
-    for (size_t elementtype = 0; elementtype < getsize(m.m); ++elementtype)
-        for (size_t nodetype = 0; nodetype < getsize(m.m); ++nodetype)
+    for (size_t elementtype = 0; elementtype < m.ntypes; ++elementtype)
+        for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype)
+        {
+            std::cout << "closing " << elementtype << " " << nodetype << std::endl;
             closeelementnoderelation(m, elementtype, nodetype);
+        }
 }
 
 sek<size_t> getselementsfromnodes(relationmatrix &matrix, size_t elementtype, size_t nodestype,

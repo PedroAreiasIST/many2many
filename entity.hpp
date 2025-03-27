@@ -19,6 +19,8 @@ void settype(sek<entity> &es, size_t type);
 
 void appendnodesofonetype(entity &e, size_t nodetype, sek<size_t> const &nodes);
 
+void appendbuilder(entity &eparent, entity &echildren, sek<std::pair<size_t, sek<size_t>>> const &typeandlocalnodes);
+
 void insertentity(relationmatrix &m, entity const &e);
 
 #endif // RELATIONMANAGER_HPP

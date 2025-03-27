@@ -12,16 +12,22 @@
  */
 namespace hidden
 {
-    using matrix = sek<sek<relmanytomany>>;
+    using matrix = sek<relmanytomany>;
 }
 
 struct relationmatrix
 {
-    hidden::matrix m;
-    sek<sek<sek<sek<size_t>>>> groups;
-
+    hidden::matrix m{};
+    sek<sek<sek<sek<size_t>>>> groups{{}};
+    size_t ntypes{0};
     // Access the many-to-many relationship for a given element and node type.
-    relmanytomany &operator()(size_t elementtype, size_t nodetype) { return m[elementtype][nodetype]; }
+    relmanytomany &operator()(size_t elementtype, size_t nodetype)
+    {
+        size_t minimum = std::min(nodetype, elementtype);
+        size_t maximum = std::max(nodetype, elementtype);
+        size_t index = minimum * ntypes - (minimum - 1) * minimum / 2 + maximum - minimum;
+        return m[index];
+    }
 
     size_t nnode(size_t elementtype, size_t element, size_t nodetype);
     size_t nelem(size_t nodetype, size_t node, size_t elementtype);

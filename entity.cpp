@@ -11,6 +11,21 @@ void appendnodesofonetype(entity &e, size_t nodetype, sek<size_t> const &nodes)
 {
     append(e.typeandnodes, std::make_pair(nodetype, nodes));
 }
+void appendbuilder(entity &eparent, entity &echildren, sek<std::pair<size_t, sek<size_t>>> const &typeandlocalnodes)
+{
+    for (size_t localnodetypes = 0; localnodetypes < getsize(typeandlocalnodes); ++localnodetypes)
+    {
+        size_t type = typeandlocalnodes[localnodetypes].first;
+        for (size_t localtype = 0; localtype < getsize(eparent.typeandnodes); ++localtype)
+        {
+            if (eparent.typeandnodes[localtype].first == type)
+            {
+                appendnodesofonetype(echildren, type,
+                                     eparent.typeandnodes[localtype].second(typeandlocalnodes[localnodetypes].second));
+            }
+        }
+    }
+}
 
 void insertentity(relationmatrix &m, entity const &e)
 {
