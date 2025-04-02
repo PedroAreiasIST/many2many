@@ -22,9 +22,11 @@ struct many2many
 };
 PFR_FUNCTIONS_FOR(many2many)
 void setnelem(many2many &rel, size_t nelem);
+void setnnodes(many2many &rel, size_t element, size_t nnodes);
+void setnodes(many2many &rel, size_t element, sek<size_t> const &nodes);
 size_t appendelement(many2many &rel, sek<size_t> const &nodes);
-void times(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc);
-void plusunion(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc);
+void multiplication(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc);
+void addition(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc);
 void intersection(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc);
 void difference(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc);
 void setallpointers(many2many &rel);

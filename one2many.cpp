@@ -84,7 +84,7 @@ namespace hidden
         }
     }
 
-    void times(const one2many &rela, const one2many &relb, one2many &relc)
+    void multiplication(const one2many &rela, const one2many &relb, one2many &relc)
     {
         // Preallocate result storage.
         setnelem(relc, rela.nelem);
@@ -127,7 +127,7 @@ namespace hidden
         }
     }
 
-    void plusunion(const one2many &rela, const one2many &relb, one2many &relc)
+    void addition(const one2many &rela, const one2many &relb, one2many &relc)
     {
         size_t maxelem = std::max(rela.nelem, relb.nelem);
         setnelem(relc, maxelem);

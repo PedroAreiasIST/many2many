@@ -12,6 +12,8 @@ size_t relationmatrix::nelem(size_t nodetype, size_t node, size_t elementtype)
     return getsize(operator()(elementtype, nodetype).elementsfromnode.lnods[node]);
 }
 
+void cleanmarked(relationmatrix &m) { erase(m.listofmarked); }
+void marktoerase(relationmatrix &m, std::pair<size_t, size_t> const &node) { append(m.listofmarked, node); }
 sek<std::pair<size_t, size_t>> getallelements(relationmatrix &m, std::pair<size_t, size_t> const &node)
 {
     sek<std::pair<size_t, size_t>> ret;
@@ -121,6 +123,11 @@ size_t appendelement(relationmatrix &m, size_t elementype, size_t nodetype, sek<
     return appendelement(m(elementype, nodetype).nodesfromelement,
                          getcanonicalform(nodes, m.groups[elementype][nodetype]));
 }
+void setmany2many(relationmatrix &m, size_t elementype, size_t nodetype, many2many const &relation)
+{
+    m(elementype, nodetype) = relation;
+}
+many2many &getmany2many(relationmatrix &m, size_t elementype, size_t nodetype) { return m(elementype, nodetype); }
 
 void lexiorder(relationmatrix &m, size_t elementype, size_t nodetype, sek<size_t> &order)
 {
@@ -147,17 +154,12 @@ void compress(relationmatrix &m, size_t elementtype, sek<size_t> const &oldeleme
     }
 }
 
-void closeelementnoderelation(relationmatrix &m, size_t elementype, size_t nodetype)
-{
-    setallpointers(m(elementype, nodetype));
-}
-
 void closeeverything(relationmatrix &m)
 {
     for (size_t elementtype = 0; elementtype < m.ntypes; ++elementtype)
         for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype)
         {
-            closeelementnoderelation(m, elementtype, nodetype);
+            setallpointers(m(elementtype, nodetype));
         }
 }
 

@@ -17,14 +17,12 @@ namespace hidden
         size_t nelem{0};
         size_t maxnodenumber{0};
     };
-
     PFR_FUNCTIONS_FOR(one2many)
-
     void setnelem(one2many &rel, size_t nelem);
     size_t appendelement(one2many &rel, const hidden::lst &nodes);
     void transpose(const one2many &rel, one2many &relt);
-    void times(const one2many &rela, const one2many &relb, one2many &relc);
-    void plusunion(const one2many &rela, const one2many &relb, one2many &relc);
+    void multiplication(const one2many &rela, const one2many &relb, one2many &relc);
+    void addition(const one2many &rela, const one2many &relb, one2many &relc);
     void intersection(const one2many &a, const one2many &b, one2many &c);
     void difference(const one2many &rela, const one2many &relb, one2many &relc);
     void toporder(const one2many &rel, hidden::lst &order);
