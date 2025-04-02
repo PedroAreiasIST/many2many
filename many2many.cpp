@@ -1,13 +1,95 @@
-#include "relmanytomany.hpp"
+#include "many2many.hpp"
 
-size_t relmanytomany::nnodes(size_t element) { return getsize(nodesfromelement.lnods[element]); }
-size_t relmanytomany::nelems(size_t node) { return getsize(elementsfromnode.lnods[node]); }
-
-void setnodesfromelement(relmanytomany &rel, relationonetomany const &nodesfromelement)
+size_t many2many::nnodes(size_t element) { return getsize(nodesfromelement.lnods[element]); }
+size_t many2many::nelems(size_t node) { return getsize(elementsfromnode.lnods[node]); }
+void setnelem(many2many &rel, size_t nelem)
 {
-    rel.nodesfromelement = nodesfromelement;
+    rel.nodesfromelement.nelem = nelem;
+    setsize(rel.nodesfromelement.lnods, nelem);
 }
-void setallpointers(relmanytomany &rel)
+size_t appendelement(many2many &rel, sek<size_t> const &nodes) { return appendelement(rel.nodesfromelement, nodes); }
+void times(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc)
+{
+    hidden::one2many const *a;
+    hidden::one2many const *b;
+    if (transposea)
+    {
+        a = &rela.elementsfromnode;
+    } else
+    {
+        a = &rela.nodesfromelement;
+    }
+    if (transposeb)
+    {
+        b = &relb.elementsfromnode;
+    } else
+    {
+        b = &relb.nodesfromelement;
+    }
+    times(*a, *b, relc.nodesfromelement);
+}
+void plusunion(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc)
+{
+    hidden::one2many const *a;
+    hidden::one2many const *b;
+    if (transposea)
+    {
+        a = &rela.elementsfromnode;
+    } else
+    {
+        a = &rela.nodesfromelement;
+    }
+    if (transposeb)
+    {
+        b = &relb.elementsfromnode;
+    } else
+    {
+        b = &relb.nodesfromelement;
+    }
+    plusunion(*a, *b, relc.nodesfromelement);
+}
+void intersection(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc)
+{
+    hidden::one2many const *a;
+    hidden::one2many const *b;
+    if (transposea)
+    {
+        a = &rela.elementsfromnode;
+    } else
+    {
+        a = &rela.nodesfromelement;
+    }
+    if (transposeb)
+    {
+        b = &relb.elementsfromnode;
+    } else
+    {
+        b = &relb.nodesfromelement;
+    }
+    intersection(*a, *b, relc.nodesfromelement);
+}
+void difference(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc)
+{
+    hidden::one2many const *a;
+    hidden::one2many const *b;
+    if (transposea)
+    {
+        a = &rela.elementsfromnode;
+    } else
+    {
+        a = &rela.nodesfromelement;
+    }
+    if (transposeb)
+    {
+        b = &relb.elementsfromnode;
+    } else
+    {
+        b = &relb.nodesfromelement;
+    }
+    difference(*a, *b, relc.nodesfromelement);
+}
+
+void setallpointers(many2many &rel)
 {
     transpose(rel.nodesfromelement, rel.elementsfromnode);
     setsize(rel.nodelocation, rel.elementsfromnode.nelem);
@@ -46,7 +128,7 @@ void setallpointers(relmanytomany &rel)
         }
     }
 }
-hidden::lst getelementsfromnodes(relmanytomany const &rel, hidden::lst const &nodes)
+hidden::lst getelementsfromnodes(many2many const &rel, hidden::lst const &nodes)
 {
     sek<size_t> elems;
     if (getsize(nodes) == 0)
@@ -74,7 +156,7 @@ hidden::lst getelementsfromnodes(relmanytomany const &rel, hidden::lst const &no
     }
     return elems;
 }
-hidden::lst getneighbours(relmanytomany const &rel, size_t element)
+hidden::lst getneighbours(many2many const &rel, size_t element)
 {
     hidden::lst neighbours;
     setsize(neighbours, 0);
@@ -96,36 +178,33 @@ hidden::lst getneighbours(relmanytomany const &rel, size_t element)
     setunique(neighbours);
     return neighbours;
 }
-void indicesfromorder(relmanytomany const &rel, const hidden::lst &elementorder, hidden::lst &oldfromnew,
+void indicesfromorder(many2many const &rel, const hidden::lst &elementorder, hidden::lst &oldfromnew,
                       hidden::lst &newfromold)
 {
     indicesfromorder(rel.nodesfromelement, elementorder, oldfromnew, newfromold);
 }
-void compresselements(relmanytomany &rel, hidden::lst const &oldelementfromnew)
+void compresselements(many2many &rel, hidden::lst const &oldelementfromnew)
 {
     compresselements(rel.nodesfromelement, oldelementfromnew);
     setallpointers(rel);
 }
-void compressnodes(relmanytomany &rel, hidden::lst const &newnodefromold)
+void compressnodes(many2many &rel, hidden::lst const &newnodefromold)
 {
     compressnodes(rel.nodesfromelement, newnodefromold);
     setallpointers(rel);
 }
-void getelementstoelements(relmanytomany const &rel, relmanytomany &elementstoelements)
+void getelementstoelements(many2many const &rel, many2many &elementstoelements)
 {
     times(rel.nodesfromelement, rel.elementsfromnode, elementstoelements.nodesfromelement);
     setallpointers(elementstoelements);
 }
-void getnodestonodes(relmanytomany const &rel, relmanytomany &nodestonodes)
+void getnodestonodes(many2many const &rel, many2many &nodestonodes)
 {
     times(rel.elementsfromnode, rel.nodesfromelement, nodestonodes.nodesfromelement);
     setallpointers(nodestonodes);
 }
-void lexiorder(relmanytomany const &rel, hidden::lst &orderofelements)
-{
-    lexiorder(rel.nodesfromelement, orderofelements);
-}
-void toporder(relmanytomany const &rel, bool transpose, hidden::lst &order)
+void lexiorder(many2many const &rel, hidden::lst &orderofelements) { lexiorder(rel.nodesfromelement, orderofelements); }
+void toporder(many2many const &rel, bool transpose, hidden::lst &order)
 {
     if (!transpose)
     {
@@ -135,11 +214,11 @@ void toporder(relmanytomany const &rel, bool transpose, hidden::lst &order)
         toporder(rel.elementsfromnode, order);
     }
 }
-size_t getlocalnodeposition(relmanytomany const &rel, size_t node, size_t localelement)
+size_t getlocalnodeposition(many2many const &rel, size_t node, size_t localelement)
 {
     return rel.nodelocation[node][localelement];
 }
-size_t getlocalelementposition(relmanytomany const &rel, size_t element, size_t localnode)
+size_t getlocalelementposition(many2many const &rel, size_t element, size_t localnode)
 {
     return rel.elementlocation[element][localnode];
 }

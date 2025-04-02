@@ -3,11 +3,11 @@
 #include <map>
 #include <stack>
 #include <utility>
-#include "relmanytomany.hpp"
+#include "many2many.hpp"
 #include "symmetries.hpp"
 namespace hidden
 {
-    using matrix = sek<relmanytomany>;
+    using matrix = sek<many2many>;
 }
 struct relationmatrix
 {
@@ -15,7 +15,7 @@ struct relationmatrix
     sek<sek<sek<sek<size_t>>>> groups{{}};
     size_t ntypes{0};
 
-    relmanytomany &operator()(size_t elementtype, size_t nodetype)
+    many2many &operator()(size_t elementtype, size_t nodetype)
     {
         size_t minimum = std::min(nodetype, elementtype);
         size_t maximum = std::max(nodetype, elementtype);

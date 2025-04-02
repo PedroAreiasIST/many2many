@@ -1,17 +1,17 @@
-#include "entity.hpp"
-void settype(entity &e, size_t type) { e.type = type; }
-void settype(sek<entity> &es, size_t type)
+#include "thing.hpp"
+void settype(thing &e, size_t type) { e.type = type; }
+void settype(sek<thing> &es, size_t type)
 {
     for (auto e: es)
     {
         settype(e, type);
     }
 }
-void appendnodesofonetype(entity &e, size_t nodetype, sek<size_t> const &nodes)
+void appendnodesofonetype(thing &e, size_t nodetype, sek<size_t> const &nodes)
 {
     append(e.typeandnodes, std::make_pair(nodetype, nodes));
 }
-void appendbuilder(entity &eparent, entity &echildren, sek<std::pair<size_t, sek<size_t>>> const &typeandlocalnodes)
+void appendbuilder(thing &eparent, thing &echildren, sek<std::pair<size_t, sek<size_t>>> const &typeandlocalnodes)
 {
     for (size_t localnodetype = 0; localnodetype < getsize(typeandlocalnodes); ++localnodetype)
     {
@@ -26,7 +26,7 @@ void appendbuilder(entity &eparent, entity &echildren, sek<std::pair<size_t, sek
         }
     }
 }
-void insertentity(relationmatrix &m, entity const &e)
+void insertentity(relationmatrix &m, thing const &e)
 {
     for (size_t localtype = 0; localtype < getsize(e.typeandnodes); ++localtype)
     {

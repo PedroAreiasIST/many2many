@@ -88,13 +88,19 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/entity.cpp">
-			<Option target="ConsoleApplication1"/>
-		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/entity.hpp">
-			<Option target="ConsoleApplication1"/>
-		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/main.cpp">
+			<Option target="ConsoleApplication1"/>
+		</Unit>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/many2many.cpp">
+			<Option target="ConsoleApplication1"/>
+		</Unit>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/many2many.hpp">
+			<Option target="ConsoleApplication1"/>
+		</Unit>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/one2many.cpp">
+			<Option target="ConsoleApplication1"/>
+		</Unit>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/one2many.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr.hpp">
@@ -112,18 +118,6 @@
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/relationmatrix.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/relationonetomany.cpp">
-			<Option target="ConsoleApplication1"/>
-		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/relationonetomany.hpp">
-			<Option target="ConsoleApplication1"/>
-		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/relmanytomany.cpp">
-			<Option target="ConsoleApplication1"/>
-		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/relmanytomany.hpp">
-			<Option target="ConsoleApplication1"/>
-		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/symmetries.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
@@ -131,6 +125,12 @@
 			<Option target="ConsoleApplication1"/>
 		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/test.hpp">
+			<Option target="ConsoleApplication1"/>
+		</Unit>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/thing.cpp">
+			<Option target="ConsoleApplication1"/>
+		</Unit>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/thing.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/CMakeLists.txt">

@@ -1,0 +1,43 @@
+#ifndef RELMANYTOMANY_HPP
+#define RELMANYTOMANY_HPP
+
+#include <cstddef>
+#include "one2many.hpp"
+#include "sek.hpp"
+
+namespace hidden
+{
+    using lst = sek<size_t>;
+    using lst2 = sek<lst>;
+} // namespace hidden
+
+struct many2many
+{
+    hidden::one2many nodesfromelement;
+    hidden::one2many elementsfromnode;
+    hidden::lst2 nodelocation;
+    hidden::lst2 elementlocation;
+    size_t nnodes(size_t element);
+    size_t nelems(size_t node);
+};
+PFR_FUNCTIONS_FOR(many2many)
+void setnelem(many2many &rel, size_t nelem);
+size_t appendelement(many2many &rel, sek<size_t> const &nodes);
+void times(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc);
+void plusunion(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc);
+void intersection(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc);
+void difference(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc);
+void setallpointers(many2many &rel);
+hidden::lst getelementsfromnodes(many2many const &rel, hidden::lst const &nodes);
+hidden::lst getneighbours(many2many const &rel, size_t element);
+void lexiorder(many2many const &rel, hidden::lst &orderofelements);
+void toporder(many2many const &rel, bool transpose, hidden::lst &order);
+void indicesfromorder(many2many const &rel, const hidden::lst &elementorder, hidden::lst &oldfromnew,
+                      hidden::lst &newfromold);
+void compresselements(many2many &rel, hidden::lst const &oldelementfromnew);
+void compressnodes(many2many &rel, hidden::lst const &newnodefromold);
+void getelementstoelements(many2many const &rel, many2many &elementstoelements);
+void getnodestonodes(many2many const &rel, many2many &nodestonodes);
+size_t getlocalnodeposition(many2many const &rel, size_t node, size_t localelement);
+size_t getlocalelementposition(many2many const &rel, size_t element, size_t localnode);
+#endif

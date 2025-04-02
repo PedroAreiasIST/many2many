@@ -15,16 +15,16 @@ add_executable(ConsoleApplication1
         pfr_non_boost-master/include/pfr.hpp
         pfr_non_boost-master/include/pfr/config.hpp
         pfr_non_boost-master/include/pfr/detail/config.hpp
-        relationonetomany.hpp
-        relmanytomany.hpp
-        relationonetomany.cpp
-        relmanytomany.cpp
+        one2many.hpp
+        many2many.hpp
+        one2many.cpp
+        many2many.cpp
         test.cpp
         test.hpp
         relationmatrix.cpp
         symmetries.hpp
-        entity.cpp
-        entity.hpp
+        thing.cpp
+        thing.hpp
 )
 
 #find_package(TBB REQUIRED)
