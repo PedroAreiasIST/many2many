@@ -7,12 +7,14 @@
 #include <queue>
 #include "sek.hpp"
 
-namespace hidden {
+namespace hidden
+{
     using lst = sek<size_t>;
     using lst2 = sek<lst>;
-}
+} // namespace hidden
 
-struct relationonetomany {
+struct relationonetomany
+{
     hidden::lst2 lnods;
     size_t nelem{0};
     size_t maxnodenumber{0};
@@ -29,7 +31,8 @@ void intersection(const relationonetomany &a, const relationonetomany &b, relati
 void difference(const relationonetomany &rela, const relationonetomany &relb, relationonetomany &relc);
 void toporder(const relationonetomany &rel, hidden::lst &order);
 void lexiorder(const relationonetomany &rel, hidden::lst &orderofelements);
-void indicesfromorder(const relationonetomany &rel, const hidden::lst &elemOrder, hidden::lst &oldFromNew, hidden::lst &newFromOld);
+void indicesfromorder(const relationonetomany &rel, const hidden::lst &elemOrder, hidden::lst &oldFromNew,
+                      hidden::lst &newFromOld);
 void compresselements(relationonetomany &rel, const hidden::lst &oldelementfromnew);
 void compressnodes(relationonetomany &rel, const hidden::lst &newnodefromold);
 

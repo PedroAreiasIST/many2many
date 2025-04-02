@@ -100,18 +100,6 @@ sek<std::pair<size_t, size_t>> depthfirstsearchfromanode(relationmatrix &m, std:
     return ret;
 }
 
-sek<std::pair<size_t, size_t>> depthfirstsearch(relationmatrix &m, size_t node)
-{
-    sek<std::pair<size_t, size_t>> ret;
-    for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype)
-    {
-        ret = getunion(ret, depthfirstsearchfromanode(m, std::make_pair(nodetype, node)));
-    }
-    setordered(ret);
-    setunique(ret);
-    return ret;
-}
-
 void setnumberoftypes(relationmatrix &m, size_t ntypes)
 {
     m.ntypes = ntypes;
@@ -161,7 +149,7 @@ void compress(relationmatrix &m, size_t elementtype, sek<size_t> const &oldeleme
 
 void closeelementnoderelation(relationmatrix &m, size_t elementype, size_t nodetype)
 {
-    setfromonetomany(m(elementype, nodetype));
+    setallpointers(m(elementype, nodetype));
 }
 
 void closeeverything(relationmatrix &m)
