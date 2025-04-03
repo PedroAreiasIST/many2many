@@ -5,12 +5,12 @@
 #include <cassert>
 #include <cstddef>
 #include <queue>
-#include "sequence.hpp"
+#include "seque.hpp"
 
 namespace hidden
 {
-    using lst = sequence<size_t>;
-    using lst2 = sequence<lst>;
+    using lst = seque<size_t>;
+    using lst2 = seque<lst>;
     struct one2many
     {
         hidden::lst2 lnods;

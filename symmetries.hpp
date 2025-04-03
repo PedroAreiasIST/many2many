@@ -5,18 +5,19 @@
 #include <limits>
 #include <stdexcept>
 #include <vector>
-#include "sequence.hpp"
+#include "seque.hpp"
 
-namespace hidden {
+namespace hidden
+{
 
-    using Permutation = sequence<size_t>;
-    using Group = sequence<Permutation>;
+    using Permutation = seque<size_t>;
+    using Group = seque<Permutation>;
     static const size_t UNSET = (std::numeric_limits<size_t>::max)();
 
-    inline bool isvalidfullpermutation(const sequence<size_t>& position, const Group& G)
+    inline bool isvalidfullpermutation(const seque<size_t> &position, const Group &G)
     {
         const size_t posSize = getsize(position);
-        for (const auto &perm : G)
+        for (const auto &perm: G)
         {
             if (getsize(perm) != posSize)
                 continue;
@@ -38,9 +39,9 @@ namespace hidden {
         return false;
     }
 
-    inline bool canextend(const sequence<size_t>& position, size_t upTo, const Group& G)
+    inline bool canextend(const seque<size_t> &position, size_t upTo, const Group &G)
     {
-        for (const auto &perm : G)
+        for (const auto &perm: G)
         {
             if (getsize(perm) != getsize(position))
                 continue;
@@ -63,8 +64,8 @@ namespace hidden {
         return false;
     }
 
-    inline bool assignslot(size_t level, sequence<size_t>& position, const sequence<size_t>& sortedIndices, sequence<bool>& used,
-                            const Group& G)
+    inline bool assignslot(size_t level, seque<size_t> &position, const seque<size_t> &sortedIndices, seque<bool> &used,
+                           const Group &G)
     {
         const size_t n = getsize(position);
         // If all slots are assigned, check if the permutation is valid in G
@@ -74,7 +75,7 @@ namespace hidden {
         }
 
         // Try each candidate index (in sorted order) that has not been used yet.
-        for (size_t idx : sortedIndices)
+        for (size_t idx: sortedIndices)
         {
             if (!used[idx])
             {
@@ -97,7 +98,7 @@ namespace hidden {
 
 } // namespace hidden
 
-inline sequence<size_t> getcanonicalform(const sequence<size_t>& labels, const hidden::Group& G)
+inline seque<size_t> getcanonicalform(const seque<size_t> &labels, const hidden::Group &G)
 {
     using namespace hidden;
     const size_t n = getsize(labels);
@@ -109,7 +110,7 @@ inline sequence<size_t> getcanonicalform(const sequence<size_t>& labels, const h
     }
 
     // (1) Build sortedIndices sorted by corresponding label values in ascending order.
-    sequence<size_t> sortedIndices(n);
+    seque<size_t> sortedIndices(n);
     for (size_t i = 0; i < n; ++i)
     {
         sortedIndices[i] = i;
@@ -118,8 +119,8 @@ inline sequence<size_t> getcanonicalform(const sequence<size_t>& labels, const h
               [&labels](size_t a, size_t b) { return labels[a] < labels[b]; });
 
     // (2) Initialize position with UNSET and a boolean array for used indices.
-    sequence<size_t> position(n, UNSET);
-    sequence<bool> used(n, false);
+    seque<size_t> position(n, UNSET);
+    seque<bool> used(n, false);
 
     // (3) Recursively assign slots to obtain a canonical permutation.
     if (!assignslot(0, position, sortedIndices, used, G))
@@ -128,7 +129,7 @@ inline sequence<size_t> getcanonicalform(const sequence<size_t>& labels, const h
     }
 
     // Build the final canonical labeling by mapping indices to original labels.
-    sequence<size_t> canonical(n);
+    seque<size_t> canonical(n);
     for (size_t k = 0; k < n; ++k)
     {
         canonical[k] = labels[position[k]];

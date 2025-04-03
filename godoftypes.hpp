@@ -1,7 +1,7 @@
 #ifndef GODOFTYPES_HPP
 #define GODOFTYPES_HPP
 #include <tuple>
-#include "sequence.hpp"
+#include "seque.hpp"
 
 template<class T, class Tuple>
 struct indexoftype
@@ -27,7 +27,7 @@ template<typename... T>
 struct godstruct
 {
     // content
-    std::tuple<sequence<T>...> as;
+    std::tuple<seque<T>...> as;
     // std::tuple type (aka Tuple)
     using Tuple = std::tuple<T...>;
     // size of type list
@@ -56,9 +56,9 @@ struct godstruct
 };
 
 template<typename T>
-sequence<T> &godgetsequence(auto &tp) noexcept
+seque<T> &godgetsequence(auto &tp) noexcept
 {
-    return std::get<sequence<T>>(tp.as);
+    return std::get<seque<T>>(tp.as);
 }
 
 template<typename T, typename G>

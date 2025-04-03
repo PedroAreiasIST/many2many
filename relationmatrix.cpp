@@ -12,11 +12,11 @@ size_t relationmatrix::nelem(size_t nodetype, size_t node, size_t elementtype)
     return getsize(operator()(elementtype, nodetype).elementsfromnode.lnods[node]);
 }
 
-void cleanmarked(relationmatrix &m) { erase(m.listofmarked); }
+void resetmarked(relationmatrix &m) { erase(m.listofmarked); }
 void marktoerase(relationmatrix &m, std::pair<size_t, size_t> const &node) { append(m.listofmarked, node); }
-sequence<std::pair<size_t, size_t>> getallelements(relationmatrix &m, std::pair<size_t, size_t> const &node)
+seque<std::pair<size_t, size_t>> getallelements(relationmatrix &m, std::pair<size_t, size_t> const &node)
 {
-    sequence<std::pair<size_t, size_t>> ret;
+    seque<std::pair<size_t, size_t>> ret;
     auto [nodetype, nodenumber] = node;
     size_t nret = 0;
 
@@ -44,9 +44,9 @@ sequence<std::pair<size_t, size_t>> getallelements(relationmatrix &m, std::pair<
     return ret;
 }
 
-sequence<std::pair<size_t, size_t>> getallnodes(relationmatrix &m, std::pair<size_t, size_t> const &element)
+seque<std::pair<size_t, size_t>> getallnodes(relationmatrix &m, std::pair<size_t, size_t> const &element)
 {
-    sequence<std::pair<size_t, size_t>> ret;
+    seque<std::pair<size_t, size_t>> ret;
     auto [elementtype, elementnumber] = element;
     size_t nret = 0;
 
@@ -73,14 +73,14 @@ sequence<std::pair<size_t, size_t>> getallnodes(relationmatrix &m, std::pair<siz
     return ret;
 }
 
-sequence<std::pair<size_t, size_t>> depthfirstsearchfromanode(relationmatrix &m, std::pair<size_t, size_t> const &node)
+seque<std::pair<size_t, size_t>> depthfirstsearchfromanode(relationmatrix &m, std::pair<size_t, size_t> const &node)
 {
     using P = std::pair<size_t, size_t>;
-    using SP = sequence<P>;
+    using SP = seque<P>;
     std::map<P, bool> visited;
     std::stack<P> stack;
     stack.push(node);
-    sequence<P> ret;
+    seque<P> ret;
     while (!stack.empty())
     {
         P current = stack.top();
@@ -113,12 +113,12 @@ void setnumberoftypes(relationmatrix &m, size_t ntypes)
     }
 }
 
-void setsymmetrygroup(relationmatrix &m, size_t elementype, size_t nodetype, sequence<sequence<size_t>> const &group)
+void setsymmetrygroup(relationmatrix &m, size_t elementype, size_t nodetype, seque<seque<size_t>> const &group)
 {
     m.groups[elementype][nodetype] = group;
 }
 
-size_t appendelement(relationmatrix &m, size_t elementype, size_t nodetype, sequence<size_t> const &nodes)
+size_t appendelement(relationmatrix &m, size_t elementype, size_t nodetype, seque<size_t> const &nodes)
 {
     return appendelement(m(elementype, nodetype).nodesfromelement,
                          getcanonicalform(nodes, m.groups[elementype][nodetype]));
@@ -129,19 +129,19 @@ void setmany2many(relationmatrix &m, size_t elementype, size_t nodetype, many2ma
 }
 many2many &getmany2many(relationmatrix &m, size_t elementype, size_t nodetype) { return m(elementype, nodetype); }
 
-void lexiorder(relationmatrix &m, size_t elementype, size_t nodetype, sequence<size_t> &order)
+void lexiorder(relationmatrix &m, size_t elementype, size_t nodetype, seque<size_t> &order)
 {
     lexiorder(m(elementype, nodetype), order);
 }
 
-void indicesfromorder(relationmatrix &m, size_t elementtype, size_t nodetype, sequence<size_t> const &order,
-                      sequence<size_t> &oldfromnew, sequence<size_t> &newfromold)
+void indicesfromorder(relationmatrix &m, size_t elementtype, size_t nodetype, seque<size_t> const &order,
+                      seque<size_t> &oldfromnew, seque<size_t> &newfromold)
 {
     indicesfromorder(m(elementtype, nodetype), order, oldfromnew, newfromold);
 }
 
-void compress(relationmatrix &m, size_t elementtype, sequence<size_t> const &oldelementfromnew,
-              sequence<size_t> const &newelementfromold)
+void compress(relationmatrix &m, size_t elementtype, seque<size_t> const &oldelementfromnew,
+              seque<size_t> const &newelementfromold)
 {
     for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype)
     {
@@ -164,8 +164,8 @@ void compress(relationmatrix &m)
     }
     setordered(m.listofmarked);
     setunique(m.listofmarked);
-    sequence<sequence<size_t>> nodes(m.ntypes);
-    sequence<size_t> marker(m.ntypes, 0);
+    seque<seque<size_t>> nodes(m.ntypes);
+    seque<size_t> marker(m.ntypes, 0);
     for (size_t counter = 0; counter < getsize(m.listofmarked); ++counter)
     {
         append(nodes[m.listofmarked[counter].first], m.listofmarked[counter].second);
@@ -178,13 +178,13 @@ void compress(relationmatrix &m)
             maxn = std::max(maxn, m(type, elementtypes).nodesfromelement.nelem);
             maxn = std::max(maxn, m(elementtypes, type).elementsfromnode.nelem);
         }
-        sequence<bool> ismarked(maxn, false);
+        seque<bool> ismarked(maxn, false);
         for (size_t pos = 0; pos < getsize(nodes[type]); ++pos)
         {
             ismarked[nodes[type][pos]] = true;
         }
-        sequence<size_t> oldfromnew(maxn);
-        sequence<size_t> newfromold(maxn);
+        seque<size_t> oldfromnew(maxn);
+        seque<size_t> newfromold(maxn);
         size_t k = 0;
         for (size_t i = 0; i < maxn; ++i)
         {
@@ -198,6 +198,20 @@ void compress(relationmatrix &m)
         }
     }
 }
+void typetoporder(relationmatrix const &m, seque<size_t> &order)
+{
+    hidden::one2many typedeps;
+    setnelem(typedeps, m.ntypes);
+    for (size_t elementtype = 0; elementtype < m.ntypes; ++elementtype)
+    {
+        for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype)
+            if (m(elementtype, nodetype).nodesfromelement.nelem != 0)
+            {
+                append(typedeps.lnods[elementtype], nodetype);
+            }
+    }
+    toporder(typedeps, order);
+}
 
 void closeeverything(relationmatrix &m)
 {
@@ -208,8 +222,8 @@ void closeeverything(relationmatrix &m)
         }
 }
 
-sequence<size_t> getselementsfromnodes(relationmatrix &matrix, size_t elementtype, size_t nodestype,
-                                       sequence<size_t> const &nodes)
+seque<size_t> getselementsfromnodes(relationmatrix &matrix, size_t elementtype, size_t nodestype,
+                                    seque<size_t> const &nodes)
 {
     return getelementsfromnodes(matrix(elementtype, nodestype),
                                 getcanonicalform(nodes, matrix.groups[elementtype][nodestype]));

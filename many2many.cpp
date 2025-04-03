@@ -8,14 +8,11 @@ void setnelem(many2many &rel, size_t nelem)
     setsize(rel.nodesfromelement.lnods, nelem);
 }
 void setnnodes(many2many &rel, size_t element, size_t nnodes) { setsize(rel.nodesfromelement.lnods[element], nnodes); }
-void setnodes(many2many &rel, size_t element, sequence<size_t> const &nodes)
+void setnodes(many2many &rel, size_t element, seque<size_t> const &nodes)
 {
     rel.nodesfromelement.lnods[element] = nodes;
 }
-size_t appendelement(many2many &rel, sequence<size_t> const &nodes)
-{
-    return appendelement(rel.nodesfromelement, nodes);
-}
+size_t appendelement(many2many &rel, seque<size_t> const &nodes) { return appendelement(rel.nodesfromelement, nodes); }
 void multiplication(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc)
 {
     hidden::one2many const *a;
@@ -138,7 +135,7 @@ void setallpointers(many2many &rel)
 }
 hidden::lst getelementsfromnodes(many2many const &rel, hidden::lst const &nodes)
 {
-    sequence<size_t> elems;
+    seque<size_t> elems;
     if (getsize(nodes) == 0)
     {
         return elems;
@@ -212,16 +209,6 @@ void getnodestonodes(many2many const &rel, many2many &nodestonodes)
     setallpointers(nodestonodes);
 }
 void lexiorder(many2many const &rel, hidden::lst &orderofelements) { lexiorder(rel.nodesfromelement, orderofelements); }
-void toporder(many2many const &rel, bool transpose, hidden::lst &order)
-{
-    if (!transpose)
-    {
-        toporder(rel.nodesfromelement, order);
-    } else
-    {
-        toporder(rel.elementsfromnode, order);
-    }
-}
 size_t getlocalnodeposition(many2many const &rel, size_t node, size_t localelement)
 {
     return rel.nodelocation[node][localelement];

@@ -4,7 +4,7 @@
 #include "godoftypes.hpp"
 #include "one2many.hpp"
 #include "relationmatrix.hpp"
-#include "sequence.hpp"
+#include "seque.hpp"
 #include "test.hpp"
 #include "thing.hpp"
 #include "typsek.hpp"
@@ -21,6 +21,8 @@ int main(int argc, char *argv[])
     cout << "mm.nodesfromelement=" << mm.nodesfromelement.lnods << std::endl;
     cout << "mm.elementsfromnodes=" << mm.elementsfromnode.lnods << std::endl;
     cout << "mm.nodelocation" << mm.nodelocation << std::endl;
+    cout << "mm.elementlocation" << mm.elementlocation << std::endl;
+
     thing canbeanelement;
     thing hascoordinates;
     thing haslength;

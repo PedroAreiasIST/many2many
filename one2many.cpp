@@ -17,7 +17,7 @@ namespace hidden
         setsize(rel.lnods, nelem);
     }
 
-    size_t appendelement(hidden::one2many &rel, sequence<size_t> const &nodes)
+    size_t appendelement(hidden::one2many &rel, seque<size_t> const &nodes)
     {
         rel.nelem++;
         setsize(rel.lnods, rel.nelem);

@@ -8,5 +8,5 @@
 #include <string>
 #include <vector>
 #include "basics.hpp"
-#include "sequence.hpp"
+#include "seque.hpp"
 void testsek();

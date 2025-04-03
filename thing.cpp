@@ -1,18 +1,17 @@
 #include "thing.hpp"
 void settype(thing &e, size_t type) { e.type = type; }
-void settype(sequence<thing> &es, size_t type)
+void settype(seque<thing> &es, size_t type)
 {
     for (auto e: es)
     {
         settype(e, type);
     }
 }
-void appendnodesofonetype(thing &e, size_t nodetype, sequence<size_t> const &nodes)
+void appendnodesofonetype(thing &e, size_t nodetype, seque<size_t> const &nodes)
 {
     append(e.typeandnodes, std::make_pair(nodetype, nodes));
 }
-void appendbuilder(thing &eparent, thing &echildren,
-                   sequence<std::pair<size_t, sequence<size_t>>> const &typeandlocalnodes)
+void appendbuilder(thing &eparent, thing &echildren, seque<std::pair<size_t, seque<size_t>>> const &typeandlocalnodes)
 {
     for (size_t localnodetype = 0; localnodetype < getsize(typeandlocalnodes); ++localnodetype)
     {

@@ -1,26 +1,25 @@
 #ifndef RELATIONMANAGER_HPP
 #define RELATIONMANAGER_HPP
 #include "relationmatrix.hpp"
-#include "sequence.hpp"
+#include "seque.hpp"
 #include "symmetries.hpp"
 
 struct thing
 {
     using NodeType = size_t;
-    using ListofNodes = sequence<size_t>;
+    using ListofNodes = seque<size_t>;
     size_t type;
-    sequence<std::pair<NodeType, ListofNodes>> typeandnodes;
+    seque<std::pair<NodeType, ListofNodes>> typeandnodes;
 };
 PFR_FUNCTIONS_FOR(thing)
 
 void settype(thing &e, size_t type);
 
-void settype(sequence<thing> &es, size_t type);
+void settype(seque<thing> &es, size_t type);
 
-void appendnodesofonetype(thing &e, size_t nodetype, sequence<size_t> const &nodes);
+void appendnodesofonetype(thing &e, size_t nodetype, seque<size_t> const &nodes);
 
-void appendbuilder(thing &eparent, thing &echildren,
-                   sequence<std::pair<size_t, sequence<size_t>>> const &typeandlocalnodes);
+void appendbuilder(thing &eparent, thing &echildren, seque<std::pair<size_t, seque<size_t>>> const &typeandlocalnodes);
 
 void insertathing(relationmatrix &m, thing const &e);
 
