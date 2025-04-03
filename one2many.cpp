@@ -229,7 +229,7 @@ namespace hidden
         }
     }
 
-    void difference(const one2many &rela, const one2many &relb, one2many &relc)
+    void subtraction(const one2many &rela, const one2many &relb, one2many &relc)
     {
         const size_t nRows = std::min(rela.nelem, relb.nelem);
         setnelem(relc, nRows);
@@ -265,8 +265,9 @@ namespace hidden
         }
     }
 
-    void toporder(const one2many &rel, hidden::lst &order)
+    seque<size_t> toporder(const one2many &rel)
     {
+        seque<size_t> order;
         setsize(order, 0);
         std::vector<size_t> inDegree(rel.nelem, 0);
         // Compute in-degrees in parallel (using atomic increments)
@@ -309,9 +310,10 @@ namespace hidden
         {
             throw std::runtime_error("The relation contains cycles, topological sort not possible.");
         }
+        return order;
     }
 
-    void lexiorder(const one2many &rel, hidden::lst &orderofelements) { orderofelements = getorder(rel.lnods); }
+    seque<size_t> lexiorder(const one2many &rel) { return getorder(rel.lnods); }
 
     void indicesfromorder(const one2many &rel, const hidden::lst &elemOrder, hidden::lst &oldFromNew,
                           hidden::lst &newFromOld)

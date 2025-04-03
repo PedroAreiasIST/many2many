@@ -35,8 +35,8 @@ seque<std::pair<size_t, size_t>> getallelements(relationmatrix &m, std::pair<siz
         const size_t numberofelements = m.nelem(nodetype, nodenumber, elementtype);
         for (size_t localelement = 0; localelement < numberofelements; ++localelement)
         {
-            size_t element = m(elementtype, nodetype).elementsfromnode.lnods[nodenumber][localelement];
-            ret[nret++] = std::make_pair(elementtype, element);
+            ret[nret++] = std::make_pair(elementtype,
+                                         m(elementtype, nodetype).elementsfromnode.lnods[nodenumber][localelement]);
         }
     }
     setordered(ret);
@@ -64,8 +64,8 @@ seque<std::pair<size_t, size_t>> getallnodes(relationmatrix &m, std::pair<size_t
         const size_t numberofnodes = m.nnode(elementtype, elementnumber, nodetype);
         for (size_t localnode = 0; localnode < numberofnodes; ++localnode)
         {
-            size_t node = m(elementtype, nodetype).nodesfromelement.lnods[elementnumber][localnode];
-            ret[nret++] = std::make_pair(nodetype, node);
+            ret[nret++] =
+                    std::make_pair(nodetype, m(elementtype, nodetype).nodesfromelement.lnods[elementnumber][localnode]);
         }
     }
     setordered(ret);
@@ -205,7 +205,7 @@ void typetoporder(relationmatrix const &m, seque<size_t> &order)
                 append(typedeps.lnods[elementtype], nodetype);
             }
     }
-    toporder(typedeps, order);
+    toporder(typedeps);
 }
 
 void closeeverything(relationmatrix &m)

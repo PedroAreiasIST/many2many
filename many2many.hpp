@@ -2,6 +2,8 @@
 #define RELMANYTOMANY_HPP
 
 #include <cstddef>
+
+#include "godoftypes.hpp"
 #include "one2many.hpp"
 #include "seque.hpp"
 
@@ -23,7 +25,6 @@ PFR_FUNCTIONS_FOR(many2many)
 void setnumberofelements(many2many &rel, size_t nelem);
 void setnodesforelement(many2many &rel, size_t element, seque<size_t> const &nodes);
 size_t appendelement(many2many &rel, seque<size_t> const &nodes);
-size_t appendelementlight(many2many &rel, seque<size_t> const &nodes);
 void multiplication(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc);
 void addition(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc);
 void intersection(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc);
@@ -31,8 +32,8 @@ void subtraction(const many2many &rela, bool transposea, const many2many &relb, 
 void setallpointers(many2many &rel);
 seque<size_t> getelementsfromnodes(many2many const &rel, hidden::lst const &nodes);
 seque<size_t> getneighbours(many2many const &rel, size_t element);
-void lexiorder(many2many const &rel, hidden::lst &orderofelements);
-void toporder(many2many const &rel, hidden::lst &orderofelements);
+seque<size_t> lexiorder(many2many const &rel);
+seque<size_t> toporder(many2many const &rel);
 void indicesfromorder(many2many const &rel, const hidden::lst &elementorder, hidden::lst &oldfromnew,
                       hidden::lst &newfromold);
 void compresselements(many2many &rel, hidden::lst const &oldelementfromnew);

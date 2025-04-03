@@ -6,6 +6,7 @@
 #include "relationmatrix.hpp"
 #include "seque.hpp"
 #include "test.hpp"
+#include "testmm.hpp"
 #include "thing.hpp"
 #include "typsek.hpp"
 using namespace std;
@@ -27,80 +28,16 @@ int main(int argc, char *argv[])
     const seque<seque<size_t>> wedge6{{0, 1, 2, 3, 4, 5}, {1, 2, 0, 4, 5, 3}, {2, 0, 1, 5, 3, 4},
                                       {0, 2, 1, 3, 5, 4}, {2, 1, 0, 5, 4, 3}, {1, 0, 2, 4, 3, 5}};
 
-    many2many mm;
-    seque<size_t> s1{1, 2, 3, 4};
-    seque<size_t> s2{1, 2, 3, 5, 9};
-    cout << "s1 is less than s2" << std::boolalpha << (s1 < s2) << endl;
-    cout << "Basics mm part 1" << endl;
-    appendelement(mm, {4, 2, 6, 0});
-    appendelement(mm, {3, 0});
-    appendelement(mm, {3, 1});
-    appendelement(mm, {6, 3, 5, 1, 2, 4});
-    //   setallpointers(mm);
-    cout << "mm=" << mm << std::endl;
-    cout << "mm.nodesfromelement=" << mm.nodesfromelement.lnods << std::endl;
-    cout << "mm.elementsfromnodes=" << mm.elementsfromnode.lnods << std::endl;
-    cout << "mm.nodelocation" << mm.nodelocation << std::endl;
-    cout << "Basics mm part 2" << endl;
-    seque<size_t> order;
-    lexiorder(mm, order);
-    cout << "order=" << order << endl;
-    cout << "ordered" << endl;
-    cout << mm.nodesfromelement.lnods(order) << endl;
-    appendelement(mm, {8, 9, 0, 1});
-    cout << "With another element" << mm.nodesfromelement << endl;
-    cout << "How about maxnodenumber" << mm.nodesfromelement.maxnodenumber << endl;
-    many2many mm2, mm3;
-    appendelement(mm2, {4, 9, 5, 8, 0, 1});
-    appendelement(mm2, {3, 1, 2, 0, 5});
-    appendelement(mm2, {3, 1});
-    addition(mm2, false, mm, false, mm3);
-    subtraction(mm3, false, mm, false, mm2);
-    setallpointers(mm);
-    cout << "m=" << mm.nodesfromelement.lnods << endl;
-    cout << "elements given 4,2,6,0=" << getelementsfromnodes(mm, {4, 2, 6, 0}) << endl;
-    cout << "elements given 8,9,0,1=" << getelementsfromnodes(mm, {8, 9, 0, 1}) << endl;
-    cout << "addition=" << mm3.nodesfromelement.lnods << endl;
-    cout << "subtraction=" << mm2.nodesfromelement.lnods << endl;
-    many2many mm4, mm5;
-    appendelement(mm4, {4, 9, 5, 8, 0, 1});
-    appendelement(mm4, {3, 1, 2, 0, 5});
-    appendelement(mm4, {3, 1});
-    multiplication(mm, false, mm2, false, mm5);
-    intersection(mm, false, mm4, false, mm3);
-
-    cout << "intersection" << mm3.nodesfromelement.lnods << endl;
-    seque<size_t> se{0, 1, 3};
-    cout << "Before compression=" << mm.nodesfromelement.lnods << endl;
-    compresselements(mm, se);
-    cout << "After compression=" << mm.nodesfromelement.lnods << endl;
-    seque<size_t> sn{0, 2, 1, 4, 3, 5, 7, 9, 8};
-    permutenodes(mm, sn); // getelementstoelements(mm, )
-    cout << "After node compression" << mm.nodesfromelement.lnods << endl;
-
-    many2many en;
-    appendelement(en, {4, 2, 6, 0});
-    appendelement(en, {3, 0});
-    appendelement(en, {3, 1});
-    appendelement(en, {6, 3, 5, 1, 2, 4});
-    setallpointers(en);
-    setallpointers(en);
-    many2many mmee;
-    getelementstoelements(en, mmee);
-    many2many mmnn;
-    getnodestonodes(en, mmnn);
-    cout << "Element neighboors" << endl;
-    cout << mmee.elementsfromnode.lnods << endl;
-    cout << "Nodal neighboors" << endl;
-    cout << mmnn.elementsfromnode.lnods << endl;
-
-    thing canbeanelement;
+    testmany2many();
+    // skeleton
+    thing isanelement;
     thing hascoordinates;
     thing haslength;
     thing hasarea;
     thing hasvolume;
     thing node, point, edge, tri, quad, tet, hex, wedge;
-    settype(canbeanelement, 0);
+    thing elementgroup;
+    settype(isanelement, 0);
     settype(hascoordinates, 1);
     settype(haslength, 2);
     settype(hasarea, 3);
@@ -113,51 +50,55 @@ int main(int argc, char *argv[])
     settype(tet, 10);
     settype(hex, 11);
     settype(wedge, 12);
+    settype(elementgroup, 13);
     relationmatrix rm;
-    setnumberoftypes(rm, 13);
+    setnumberoftypes(rm, 14);
     setsymmetrygroup(rm, node.type, hascoordinates.type, {{0}});
     setsymmetrygroup(rm, point.type, node.type, {{0}});
-    setsymmetrygroup(rm, point.type, canbeanelement.type, {{0}});
+    setsymmetrygroup(rm, point.type, isanelement.type, {{0}});
     setsymmetrygroup(rm, edge.type, node.type, {{0, 1}, {1, 0}});
     setsymmetrygroup(rm, edge.type, haslength.type, {{0}});
-    setsymmetrygroup(rm, edge.type, canbeanelement.type, {{0}});
+    setsymmetrygroup(rm, edge.type, isanelement.type, {{0}});
     setsymmetrygroup(rm, tri.type, node.type, t3sym);
     setsymmetrygroup(rm, tri.type, hasarea.type, {{0}});
-    setsymmetrygroup(rm, tri.type, canbeanelement.type, {{0}});
+    setsymmetrygroup(rm, tri.type, isanelement.type, {{0}});
     setsymmetrygroup(rm, quad.type, node.type, q4sym);
     setsymmetrygroup(rm, quad.type, hasarea.type, {{0}});
-    setsymmetrygroup(rm, quad.type, canbeanelement.type, {{0}});
+    setsymmetrygroup(rm, quad.type, isanelement.type, {{0}});
     setsymmetrygroup(rm, tet.type, node.type, tet4sym);
     setsymmetrygroup(rm, tet.type, hasvolume.type, {{0}});
-    setsymmetrygroup(rm, tet.type, canbeanelement.type, {{0}});
+    setsymmetrygroup(rm, tet.type, isanelement.type, {{0}});
     setsymmetrygroup(rm, hex.type, node.type, h8symm);
     setsymmetrygroup(rm, hex.type, hasvolume.type, {{0}});
-    setsymmetrygroup(rm, hex.type, canbeanelement.type, {{0}});
+    setsymmetrygroup(rm, hex.type, isanelement.type, {{0}});
     setsymmetrygroup(rm, wedge.type, node.type, wedge6);
     setsymmetrygroup(rm, wedge.type, hasvolume.type, {{0}});
-    setsymmetrygroup(rm, wedge.type, canbeanelement.type, {{0}});
+    setsymmetrygroup(rm, wedge.type, isanelement.type, {{0}});
+    setsymmetrygroup(rm, elementgroup.type, node.type, {{}});
+
     appendnodesofonetype(node, hascoordinates.type, {8});
     appendnodesofonetype(point, node.type, {0});
-    appendnodesofonetype(point, canbeanelement.type, {0});
+    appendnodesofonetype(point, isanelement.type, {0});
     appendnodesofonetype(edge, node.type, {3, 2});
     appendnodesofonetype(edge, haslength.type, {0});
-    appendnodesofonetype(edge, canbeanelement.type, {0});
+    appendnodesofonetype(edge, isanelement.type, {0});
     appendnodesofonetype(tri, node.type, {5, 4, 3});
     appendnodesofonetype(tri, hasarea.type, {0});
-    appendnodesofonetype(tri, canbeanelement.type, {0});
+    appendnodesofonetype(tri, isanelement.type, {0});
     appendnodesofonetype(quad, node.type, {6, 5, 4, 3});
     appendnodesofonetype(quad, hasarea.type, {0});
-    appendnodesofonetype(quad, canbeanelement.type, {0});
+    appendnodesofonetype(quad, isanelement.type, {0});
     appendnodesofonetype(tet, node.type, {5, 1, 0, 2});
     appendnodesofonetype(tet, hasvolume.type, {0});
-    appendnodesofonetype(tet, canbeanelement.type, {0});
+    appendnodesofonetype(tet, isanelement.type, {0});
     appendnodesofonetype(hex, node.type, {8, 7, 6, 5, 4, 3, 2, 1});
     appendnodesofonetype(hex, hasvolume.type, {0});
-    appendnodesofonetype(hex, canbeanelement.type, {0});
+    appendnodesofonetype(hex, isanelement.type, {0});
     appendnodesofonetype(wedge, node.type, {5, 4, 3, 2, 1, 0});
     appendnodesofonetype(wedge, hasvolume.type, {0});
-    appendnodesofonetype(wedge, canbeanelement.type, {0});
-    insertathing(rm, canbeanelement);
+    appendnodesofonetype(wedge, isanelement.type, {0});
+
+    insertathing(rm, isanelement);
     insertathing(rm, hascoordinates);
     insertathing(rm, haslength);
     insertathing(rm, hasarea);
@@ -170,6 +111,7 @@ int main(int argc, char *argv[])
     insertathing(rm, tet);
     insertathing(rm, hex);
     insertathing(rm, wedge);
+    insertathing(rm, elementgroup);
     std::cout << "tet " << rm.operator()(tet.type, node.type).nodesfromelement.lnods << std::endl;
     std::cout << "hex " << rm.operator()(hex.type, node.type).nodesfromelement.lnods << std::endl;
     thing hex2;

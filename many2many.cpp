@@ -10,15 +10,8 @@ void setnodesforelement(many2many &rel, size_t element, seque<size_t> const &nod
 size_t appendelement(many2many &rel, seque<size_t> const &nodes)
 {
     size_t newel = hidden::appendelement(rel.nodesfromelement, nodes);
-    for (size_t node = 0; node < getsize(nodes); ++node)
-    {
-        addretainingorder(rel.elementsfromnode.lnods(nodes[node]), newel);
-    }
+
     return newel;
-}
-size_t appendelementlight(many2many &rel, seque<size_t> const &nodes)
-{
-    return hidden::appendelement(rel.nodesfromelement, nodes);
 }
 void multiplication(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc)
 {
@@ -101,7 +94,7 @@ void subtraction(const many2many &rela, bool transposea, const many2many &relb, 
     {
         b = &relb.nodesfromelement;
     }
-    difference(*a, *b, relc.nodesfromelement);
+    subtraction(*a, *b, relc.nodesfromelement);
     setallpointers(relc);
 }
 
@@ -134,26 +127,17 @@ hidden::lst getelementsfromnodes(many2many const &rel, hidden::lst const &nodes)
     {
         return elems;
     }
-    size_t bestNodeIndex = 0;
-    size_t minSize = getsize(rel.elementsfromnode.lnods[nodes[0]]);
-    for (size_t j = 1, n = getsize(nodes); j < n; ++j)
+    elems = rel.elementsfromnode.lnods[nodes[0]];
+    for (size_t elem = 1; elem < getsize(nodes); ++elem)
+        elems = getintersection(elems, rel.elementsfromnode.lnods[nodes[elem]]);
+    seque<size_t> ret;
+    size_t counter{0};
+    for (size_t elem = 0; elem < getsize(elems); ++elem)
     {
-        size_t node = nodes[j];
-        size_t size_j = getsize(rel.elementsfromnode.lnods[node]);
-        if (size_j < minSize)
-        {
-            minSize = size_j;
-            bestNodeIndex = j;
-        }
+        if (getsize(rel.nodesfromelement.lnods[elems[elem]]) == getsize(nodes))
+            append(ret, elems[elem]);
     }
-    elems = rel.elementsfromnode.lnods[nodes[bestNodeIndex]];
-    for (size_t j = 0, n = getsize(nodes); j < n; ++j)
-    {
-        if (j == bestNodeIndex)
-            continue;
-        elems = getintersection(elems, rel.elementsfromnode.lnods[nodes[j]]);
-    }
-    return elems;
+    return ret;
 }
 hidden::lst getneighbours(many2many const &rel, size_t element)
 {
@@ -201,8 +185,8 @@ void getnodestonodes(many2many const &rel, many2many &nodestonodes)
     multiplication(rel.elementsfromnode, rel.nodesfromelement, nodestonodes.nodesfromelement);
     setallpointers(nodestonodes);
 }
-void lexiorder(many2many const &rel, hidden::lst &orderofelements) { lexiorder(rel.nodesfromelement, orderofelements); }
-void toporder(many2many const &rel, hidden::lst &orderofelements) { toporder(rel.nodesfromelement, orderofelements); }
+seque<size_t> lexiorder(many2many const &rel) { return lexiorder(rel.nodesfromelement); }
+seque<size_t> toporder(many2many const &rel) { return toporder(rel.nodesfromelement); }
 size_t getlocalnodeposition(many2many const &rel, size_t node, size_t localelement)
 {
     return rel.nodelocation[node][localelement];

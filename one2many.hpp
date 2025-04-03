@@ -5,6 +5,8 @@
 #include <cassert>
 #include <cstddef>
 #include <queue>
+
+#include "godoftypes.hpp"
 #include "seque.hpp"
 
 namespace hidden
@@ -24,9 +26,9 @@ namespace hidden
     void multiplication(const one2many &rela, const one2many &relb, one2many &relc);
     void addition(const one2many &rela, const one2many &relb, one2many &relc);
     void intersection(const one2many &a, const one2many &b, one2many &c);
-    void difference(const one2many &rela, const one2many &relb, one2many &relc);
-    void toporder(const one2many &rel, hidden::lst &order);
-    void lexiorder(const one2many &rel, hidden::lst &orderofelements);
+    void subtraction(const one2many &rela, const one2many &relb, one2many &relc);
+    seque<size_t> toporder(const one2many &rel);
+    seque<size_t> lexiorder(const one2many &rel);
     void indicesfromorder(const one2many &rel, const hidden::lst &elemOrder, hidden::lst &oldFromNew,
                           hidden::lst &newFromOld);
     void compresselements(one2many &rel, const hidden::lst &oldelementfromnew);

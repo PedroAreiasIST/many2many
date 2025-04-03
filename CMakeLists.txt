@@ -25,6 +25,7 @@ add_executable(ConsoleApplication1
         symmetries.hpp
         thing.cpp
         thing.hpp
+        testmm.hpp
 )
 
 #find_package(TBB REQUIRED)
