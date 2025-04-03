@@ -97,39 +97,22 @@ void difference(const many2many &rela, bool transposea, const many2many &relb, b
 void setallpointers(many2many &rel)
 {
     transpose(rel.nodesfromelement, rel.elementsfromnode);
+
     setsize(rel.nodelocation, rel.elementsfromnode.nelem);
-    for (size_t localnode = 0; localnode < rel.elementsfromnode.nelem; ++localnode)
+    for (size_t node = 0; node < rel.elementsfromnode.nelem; ++node)
     {
-        setsize(rel.nodelocation[localnode], getsize(rel.elementsfromnode.lnods[localnode]));
+        setsize(rel.nodelocation[node], getsize(rel.elementsfromnode.lnods[node]));
     }
-    setsize(rel.elementlocation, rel.nodesfromelement.nelem);
-    for (size_t localelement = 0; localelement < rel.nodesfromelement.nelem; ++localelement)
+    hidden::lst nextlocalelementofnode(rel.elementsfromnode.nelem, 0);
+    size_t nelem = getsize(rel.nodesfromelement.lnods);
+    for (size_t element = 0; element < nelem; ++element)
     {
-        setsize(rel.elementlocation[localelement], getsize(rel.nodesfromelement.lnods[localelement]));
-    }
-    hidden::lst nextlocalelementofnode;
-    setsize(nextlocalelementofnode, rel.elementsfromnode.nelem);
-    for (size_t localelement = 0, elementCount = getsize(rel.nodesfromelement.lnods); localelement < elementCount;
-         ++localelement)
-    {
-        const hidden::lst &nodes = rel.nodesfromelement.lnods[localelement];
-        for (size_t localnode = 0, nodeCount = getsize(nodes); localnode < nodeCount; ++localnode)
+        const hidden::lst &nodes = rel.nodesfromelement.lnods[element];
+        size_t nnode = getsize(nodes);
+        for (size_t localnode = 0; localnode < nnode; ++localnode)
         {
             size_t node = nodes[localnode];
-            rel.nodelocation[node][nextlocalelementofnode[node]] = localnode;
-            nextlocalelementofnode[node]++;
-        }
-    }
-    hidden::lst nextlocalnodeofelement;
-    setsize(nextlocalnodeofelement, rel.nodesfromelement.nelem);
-    for (size_t localnode = 0, nodeCount = getsize(rel.elementsfromnode.lnods); localnode < nodeCount; ++localnode)
-    {
-        const hidden::lst &elements = rel.elementsfromnode.lnods[localnode];
-        for (size_t localelement = 0, elemCount = getsize(elements); localelement < elemCount; ++localelement)
-        {
-            size_t element = elements[localelement];
-            rel.elementlocation[element][nextlocalnodeofelement[element]] = localelement;
-            nextlocalnodeofelement[element]++;
+            rel.nodelocation[node][nextlocalelementofnode[node]++] = localnode;
         }
     }
 }
@@ -209,11 +192,8 @@ void getnodestonodes(many2many const &rel, many2many &nodestonodes)
     setallpointers(nodestonodes);
 }
 void lexiorder(many2many const &rel, hidden::lst &orderofelements) { lexiorder(rel.nodesfromelement, orderofelements); }
+void toporder(many2many const &rel, hidden::lst &orderofelements) { toporder(rel.nodesfromelement, orderofelements); }
 size_t getlocalnodeposition(many2many const &rel, size_t node, size_t localelement)
 {
     return rel.nodelocation[node][localelement];
-}
-size_t getlocalelementposition(many2many const &rel, size_t element, size_t localnode)
-{
-    return rel.elementlocation[element][localnode];
 }

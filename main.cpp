@@ -12,17 +12,26 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    testsek();
+    // testsek();
     many2many mm;
-    appendelement(mm.nodesfromelement, {0, 1});
-    appendelement(mm.nodesfromelement, {1, 2});
-    appendelement(mm.nodesfromelement, {3, 4, 7, 0});
+    cout << "Basics mm part 1" << endl;
+    appendelement(mm, {4, 2, 6, 0});
+    appendelement(mm, {3, 0});
+    appendelement(mm, {3, 1});
+    appendelement(mm, {6, 3, 5, 1, 2, 4});
     setallpointers(mm);
+    cout << "mm=" << mm << std::endl;
     cout << "mm.nodesfromelement=" << mm.nodesfromelement.lnods << std::endl;
     cout << "mm.elementsfromnodes=" << mm.elementsfromnode.lnods << std::endl;
     cout << "mm.nodelocation" << mm.nodelocation << std::endl;
-    cout << "mm.elementlocation" << mm.elementlocation << std::endl;
-
+    cout << "Basics mm part 2" << endl;
+    seque<size_t> order;
+    lexiorder(mm, order);
+    cout << "order=" << order << endl;
+    cout << "ordered" << endl;
+    cout << mm.nodesfromelement.lnods(order) << endl;
+    appendelement(mm, {{8, 9, 0, 1}});
+    cout << mm.nodesfromelement << endl;
     thing canbeanelement;
     thing hascoordinates;
     thing haslength;

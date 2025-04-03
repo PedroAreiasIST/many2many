@@ -17,8 +17,6 @@ struct relationmatrix
     seque<std::pair<size_t, size_t>> listofmarked;
     many2many const &operator()(size_t elementtype, size_t nodetype) const
     {
-        if (nodetype == elementtype)
-            throw std::invalid_argument("No diagonal entries are stored");
         size_t minimum = std::min(nodetype, elementtype);
         size_t maximum = std::max(nodetype, elementtype);
         size_t index = minimum * ntypes - (minimum - 1) * minimum / 2 + maximum - minimum;
@@ -26,8 +24,6 @@ struct relationmatrix
     }
     many2many &operator()(size_t elementtype, size_t nodetype)
     {
-        if (nodetype == elementtype)
-            throw std::invalid_argument("No diagonal entries are stored");
         size_t minimum = std::min(nodetype, elementtype);
         size_t maximum = std::max(nodetype, elementtype);
         size_t index = minimum * ntypes - (minimum - 1) * minimum / 2 + maximum - minimum;
