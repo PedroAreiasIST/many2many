@@ -5,12 +5,12 @@
 #ifndef TESTMM_HPP
 #define TESTMM_HPP
 #include "basics.hpp"
-#include "many2many.hpp"
+#include "m2m.hpp"
 using namespace std;
-void testmany2many()
+void testm2m()
 {
     // conectivities
-    many2many mm1, mm, nn1, ee1;
+    m2m mm1, mm, nn1, ee1;
     appendelement(mm1, {4, 2, 6, 0});
     appendelement(mm1, {3, 0});
     appendelement(mm1, {3, 1});
@@ -31,7 +31,7 @@ void testmany2many()
     getelementstoelements(mm1, ee1);
     cout << "elementstoelements=" << ee1.elementsfromnode.lnods << endl;
     cout << "Basics mm part 2" << endl;
-    many2many mm2, mm3;
+    m2m mm2, mm3;
     appendelement(mm2, {4, 9, 8, 0, 1});
     appendelement(mm2, {3, 2, 0, 5});
     appendelement(mm2, {3, 1, 4});

@@ -129,6 +129,30 @@ ConsoleApplication1/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/build
 .PHONY : ConsoleApplication1/fast
 
+m2m.o: m2m.cpp.o
+.PHONY : m2m.o
+
+# target to build an object file
+m2m.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/m2m.cpp.o
+.PHONY : m2m.cpp.o
+
+m2m.i: m2m.cpp.i
+.PHONY : m2m.i
+
+# target to preprocess a source file
+m2m.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/m2m.cpp.i
+.PHONY : m2m.cpp.i
+
+m2m.s: m2m.cpp.s
+.PHONY : m2m.s
+
+# target to generate assembly for a file
+m2m.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/m2m.cpp.s
+.PHONY : m2m.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -153,29 +177,29 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/main.cpp.s
 .PHONY : main.cpp.s
 
-many2many.o: many2many.cpp.o
-.PHONY : many2many.o
+mm2m.o: mm2m.cpp.o
+.PHONY : mm2m.o
 
 # target to build an object file
-many2many.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/many2many.cpp.o
-.PHONY : many2many.cpp.o
+mm2m.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/mm2m.cpp.o
+.PHONY : mm2m.cpp.o
 
-many2many.i: many2many.cpp.i
-.PHONY : many2many.i
+mm2m.i: mm2m.cpp.i
+.PHONY : mm2m.i
 
 # target to preprocess a source file
-many2many.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/many2many.cpp.i
-.PHONY : many2many.cpp.i
+mm2m.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/mm2m.cpp.i
+.PHONY : mm2m.cpp.i
 
-many2many.s: many2many.cpp.s
-.PHONY : many2many.s
+mm2m.s: mm2m.cpp.s
+.PHONY : mm2m.s
 
 # target to generate assembly for a file
-many2many.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/many2many.cpp.s
-.PHONY : many2many.cpp.s
+mm2m.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/mm2m.cpp.s
+.PHONY : mm2m.cpp.s
 
 one2many.o: one2many.cpp.o
 .PHONY : one2many.o
@@ -200,30 +224,6 @@ one2many.s: one2many.cpp.s
 one2many.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/one2many.cpp.s
 .PHONY : one2many.cpp.s
-
-relationmatrix.o: relationmatrix.cpp.o
-.PHONY : relationmatrix.o
-
-# target to build an object file
-relationmatrix.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/relationmatrix.cpp.o
-.PHONY : relationmatrix.cpp.o
-
-relationmatrix.i: relationmatrix.cpp.i
-.PHONY : relationmatrix.i
-
-# target to preprocess a source file
-relationmatrix.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/relationmatrix.cpp.i
-.PHONY : relationmatrix.cpp.i
-
-relationmatrix.s: relationmatrix.cpp.s
-.PHONY : relationmatrix.s
-
-# target to generate assembly for a file
-relationmatrix.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/relationmatrix.cpp.s
-.PHONY : relationmatrix.cpp.s
 
 test.o: test.cpp.o
 .PHONY : test.o
@@ -282,18 +282,18 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... ConsoleApplication1"
+	@echo "... m2m.o"
+	@echo "... m2m.i"
+	@echo "... m2m.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... many2many.o"
-	@echo "... many2many.i"
-	@echo "... many2many.s"
+	@echo "... mm2m.o"
+	@echo "... mm2m.i"
+	@echo "... mm2m.s"
 	@echo "... one2many.o"
 	@echo "... one2many.i"
 	@echo "... one2many.s"
-	@echo "... relationmatrix.o"
-	@echo "... relationmatrix.i"
-	@echo "... relationmatrix.s"
 	@echo "... test.o"
 	@echo "... test.i"
 	@echo "... test.s"

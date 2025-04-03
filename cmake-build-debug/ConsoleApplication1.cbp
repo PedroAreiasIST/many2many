@@ -88,13 +88,19 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/m2m.cpp">
+			<Option target="ConsoleApplication1"/>
+		</Unit>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/m2m.hpp">
+			<Option target="ConsoleApplication1"/>
+		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/main.cpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/many2many.cpp">
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/mm2m.cpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/many2many.hpp">
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/mm2m.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/one2many.cpp">
@@ -112,12 +118,6 @@
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/detail/config.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/relationmatrix.cpp">
-			<Option target="ConsoleApplication1"/>
-		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/relationmatrix.hpp">
-			<Option target="ConsoleApplication1"/>
-		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/symmetries.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
@@ -127,7 +127,10 @@
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/test.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/testmm.hpp">
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/testm2m.hpp">
+			<Option target="ConsoleApplication1"/>
+		</Unit>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/testmm2m.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/thing.cpp">

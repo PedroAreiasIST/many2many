@@ -1,6 +1,6 @@
 #ifndef RELATIONMANAGER_HPP
 #define RELATIONMANAGER_HPP
-#include "relationmatrix.hpp"
+#include "mm2m.hpp"
 #include "seque.hpp"
 #include "symmetries.hpp"
 
@@ -21,6 +21,6 @@ void appendnodesofonetype(thing &e, size_t nodetype, seque<size_t> const &nodes)
 
 void appendbuilder(thing &eparent, thing &echildren, seque<std::pair<size_t, seque<size_t>>> const &typeandlocalnodes);
 
-void insertathing(relationmatrix &m, thing const &e);
+void insertathing(mm2m &m, thing const &e);
 
 #endif // RELATIONMANAGER_HPP

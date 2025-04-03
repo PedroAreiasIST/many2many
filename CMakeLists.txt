@@ -16,16 +16,17 @@ add_executable(ConsoleApplication1
         pfr_non_boost-master/include/pfr/config.hpp
         pfr_non_boost-master/include/pfr/detail/config.hpp
         one2many.hpp
-        many2many.hpp
+        m2m.hpp
         one2many.cpp
-        many2many.cpp
+        m2m.cpp
         test.cpp
         test.hpp
-        relationmatrix.cpp
+        mm2m.cpp
         symmetries.hpp
         thing.cpp
         thing.hpp
-        testmm.hpp
+        testm2m.hpp
+        testmm2m.hpp
 )
 
 #find_package(TBB REQUIRED)

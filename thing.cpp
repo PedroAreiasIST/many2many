@@ -26,7 +26,7 @@ void appendbuilder(thing &eparent, thing &echildren, seque<std::pair<size_t, seq
         }
     }
 }
-void insertathing(relationmatrix &m, thing const &e)
+void insertathing(mm2m &m, thing const &e)
 {
     for (size_t localtype = 0; localtype < getsize(e.typeandnodes); ++localtype)
     {

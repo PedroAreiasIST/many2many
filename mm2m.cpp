@@ -1,20 +1,20 @@
-#include "relationmatrix.hpp"
+#include "mm2m.hpp"
 #include <map>
 #include <utility>
 
-size_t relationmatrix::nnode(size_t elementtype, size_t element, size_t nodetype)
+size_t mm2m::nnode(size_t elementtype, size_t element, size_t nodetype)
 {
     return getsize(operator()(elementtype, nodetype).nodesfromelement.lnods[element]);
 }
 
-size_t relationmatrix::nelem(size_t nodetype, size_t node, size_t elementtype)
+size_t mm2m::nelem(size_t nodetype, size_t node, size_t elementtype)
 {
     return getsize(operator()(elementtype, nodetype).elementsfromnode.lnods[node]);
 }
 
-void resetmarked(relationmatrix &m) { erase(m.listofmarked); }
-void marktoerase(relationmatrix &m, std::pair<size_t, size_t> const &node) { append(m.listofmarked, node); }
-seque<std::pair<size_t, size_t>> getallelements(relationmatrix &m, std::pair<size_t, size_t> const &node)
+void resetmarked(mm2m &m) { erase(m.listofmarked); }
+void marktoerase(mm2m &m, std::pair<size_t, size_t> const &node) { append(m.listofmarked, node); }
+seque<std::pair<size_t, size_t>> getallelements(mm2m &m, std::pair<size_t, size_t> const &node)
 {
     seque<std::pair<size_t, size_t>> ret;
     auto [nodetype, nodenumber] = node;
@@ -44,7 +44,7 @@ seque<std::pair<size_t, size_t>> getallelements(relationmatrix &m, std::pair<siz
     return ret;
 }
 
-seque<std::pair<size_t, size_t>> getallnodes(relationmatrix &m, std::pair<size_t, size_t> const &element)
+seque<std::pair<size_t, size_t>> getallnodes(mm2m &m, std::pair<size_t, size_t> const &element)
 {
     seque<std::pair<size_t, size_t>> ret;
     auto [elementtype, elementnumber] = element;
@@ -73,7 +73,7 @@ seque<std::pair<size_t, size_t>> getallnodes(relationmatrix &m, std::pair<size_t
     return ret;
 }
 
-seque<std::pair<size_t, size_t>> depthfirstsearchfromanode(relationmatrix &m, std::pair<size_t, size_t> const &node)
+seque<std::pair<size_t, size_t>> depthfirstsearchfromanode(mm2m &m, std::pair<size_t, size_t> const &node)
 {
     using P = std::pair<size_t, size_t>;
     using SP = seque<P>;
@@ -102,10 +102,14 @@ seque<std::pair<size_t, size_t>> depthfirstsearchfromanode(relationmatrix &m, st
     return ret;
 }
 
-void setnumberoftypes(relationmatrix &m, size_t ntypes)
+void setnumberoftypes(mm2m &m, size_t ntypes)
 {
     m.ntypes = ntypes;
-    setsize(m.m, ntypes * (ntypes + 1) / 2);
+    setsize(m.m, ntypes);
+    for (size_t type = 0; type < ntypes; ++type)
+    {
+        setsize(m.m[type], ntypes);
+    }
     setsize(m.groups, ntypes);
     for (size_t type = 0; type < ntypes; ++type)
     {
@@ -113,29 +117,29 @@ void setnumberoftypes(relationmatrix &m, size_t ntypes)
     }
 }
 
-void setsymmetrygroup(relationmatrix &m, size_t elementype, size_t nodetype, seque<seque<size_t>> const &group)
+void setsymmetrygroup(mm2m &m, size_t elementype, size_t nodetype, seque<seque<size_t>> const &group)
 {
     m.groups[elementype][nodetype] = group;
 }
 
-size_t appendelement(relationmatrix &m, size_t elementype, size_t nodetype, seque<size_t> const &nodes)
+size_t appendelement(mm2m &m, size_t elementype, size_t nodetype, seque<size_t> const &nodes)
 {
     return appendelement(m(elementype, nodetype).nodesfromelement,
                          getcanonicalform(nodes, m.groups[elementype][nodetype]));
 }
-void setmany2many(relationmatrix &m, size_t elementype, size_t nodetype, many2many const &relation)
+void setmany2many(mm2m &m, size_t elementype, size_t nodetype, m2m const &relation)
 {
     m(elementype, nodetype) = relation;
 }
-many2many &getmany2many(relationmatrix &m, size_t elementype, size_t nodetype) { return m(elementype, nodetype); }
+m2m &getmany2many(mm2m &m, size_t elementype, size_t nodetype) { return m(elementype, nodetype); }
 
-void indicesfromorder(relationmatrix &m, size_t elementtype, size_t nodetype, seque<size_t> const &order,
+void indicesfromorder(mm2m &m, size_t elementtype, size_t nodetype, seque<size_t> const &order,
                       seque<size_t> &oldfromnew, seque<size_t> &newfromold)
 {
     indicesfromorder(m(elementtype, nodetype), order, oldfromnew, newfromold);
 }
 
-void compress(relationmatrix &m, size_t elementtype, seque<size_t> const &oldelementfromnew,
+void compress(mm2m &m, size_t elementtype, seque<size_t> const &oldelementfromnew,
               seque<size_t> const &newelementfromold)
 {
     for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype)
@@ -149,7 +153,7 @@ void compress(relationmatrix &m, size_t elementtype, seque<size_t> const &oldele
     }
 }
 
-void compress(relationmatrix &m)
+void compress(mm2m &m)
 {
     setordered(m.listofmarked);
     setorderedandunique(m.listofmarked);
@@ -193,7 +197,7 @@ void compress(relationmatrix &m)
         }
     }
 }
-void typetoporder(relationmatrix const &m, seque<size_t> &order)
+void typetoporder(mm2m const &m, seque<size_t> &order)
 {
     hidden::one2many typedeps;
     setnelem(typedeps, m.ntypes);
@@ -208,7 +212,7 @@ void typetoporder(relationmatrix const &m, seque<size_t> &order)
     toporder(typedeps);
 }
 
-void closeeverything(relationmatrix &m)
+void closeeverything(mm2m &m)
 {
     for (size_t elementtype = 0; elementtype < m.ntypes; ++elementtype)
         for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype)
@@ -217,8 +221,7 @@ void closeeverything(relationmatrix &m)
         }
 }
 
-seque<size_t> getselementsfromnodes(relationmatrix &matrix, size_t elementtype, size_t nodestype,
-                                    seque<size_t> const &nodes)
+seque<size_t> getselementsfromnodes(mm2m &matrix, size_t elementtype, size_t nodestype, seque<size_t> const &nodes)
 {
     return getelementsfromnodes(matrix(elementtype, nodestype),
                                 getcanonicalform(nodes, matrix.groups[elementtype][nodestype]));
