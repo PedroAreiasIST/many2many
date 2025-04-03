@@ -7,14 +7,14 @@
 #include "symmetries.hpp"
 namespace hidden
 {
-    using matrix = sek<many2many>;
+    using matrix = sequence<many2many>;
 }
 struct relationmatrix
 {
     hidden::matrix m{};
-    sek<sek<sek<sek<size_t>>>> groups{{}};
+    sequence<sequence<sequence<sequence<size_t>>>> groups{{}};
     size_t ntypes{0};
-    sek<std::pair<size_t, size_t>> listofmarked;
+    sequence<std::pair<size_t, size_t>> listofmarked;
     many2many &operator()(size_t elementtype, size_t nodetype)
     {
         size_t minimum = std::min(nodetype, elementtype);
@@ -28,21 +28,23 @@ struct relationmatrix
 PFR_FUNCTIONS_FOR(relationmatrix)
 void cleanmarked(relationmatrix &m);
 void marktoerase(relationmatrix &m, std::pair<size_t, size_t> const &node);
-sek<std::pair<size_t, size_t>> getallelements(relationmatrix &m, std::pair<size_t, size_t> const &node);
-sek<std::pair<size_t, size_t>> getallnodes(relationmatrix &m, std::pair<size_t, size_t> const &element);
-sek<std::pair<size_t, size_t>> depthfirstsearchfromanode(relationmatrix &m, std::pair<size_t, size_t> const &node);
+sequence<std::pair<size_t, size_t>> getallelements(relationmatrix &m, std::pair<size_t, size_t> const &node);
+sequence<std::pair<size_t, size_t>> getallnodes(relationmatrix &m, std::pair<size_t, size_t> const &element);
+sequence<std::pair<size_t, size_t>> depthfirstsearchfromanode(relationmatrix &m, std::pair<size_t, size_t> const &node);
 void setnumberoftypes(relationmatrix &m, size_t ntypes);
-void setsymmetrygroup(relationmatrix &m, size_t elementype, size_t nodetype, sek<sek<size_t>> const &group);
-size_t appendelement(relationmatrix &m, size_t elementype, size_t nodetype, sek<size_t> const &nodes);
+void setsymmetrygroup(relationmatrix &m, size_t elementype, size_t nodetype, sequence<sequence<size_t>> const &group);
+size_t appendelement(relationmatrix &m, size_t elementype, size_t nodetype, sequence<size_t> const &nodes);
 void setmany2many(relationmatrix &m, size_t elementype, size_t nodetype, many2many const &relation);
 many2many &getmany2many(relationmatrix &m, size_t elementype, size_t nodetype);
-void lexiorder(relationmatrix &m, size_t elementype, size_t nodetype, sek<size_t> &order);
-void indicesfromorder(relationmatrix &m, size_t elementtype, size_t nodetype, sek<size_t> const &order,
-                      sek<size_t> &oldfromnew, sek<size_t> &newfromold);
+void lexiorder(relationmatrix &m, size_t elementype, size_t nodetype, sequence<size_t> &order);
+void indicesfromorder(relationmatrix &m, size_t elementtype, size_t nodetype, sequence<size_t> const &order,
+                      sequence<size_t> &oldfromnew, sequence<size_t> &newfromold);
 void closeeverything(relationmatrix &m);
-sek<size_t> getselementsfromnodes(relationmatrix &matrix, size_t elementtype, size_t nodestype,
-                                  sek<size_t> const &nodes);
-void compress(relationmatrix &m, size_t elementtype, sek<size_t> const &oldelementfromnew,
-              sek<size_t> const &newelementfromold);
+sequence<size_t> getselementsfromnodes(relationmatrix &matrix, size_t elementtype, size_t nodestype,
+                                       sequence<size_t> const &nodes);
+void compress(relationmatrix &m, size_t elementtype, sequence<size_t> const &oldelementfromnew,
+              sequence<size_t> const &newelementfromold);
+void compress(relationmatrix &m);
+
 
 #endif // RELATIONMATRIX_HPP

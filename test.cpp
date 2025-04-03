@@ -199,13 +199,13 @@ void testsek()
         cout << " [OK]\n";
     }
 
-    cout << "\n=== Testing sek template container ===\n";
+    cout << "\n=== Testing sequence template container ===\n";
 
-    // Testing default construction and empty sek
+    // Testing default construction and empty sequence
     {
-        cout << "- Testing default construction and empty sek\n";
-        sek<int> emptySek;
-        cout << "Empty sek: size = " << emptySek.size;
+        cout << "- Testing default construction and empty sequence\n";
+        sequence<int> emptySek;
+        cout << "Empty sequence: size = " << emptySek.size;
         assert(emptySek.size == 0);
         // Attempt iteration on empty container:
         for (auto it = emptySek.begin(); it != emptySek.end(); ++it)
@@ -219,13 +219,13 @@ void testsek()
     // Constructors and size management
     {
         cout << "- Testing constructors and size management\n";
-        sek<int> s0;
-        cout << "default sek<int>: size = " << getsize(s0);
+        sequence<int> s0;
+        cout << "default sequence<int>: size = " << getsize(s0);
         assert(getsize(s0) == 0);
         cout << " [OK]\n";
 
-        sek<int> s5(5);
-        cout << "sek<int>(5): size = " << getsize(s5);
+        sequence<int> s5(5);
+        cout << "sequence<int>(5): size = " << getsize(s5);
         assert(getsize(s5) == 5);
         // Check that all values are default-initialized
         for (size_t i = 0; i < getsize(s5); ++i)
@@ -234,13 +234,13 @@ void testsek()
         }
         cout << " [OK]\n";
 
-        sek<int> s5val(5, 7);
-        cout << "sek<int>(5,7): size = " << s5val.size << ", first element = " << s5val[0];
+        sequence<int> s5val(5, 7);
+        cout << "sequence<int>(5,7): size = " << s5val.size << ", first element = " << s5val[0];
         assert(s5val.size == 5 && s5val[0] == 7 && s5val[4] == 7);
         cout << " [OK]\n";
 
-        sek<int> sInit = {1, 2, 3};
-        cout << "sek<int>{1,2,3}: size = " << sInit.size;
+        sequence<int> sInit = {1, 2, 3};
+        cout << "sequence<int>{1,2,3}: size = " << sInit.size;
         assert(sInit.size == 3 && sInit[1] == 2);
         cout << " [OK]\n";
     }
@@ -248,22 +248,22 @@ void testsek()
     // Copy and move constructors, assignment operators
     {
         cout << "- Testing copy and move semantics\n";
-        sek<int> orig = {10, 20, 30};
-        sek<int> copyCtor(orig);
-        cout << "copy constructed sek: size=" << copyCtor.size;
+        sequence<int> orig = {10, 20, 30};
+        sequence<int> copyCtor(orig);
+        cout << "copy constructed sequence: size=" << copyCtor.size;
         assert(copyCtor.size == 3 && copyCtor[1] == 20);
         copyCtor[1] = 99;
         assert(orig[1] == 20);
         cout << " [OK]\n";
 
-        sek<int> moveCtor(move(orig));
-        cout << "move constructed sek: size=" << moveCtor.size;
+        sequence<int> moveCtor(move(orig));
+        cout << "move constructed sequence: size=" << moveCtor.size;
         assert(moveCtor.size == 3 && moveCtor[2] == 30);
         assert(orig.size == 0);
         cout << " [OK]\n";
 
-        sek<int> assignSrc = {5, 6, 7};
-        sek<int> assignDst;
+        sequence<int> assignSrc = {5, 6, 7};
+        sequence<int> assignDst;
         assignDst = assignSrc;
         cout << "copy assignment: dst size=" << assignDst.size;
         assert(assignDst.size == 3 && assignDst[2] == 7);
@@ -281,7 +281,7 @@ void testsek()
     // operator= with a value and initializer_list
     {
         cout << "- Testing operator= with value and initializer list\n";
-        sek<int> s = {1, 2, 3};
+        sequence<int> s = {1, 2, 3};
         s = 9;
         cout << "after s = 9: ";
         for (size_t i = 0; i < s.size; ++i)
@@ -299,21 +299,21 @@ void testsek()
 
     // Element access (operator[] and operator())
     {
-        cout << "- Testing element access operators on empty and non-empty sek\n";
-        const sek<int> cs = {4, 5, 6};
+        cout << "- Testing element access operators on empty and non-empty sequence\n";
+        const sequence<int> cs = {4, 5, 6};
         cout << "cs[1] = " << cs[1];
         assert(cs[1] == 5);
         cout << " [OK]\n";
 
         // Non-const element access:
-        sek<int> sx = {10, 20, 30};
+        sequence<int> sx = {10, 20, 30};
         int &ref = sx[2];
         ref = 99;
         assert(sx[2] == 99);
         cout << "Non-const operator[] allows modifying element to " << sx[2] << " [OK]\n";
 
         // Testing operator() to extend container when valid
-        sek<int> sy = {1, 2, 3};
+        sequence<int> sy = {1, 2, 3};
         sy(5) = 42; // extend to index 5
         cout << "operator()(5) extended size to " << sy.size << " and set value to " << sy[5];
         assert(sy.size == 6 && sy[5] == 42);
@@ -322,21 +322,21 @@ void testsek()
         // Testing operator() on empty container for read (should throw)
         try
         {
-            const sek<int> emptyC;
+            const sequence<int> emptyC;
             int tmp = emptyC(0);
             (void) tmp;
-            cout << "Accessing empty const sek did not throw [FAIL]\n";
+            cout << "Accessing empty const sequence did not throw [FAIL]\n";
             assert(false);
         } catch (const out_of_range &e)
         {
-            cout << "Accessing empty const sek threw exception as expected [OK]\n";
+            cout << "Accessing empty const sequence threw exception as expected [OK]\n";
         }
     }
 
     // Iterators: begin() and end()
     {
         cout << "- Testing begin() and end() iterators\n";
-        sek<int> s = {3, 1, 4};
+        sequence<int> s = {3, 1, 4};
         int sum = 0;
         for (auto it = s.begin(); it != s.end(); ++it)
         {
@@ -346,16 +346,16 @@ void testsek()
         assert(sum == 8);
         cout << " [OK]\n";
 
-        // Test on an empty sek:
-        sek<int> empty;
+        // Test on an empty sequence:
+        sequence<int> empty;
         assert(empty.begin() == empty.end());
-        cout << "Empty sek iterators are equal [OK]\n";
+        cout << "Empty sequence iterators are equal [OK]\n";
     }
 
     // swap free function
     {
         cout << "- Testing swap\n";
-        sek<int> a = {1, 2, 3}, b = {4, 5};
+        sequence<int> a = {1, 2, 3}, b = {4, 5};
         swap(a, b);
         cout << "After swap: a.size=" << a.size << ", b.size=" << b.size;
         assert(a.size == 2 && b.size == 3);
@@ -365,13 +365,13 @@ void testsek()
 
     // Erase functions: erase, erase(index), erase(indices), eraselast, eraseinplace
     {
-        cout << "- Testing erase functions including empty sek\n";
+        cout << "- Testing erase functions including empty sequence\n";
         // Erase entire container
-        sek<int> s = {10, 20, 30, 40, 50};
+        sequence<int> s = {10, 20, 30, 40, 50};
         erase(s);
-        cout << "erase(s) on non-empty sek sets size to " << s.size;
+        cout << "erase(s) on non-empty sequence sets size to " << s.size;
         assert(s.size == 0);
-        // Erase on empty sek should do nothing (or remain empty)
+        // Erase on empty sequence should do nothing (or remain empty)
         erase(s);
         assert(s.size == 0);
         cout << " [OK]\n";
@@ -389,15 +389,15 @@ void testsek()
         assert(s.size == 3 && rem == expected);
         cout << " [OK]\n";
 
-        // Attempt erase with invalid index on non-empty sek:
+        // Attempt erase with invalid index on non-empty sequence:
         size_t oldSize = s.size;
         erase(s, 10); // Should be a no-op
         assert(s.size == oldSize);
-        cout << "erase with invalid index on non-empty sek [OK]\n";
+        cout << "erase with invalid index on non-empty sequence [OK]\n";
 
         // Erase by indices vector:
         s = {1, 2, 3, 4, 5};
-        sek<size_t> idx = {1, 3};
+        sequence<size_t> idx = {1, 3};
         erase(s, idx);
         vector<int> afterErase(s.begin(), s.end());
         vector<int> expected2 = {1, 3, 5}; // depending on removal strategy
@@ -406,11 +406,11 @@ void testsek()
         assert(s.size == 3 && afterErase == expected2);
         cout << "erase with indices vector [OK]\n";
 
-        // eraselast on empty sek should be safe (no-op)
+        // eraselast on empty sequence should be safe (no-op)
         s = {};
         eraselast(s);
         assert(s.size == 0);
-        cout << "eraselast on empty sek [OK]\n";
+        cout << "eraselast on empty sequence [OK]\n";
 
         // eraseinplace: remove a range of elements
         s = {1, 2, 3, 4, 5};
@@ -427,10 +427,10 @@ void testsek()
         cout << "eraseinplace with invalid start index [OK]\n";
     }
 
-    // Insertion: add and addinplace, including on empty sek
+    // Insertion: add and addinplace, including on empty sequence
     {
         cout << "- Testing add and addinplace (corner cases)\n";
-        sek<int> s = {5, 6, 7, 8};
+        sequence<int> s = {5, 6, 7, 8};
         try
         {
             // add(s, index, value) expects index < size. For empty, it should throw.
@@ -442,20 +442,20 @@ void testsek()
             cout << "add with index == size threw exception as expected [OK]\n";
         }
 
-        // Testing add on an empty sek (should throw)
-        sek<int> empty;
+        // Testing add on an empty sequence (should throw)
+        sequence<int> empty;
         try
         {
             add(empty, 0, 1);
-            cout << "add on empty sek did not throw [FAIL]\n";
+            cout << "add on empty sequence did not throw [FAIL]\n";
             assert(false);
         } catch (const out_of_range &)
         {
-            cout << "add on empty sek threw exception as expected [OK]\n";
+            cout << "add on empty sequence threw exception as expected [OK]\n";
         }
 
-        // addinplace on non-empty sek:
-        sek<int> v = {10, 20, 30};
+        // addinplace on non-empty sequence:
+        sequence<int> v = {10, 20, 30};
         addinplace(v, 0, 5);
         vector<int> expv = {5, 10, 20, 30};
         assert(vector<int>(v.begin(), v.end()) == expv);
@@ -473,119 +473,119 @@ void testsek()
         cout << "addinplace with index > size (append) [OK]\n";
 
         // Inserting a container into another:
-        sek<int> dest = {1, 2, 3};
-        sek<int> src = {7, 8};
+        sequence<int> dest = {1, 2, 3};
+        sequence<int> src = {7, 8};
         addinplace(dest, 1, src);
         vector<int> expd = {1, 7, 8, 2, 3};
         assert(vector<int>(dest.begin(), dest.end()) == expd);
         cout << "addinplace with container insertion [OK]\n";
     }
 
-    // append: appending values and containers, including corner cases with empty sek
+    // append: appending values and containers, including corner cases with empty sequence
     {
         cout << "- Testing append (corner cases)\n";
-        sek<int> a = {1, 2};
+        sequence<int> a = {1, 2};
         append(a, 5);
         assert(a.size == 3 && a[a.size - 1] == 5);
-        cout << "append value to non-empty sek [OK]\n";
+        cout << "append value to non-empty sequence [OK]\n";
 
-        // Append container to non-empty sek:
-        sek<int> b = {3, 4};
+        // Append container to non-empty sequence:
+        sequence<int> b = {3, 4};
         append(a, b);
         assert(a.size == 5);
-        cout << "append container to non-empty sek [OK]\n";
+        cout << "append container to non-empty sequence [OK]\n";
 
-        // Append container to empty sek:
-        sek<int> empty;
-        sek<int> nonEmpty = {10, 20};
+        // Append container to empty sequence:
+        sequence<int> empty;
+        sequence<int> nonEmpty = {10, 20};
         append(nonEmpty, empty);
         // Note: append on an empty container might result in undefined behavior if not supported.
         // Here we assume append requires the destination to be non-empty.
         // So we check that empty remains empty.
         assert(empty.size == 0);
-        cout << "append container to empty sek (no-op) [OK]\n";
+        cout << "append container to empty sequence (no-op) [OK]\n";
     }
 
-    // Testing stream operators << and >> with empty and non-empty sek
+    // Testing stream operators << and >> with empty and non-empty sequence
     {
-        cout << "- Testing stream operators << and >> including empty sek\n";
-        sek<int> t = {2, 4, 6};
+        cout << "- Testing stream operators << and >> including empty sequence\n";
+        sequence<int> t = {2, 4, 6};
         ostringstream oss;
         oss << t;
         string outStr = oss.str();
         istringstream iss(outStr);
-        sek<int> u;
+        sequence<int> u;
         iss >> u;
         assert(u.size == 3 && u[1] == 4);
-        cout << "Stream I/O on non-empty sek [OK]\n";
+        cout << "Stream I/O on non-empty sequence [OK]\n";
 
-        // Test with empty sek
-        sek<int> empty;
+        // Test with empty sequence
+        sequence<int> empty;
         ostringstream ossEmpty;
         ossEmpty << empty;
         istringstream issEmpty(ossEmpty.str());
-        sek<int> readEmpty;
+        sequence<int> readEmpty;
         issEmpty >> readEmpty;
         assert(readEmpty.size == 0);
-        cout << "Stream I/O on empty sek [OK]\n";
+        cout << "Stream I/O on empty sequence [OK]\n";
     }
 
-    // Testing algorithms on empty sek
+    // Testing algorithms on empty sequence
     {
-        cout << "- Testing algorithms on empty sek\n";
-        // isfullysatisfied on empty sek should typically return true (vacuous truth)
-        sek<int> empty;
+        cout << "- Testing algorithms on empty sequence\n";
+        // isfullysatisfied on empty sequence should typically return true (vacuous truth)
+        sequence<int> empty;
         assert(isfullysatisfied(empty, [](int) { return false; }));
-        cout << "isfullysatisfied on empty sek [OK]\n";
+        cout << "isfullysatisfied on empty sequence [OK]\n";
 
-        // getmapped on empty sek
+        // getmapped on empty sequence
         auto mappedEmpty = getmapped(empty, [](int x) { return x * 2; });
         assert(mappedEmpty.size == 0);
-        cout << "getmapped on empty sek [OK]\n";
+        cout << "getmapped on empty sequence [OK]\n";
 
-        // reduce on empty sek (should return the initial value)
+        // reduce on empty sequence (should return the initial value)
         int sumEmpty = reduce(empty, 100, [](int a, int b) { return a + b; });
         assert(sumEmpty == 100);
-        cout << "reduce on empty sek [OK]\n";
+        cout << "reduce on empty sequence [OK]\n";
     }
 
-    // Additional tests for the rest of sek functionality...
+    // Additional tests for the rest of sequence functionality...
     // (For brevity, only adding key corner cases; previous tests cover most functions.)
 
-    // Testing setorder and sampling on an empty sek
+    // Testing setorder and sampling on an empty sequence
     {
-        cout << "- Testing getorder and getasample on empty sek\n";
-        sek<int> empty;
-        sek<size_t> order = getorder(empty);
+        cout << "- Testing getorder and getasample on empty sequence\n";
+        sequence<int> empty;
+        sequence<size_t> order = getorder(empty);
         assert(order.size == 0);
-        sek<int> sample = getasample(empty, 3);
+        sequence<int> sample = getasample(empty, 3);
         assert(sample.size == 0);
         cout << "[OK]\n";
     }
 
-    // Testing setordered on an empty sek (should remain empty)
+    // Testing setordered on an empty sequence (should remain empty)
     {
-        cout << "- Testing setordered on empty sek\n";
-        sek<int> empty;
+        cout << "- Testing setordered on empty sequence\n";
+        sequence<int> empty;
         setordered(empty);
         assert(empty.size == 0);
         cout << "[OK]\n";
     }
 
-    // Testing setshuffled and setreversed on empty sek
+    // Testing setshuffled and setreversed on empty sequence
     {
-        cout << "- Testing setshuffled and setreversed on empty sek\n";
-        sek<int> empty;
+        cout << "- Testing setshuffled and setreversed on empty sequence\n";
+        sequence<int> empty;
         setshuffled(empty);
         setreversed(empty);
         assert(empty.size == 0);
         cout << "[OK]\n";
     }
 
-    // Testing setpermuteclockwise and setpermutecounterclockwise on empty sek
+    // Testing setpermuteclockwise and setpermutecounterclockwise on empty sequence
     {
-        cout << "- Testing permutation functions on empty sek\n";
-        sek<int> empty;
+        cout << "- Testing permutation functions on empty sequence\n";
+        sequence<int> empty;
         bool next = setpermuteclockwise(empty);
         assert(!next);
         bool prev = setpermutecounterclockwise(empty);
@@ -593,28 +593,28 @@ void testsek()
         cout << "[OK]\n";
     }
 
-    // Testing setunique on empty sek
+    // Testing setunique on empty sequence
     {
-        cout << "- Testing setunique on empty sek\n";
-        sek<int> empty;
+        cout << "- Testing setunique on empty sequence\n";
+        sequence<int> empty;
         setunique(empty);
         assert(empty.size == 0);
         cout << "[OK]\n";
     }
 
-    // Testing setrotatedaroundindex on empty sek (should remain empty)
+    // Testing setrotatedaroundindex on empty sequence (should remain empty)
     {
-        cout << "- Testing setrotatedaroundindex on empty sek\n";
-        sek<int> empty;
+        cout << "- Testing setrotatedaroundindex on empty sequence\n";
+        sequence<int> empty;
         setrotatedaroundindex(empty, 2);
         assert(empty.size == 0);
         cout << "[OK]\n";
     }
 
-    // Testing setordered with custom compare on an empty sek
+    // Testing setordered with custom compare on an empty sequence
     {
-        cout << "- Testing setordered with custom compare on empty sek\n";
-        sek<int> empty;
+        cout << "- Testing setordered with custom compare on empty sequence\n";
+        sequence<int> empty;
         setordered(empty, [](int a, int b) { return a > b; });
         assert(empty.size == 0);
         cout << "[OK]\n";

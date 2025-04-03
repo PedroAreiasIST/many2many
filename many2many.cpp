@@ -8,8 +8,14 @@ void setnelem(many2many &rel, size_t nelem)
     setsize(rel.nodesfromelement.lnods, nelem);
 }
 void setnnodes(many2many &rel, size_t element, size_t nnodes) { setsize(rel.nodesfromelement.lnods[element], nnodes); }
-void setnodes(many2many &rel, size_t element, sek<size_t> const &nodes) { rel.nodesfromelement.lnods[element] = nodes; }
-size_t appendelement(many2many &rel, sek<size_t> const &nodes) { return appendelement(rel.nodesfromelement, nodes); }
+void setnodes(many2many &rel, size_t element, sequence<size_t> const &nodes)
+{
+    rel.nodesfromelement.lnods[element] = nodes;
+}
+size_t appendelement(many2many &rel, sequence<size_t> const &nodes)
+{
+    return appendelement(rel.nodesfromelement, nodes);
+}
 void multiplication(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc)
 {
     hidden::one2many const *a;
@@ -132,7 +138,7 @@ void setallpointers(many2many &rel)
 }
 hidden::lst getelementsfromnodes(many2many const &rel, hidden::lst const &nodes)
 {
-    sek<size_t> elems;
+    sequence<size_t> elems;
     if (getsize(nodes) == 0)
     {
         return elems;

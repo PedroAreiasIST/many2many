@@ -5,15 +5,15 @@
 #include <limits>
 #include <stdexcept>
 #include <vector>
-#include "sek.hpp"
+#include "sequence.hpp"
 
 namespace hidden {
 
-    using Permutation = sek<size_t>;
-    using Group = sek<Permutation>;
+    using Permutation = sequence<size_t>;
+    using Group = sequence<Permutation>;
     static const size_t UNSET = (std::numeric_limits<size_t>::max)();
 
-    inline bool isvalidfullpermutation(const sek<size_t>& position, const Group& G)
+    inline bool isvalidfullpermutation(const sequence<size_t>& position, const Group& G)
     {
         const size_t posSize = getsize(position);
         for (const auto &perm : G)
@@ -38,7 +38,7 @@ namespace hidden {
         return false;
     }
 
-    inline bool canextend(const sek<size_t>& position, size_t upTo, const Group& G)
+    inline bool canextend(const sequence<size_t>& position, size_t upTo, const Group& G)
     {
         for (const auto &perm : G)
         {
@@ -63,7 +63,7 @@ namespace hidden {
         return false;
     }
 
-    inline bool assignslot(size_t level, sek<size_t>& position, const sek<size_t>& sortedIndices, sek<bool>& used,
+    inline bool assignslot(size_t level, sequence<size_t>& position, const sequence<size_t>& sortedIndices, sequence<bool>& used,
                             const Group& G)
     {
         const size_t n = getsize(position);
@@ -97,7 +97,7 @@ namespace hidden {
 
 } // namespace hidden
 
-inline sek<size_t> getcanonicalform(const sek<size_t>& labels, const hidden::Group& G)
+inline sequence<size_t> getcanonicalform(const sequence<size_t>& labels, const hidden::Group& G)
 {
     using namespace hidden;
     const size_t n = getsize(labels);
@@ -109,7 +109,7 @@ inline sek<size_t> getcanonicalform(const sek<size_t>& labels, const hidden::Gro
     }
 
     // (1) Build sortedIndices sorted by corresponding label values in ascending order.
-    sek<size_t> sortedIndices(n);
+    sequence<size_t> sortedIndices(n);
     for (size_t i = 0; i < n; ++i)
     {
         sortedIndices[i] = i;
@@ -118,8 +118,8 @@ inline sek<size_t> getcanonicalform(const sek<size_t>& labels, const hidden::Gro
               [&labels](size_t a, size_t b) { return labels[a] < labels[b]; });
 
     // (2) Initialize position with UNSET and a boolean array for used indices.
-    sek<size_t> position(n, UNSET);
-    sek<bool> used(n, false);
+    sequence<size_t> position(n, UNSET);
+    sequence<bool> used(n, false);
 
     // (3) Recursively assign slots to obtain a canonical permutation.
     if (!assignslot(0, position, sortedIndices, used, G))
@@ -128,7 +128,7 @@ inline sek<size_t> getcanonicalform(const sek<size_t>& labels, const hidden::Gro
     }
 
     // Build the final canonical labeling by mapping indices to original labels.
-    sek<size_t> canonical(n);
+    sequence<size_t> canonical(n);
     for (size_t k = 0; k < n; ++k)
     {
         canonical[k] = labels[position[k]];

@@ -4,7 +4,7 @@
 #include "godoftypes.hpp"
 #include "one2many.hpp"
 #include "relationmatrix.hpp"
-#include "sek.hpp"
+#include "sequence.hpp"
 #include "test.hpp"
 #include "thing.hpp"
 #include "typsek.hpp"

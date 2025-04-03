@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include -I/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr -I/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/detail
 
-CXX_FLAGS = -std=gnu++20
+CXX_FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
 

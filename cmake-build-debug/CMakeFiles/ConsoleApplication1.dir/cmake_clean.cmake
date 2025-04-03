@@ -1,16 +1,10 @@
 file(REMOVE_RECURSE
   "CMakeFiles/ConsoleApplication1.dir/main.cpp.o"
-  "CMakeFiles/ConsoleApplication1.dir/main.cpp.o.d"
   "CMakeFiles/ConsoleApplication1.dir/many2many.cpp.o"
-  "CMakeFiles/ConsoleApplication1.dir/many2many.cpp.o.d"
   "CMakeFiles/ConsoleApplication1.dir/one2many.cpp.o"
-  "CMakeFiles/ConsoleApplication1.dir/one2many.cpp.o.d"
   "CMakeFiles/ConsoleApplication1.dir/relationmatrix.cpp.o"
-  "CMakeFiles/ConsoleApplication1.dir/relationmatrix.cpp.o.d"
   "CMakeFiles/ConsoleApplication1.dir/test.cpp.o"
-  "CMakeFiles/ConsoleApplication1.dir/test.cpp.o.d"
   "CMakeFiles/ConsoleApplication1.dir/thing.cpp.o"
-  "CMakeFiles/ConsoleApplication1.dir/thing.cpp.o.d"
   "ConsoleApplication1"
   "ConsoleApplication1.pdb"
 )

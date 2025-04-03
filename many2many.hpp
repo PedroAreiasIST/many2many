@@ -3,12 +3,12 @@
 
 #include <cstddef>
 #include "one2many.hpp"
-#include "sek.hpp"
+#include "sequence.hpp"
 
 namespace hidden
 {
-    using lst = sek<size_t>;
-    using lst2 = sek<lst>;
+    using lst = sequence<size_t>;
+    using lst2 = sequence<lst>;
 } // namespace hidden
 
 struct many2many
@@ -23,8 +23,8 @@ struct many2many
 PFR_FUNCTIONS_FOR(many2many)
 void setnelem(many2many &rel, size_t nelem);
 void setnnodes(many2many &rel, size_t element, size_t nnodes);
-void setnodes(many2many &rel, size_t element, sek<size_t> const &nodes);
-size_t appendelement(many2many &rel, sek<size_t> const &nodes);
+void setnodes(many2many &rel, size_t element, sequence<size_t> const &nodes);
+size_t appendelement(many2many &rel, sequence<size_t> const &nodes);
 void multiplication(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc);
 void addition(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc);
 void intersection(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc);
