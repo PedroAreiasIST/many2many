@@ -30,7 +30,7 @@ namespace hidden
     void indicesfromorder(const one2many &rel, const hidden::lst &elemOrder, hidden::lst &oldFromNew,
                           hidden::lst &newFromOld);
     void compresselements(one2many &rel, const hidden::lst &oldelementfromnew);
-    void compressnodes(one2many &rel, const hidden::lst &newnodefromold);
+    void permutenodes(one2many &rel, const hidden::lst &newnodefromold);
 
 } // namespace hidden
 

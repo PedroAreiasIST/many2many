@@ -14,6 +14,9 @@ int main(int argc, char *argv[])
 {
     // testsek();
     many2many mm;
+    seque<size_t> s1{1, 2, 3, 4};
+    seque<size_t> s2{1, 2, 3, 5, 9};
+    cout << "s1 is less than s2" << std::boolalpha << (s1 < s2) << endl;
     cout << "Basics mm part 1" << endl;
     appendelement(mm, {4, 2, 6, 0});
     appendelement(mm, {3, 0});
@@ -30,8 +33,35 @@ int main(int argc, char *argv[])
     cout << "order=" << order << endl;
     cout << "ordered" << endl;
     cout << mm.nodesfromelement.lnods(order) << endl;
-    appendelement(mm, {{8, 9, 0, 1}});
-    cout << mm.nodesfromelement << endl;
+    appendelement(mm, {8, 9, 0, 1});
+    cout << "With another element" << mm.nodesfromelement << endl;
+    cout << "How about maxnodenumber" << mm.nodesfromelement.maxnodenumber << endl;
+    many2many mm2, mm3;
+    appendelement(mm2, {4, 9, 5, 8, 0, 1});
+    appendelement(mm2, {3, 1, 2, 0, 5});
+    appendelement(mm2, {3, 1});
+    addition(mm2, false, mm, false, mm3);
+    difference(mm3, false, mm, false, mm2);
+    setallpointers(mm);
+    cout << "m=" << mm.nodesfromelement.lnods << endl;
+    cout << "elements given 4,2,6,0=" << getelementsfromnodes(mm, {4, 2, 6, 0}) << endl;
+    cout << "elements given 8,9,0,1=" << getelementsfromnodes(mm, {8, 9, 0, 1}) << endl;
+    cout << "addition=" << mm3.nodesfromelement.lnods << endl;
+    cout << "difference=" << mm2.nodesfromelement.lnods << endl;
+
+    many2many mm4;
+    appendelement(mm4, {4, 9, 5, 8, 0, 1});
+    appendelement(mm4, {3, 1, 2, 0, 5});
+    appendelement(mm4, {3, 1});
+    intersection(mm, false, mm4, false, mm3);
+    cout << "intersection" << mm3.nodesfromelement.lnods << endl;
+    seque<size_t> se{0, 1, 3};
+    cout << "Before compression=" << mm.nodesfromelement.lnods << endl;
+    compresselements(mm, se);
+    cout << "After compression=" << mm.nodesfromelement.lnods << endl;
+    seque<size_t> sn{0, 2, 1, 4, 3, 5, 7, 9, 8};
+    permutenodes(mm, sn); // getelementstoelements(mm, )
+    cout << "After node compression" << mm.nodesfromelement.lnods << endl;
     thing canbeanelement;
     thing hascoordinates;
     thing haslength;

@@ -21,8 +21,6 @@ struct many2many
 };
 PFR_FUNCTIONS_FOR(many2many)
 void setnelem(many2many &rel, size_t nelem);
-void setnnodes(many2many &rel, size_t element, size_t nnodes);
-void setnodes(many2many &rel, size_t element, seque<size_t> const &nodes);
 size_t appendelement(many2many &rel, seque<size_t> const &nodes);
 void multiplication(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc);
 void addition(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc);
@@ -36,7 +34,7 @@ void toporder(many2many const &rel, hidden::lst &orderofelements);
 void indicesfromorder(many2many const &rel, const hidden::lst &elementorder, hidden::lst &oldfromnew,
                       hidden::lst &newfromold);
 void compresselements(many2many &rel, hidden::lst const &oldelementfromnew);
-void compressnodes(many2many &rel, hidden::lst const &newnodefromold);
+void permutenodes(many2many &rel, hidden::lst const &newnodefromold);
 void getelementstoelements(many2many const &rel, many2many &elementstoelements);
 void getnodestonodes(many2many const &rel, many2many &nodestonodes);
 size_t getlocalnodeposition(many2many const &rel, size_t node, size_t localelement);

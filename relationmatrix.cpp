@@ -150,7 +150,7 @@ void compress(relationmatrix &m, size_t elementtype, seque<size_t> const &oldele
     // Note: the inner loop variable was shadowing the outer element type; renamed it to avoid confusion.
     for (size_t otherelementtype = 0; otherelementtype < m.ntypes; ++otherelementtype)
     {
-        compressnodes(m(otherelementtype, elementtype), newelementfromold);
+        permutenodes(m(otherelementtype, elementtype), newelementfromold);
     }
 }
 

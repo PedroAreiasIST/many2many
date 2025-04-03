@@ -338,7 +338,7 @@ namespace hidden
         rel.maxnodenumber = local_max;
     }
 
-    void compressnodes(one2many &rel, const hidden::lst &newnodefromold)
+    void permutenodes(one2many &rel, const hidden::lst &newnodefromold)
     {
         // Process each row independently.
 #ifdef _OPENMP
