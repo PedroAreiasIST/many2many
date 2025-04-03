@@ -2,12 +2,24 @@
 
 size_t many2many::nnodes(size_t element) { return getsize(nodesfromelement.lnods[element]); }
 size_t many2many::nelems(size_t node) { return getsize(elementsfromnode.lnods[node]); }
-void setnelem(many2many &rel, size_t nelem)
+void setnumberofelements(many2many &rel, size_t nelem) { setnelem(rel.nodesfromelement, nelem); }
+void setnodesforelement(many2many &rel, size_t element, seque<size_t> const &nodes)
 {
-    rel.nodesfromelement.nelem = nelem;
-    setsize(rel.nodesfromelement.lnods, nelem);
+    rel.nodesfromelement.lnods[element] = nodes;
 }
-size_t appendelement(many2many &rel, seque<size_t> const &nodes) { return appendelement(rel.nodesfromelement, nodes); }
+size_t appendelement(many2many &rel, seque<size_t> const &nodes)
+{
+    size_t newel = hidden::appendelement(rel.nodesfromelement, nodes);
+    for (size_t node = 0; node < getsize(nodes); ++node)
+    {
+        addretainingorder(rel.elementsfromnode.lnods(nodes[node]), newel);
+    }
+    return newel;
+}
+size_t appendelementlight(many2many &rel, seque<size_t> const &nodes)
+{
+    return hidden::appendelement(rel.nodesfromelement, nodes);
+}
 void multiplication(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc)
 {
     hidden::one2many const *a;
@@ -27,6 +39,7 @@ void multiplication(const many2many &rela, bool transposea, const many2many &rel
         b = &relb.nodesfromelement;
     }
     multiplication(*a, *b, relc.nodesfromelement);
+    setallpointers(relc);
 }
 void addition(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc)
 {
@@ -47,6 +60,7 @@ void addition(const many2many &rela, bool transposea, const many2many &relb, boo
         b = &relb.nodesfromelement;
     }
     addition(*a, *b, relc.nodesfromelement);
+    setallpointers(relc);
 }
 void intersection(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc)
 {
@@ -67,8 +81,9 @@ void intersection(const many2many &rela, bool transposea, const many2many &relb,
         b = &relb.nodesfromelement;
     }
     intersection(*a, *b, relc.nodesfromelement);
+    setallpointers(relc);
 }
-void difference(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc)
+void subtraction(const many2many &rela, bool transposea, const many2many &relb, bool transposeb, many2many &relc)
 {
     hidden::one2many const *a;
     hidden::one2many const *b;
@@ -87,6 +102,7 @@ void difference(const many2many &rela, bool transposea, const many2many &relb, b
         b = &relb.nodesfromelement;
     }
     difference(*a, *b, relc.nodesfromelement);
+    setallpointers(relc);
 }
 
 void setallpointers(many2many &rel)
@@ -174,7 +190,6 @@ void compresselements(many2many &rel, hidden::lst const &oldelementfromnew)
 void permutenodes(many2many &rel, hidden::lst const &newnodefromold)
 {
     permutenodes(rel.nodesfromelement, newnodefromold);
-    setallpointers(rel);
 }
 void getelementstoelements(many2many const &rel, many2many &elementstoelements)
 {

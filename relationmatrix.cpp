@@ -129,11 +129,6 @@ void setmany2many(relationmatrix &m, size_t elementype, size_t nodetype, many2ma
 }
 many2many &getmany2many(relationmatrix &m, size_t elementype, size_t nodetype) { return m(elementype, nodetype); }
 
-void lexiorder(relationmatrix &m, size_t elementype, size_t nodetype, seque<size_t> &order)
-{
-    lexiorder(m(elementype, nodetype), order);
-}
-
 void indicesfromorder(relationmatrix &m, size_t elementtype, size_t nodetype, seque<size_t> const &order,
                       seque<size_t> &oldfromnew, seque<size_t> &newfromold)
 {

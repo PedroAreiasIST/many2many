@@ -12,7 +12,21 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    // testsek();
+    const seque<seque<size_t>> h8symm{
+            {0, 1, 2, 3, 4, 5, 6, 7}, {1, 2, 3, 0, 5, 6, 7, 4}, {2, 3, 0, 1, 6, 7, 4, 5}, {3, 0, 1, 2, 7, 4, 5, 6},
+            {4, 0, 3, 7, 5, 1, 2, 6}, {5, 4, 7, 6, 1, 0, 3, 2}, {1, 5, 6, 2, 0, 4, 7, 3}, {2, 6, 7, 3, 1, 5, 4, 0},
+            {3, 2, 6, 7, 0, 1, 5, 4}, {7, 6, 5, 4, 3, 2, 1, 0}, {4, 5, 1, 0, 7, 6, 2, 3}, {0, 3, 7, 4, 1, 2, 6, 5},
+            {0, 4, 5, 1, 3, 7, 6, 2}, {4, 5, 1, 0, 7, 6, 2, 3}, {5, 1, 0, 4, 6, 2, 3, 7}, {1, 0, 4, 5, 2, 3, 7, 6},
+            {2, 1, 5, 6, 3, 0, 4, 7}, {6, 5, 4, 7, 2, 1, 0, 3}, {7, 4, 0, 3, 6, 5, 1, 2}, {3, 7, 6, 2, 0, 4, 5, 1},
+            {1, 0, 3, 2, 5, 4, 7, 6}, {2, 1, 0, 3, 6, 5, 4, 7}, {3, 2, 1, 0, 7, 6, 5, 4}, {0, 3, 2, 1, 4, 7, 6, 5}};
+    const seque<seque<size_t>> t3sym{{0, 1, 2}, {1, 2, 0}, {2, 0, 1}};
+    const seque<seque<size_t>> q4sym{{0, 1, 2, 3}, {1, 2, 3, 0}, {2, 3, 0, 1}, {3, 0, 1, 2}};
+    const seque<seque<size_t>> tet4sym{{0, 1, 2, 3}, {1, 2, 0, 3}, {2, 0, 1, 3}, {0, 3, 1, 2},
+                                       {3, 1, 0, 2}, {0, 2, 3, 1}, {0, 3, 2, 1}, {3, 0, 1, 2},
+                                       {2, 1, 3, 0}, {1, 3, 0, 2}, {3, 2, 0, 1}, {2, 0, 3, 1}};
+    const seque<seque<size_t>> wedge6{{0, 1, 2, 3, 4, 5}, {1, 2, 0, 4, 5, 3}, {2, 0, 1, 5, 3, 4},
+                                      {0, 2, 1, 3, 5, 4}, {2, 1, 0, 5, 4, 3}, {1, 0, 2, 4, 3, 5}};
+
     many2many mm;
     seque<size_t> s1{1, 2, 3, 4};
     seque<size_t> s2{1, 2, 3, 5, 9};
@@ -22,7 +36,7 @@ int main(int argc, char *argv[])
     appendelement(mm, {3, 0});
     appendelement(mm, {3, 1});
     appendelement(mm, {6, 3, 5, 1, 2, 4});
-    setallpointers(mm);
+    //   setallpointers(mm);
     cout << "mm=" << mm << std::endl;
     cout << "mm.nodesfromelement=" << mm.nodesfromelement.lnods << std::endl;
     cout << "mm.elementsfromnodes=" << mm.elementsfromnode.lnods << std::endl;
@@ -41,19 +55,20 @@ int main(int argc, char *argv[])
     appendelement(mm2, {3, 1, 2, 0, 5});
     appendelement(mm2, {3, 1});
     addition(mm2, false, mm, false, mm3);
-    difference(mm3, false, mm, false, mm2);
+    subtraction(mm3, false, mm, false, mm2);
     setallpointers(mm);
     cout << "m=" << mm.nodesfromelement.lnods << endl;
     cout << "elements given 4,2,6,0=" << getelementsfromnodes(mm, {4, 2, 6, 0}) << endl;
     cout << "elements given 8,9,0,1=" << getelementsfromnodes(mm, {8, 9, 0, 1}) << endl;
     cout << "addition=" << mm3.nodesfromelement.lnods << endl;
-    cout << "difference=" << mm2.nodesfromelement.lnods << endl;
-
-    many2many mm4;
+    cout << "subtraction=" << mm2.nodesfromelement.lnods << endl;
+    many2many mm4, mm5;
     appendelement(mm4, {4, 9, 5, 8, 0, 1});
     appendelement(mm4, {3, 1, 2, 0, 5});
     appendelement(mm4, {3, 1});
+    multiplication(mm, false, mm2, false, mm5);
     intersection(mm, false, mm4, false, mm3);
+
     cout << "intersection" << mm3.nodesfromelement.lnods << endl;
     seque<size_t> se{0, 1, 3};
     cout << "Before compression=" << mm.nodesfromelement.lnods << endl;
@@ -62,6 +77,23 @@ int main(int argc, char *argv[])
     seque<size_t> sn{0, 2, 1, 4, 3, 5, 7, 9, 8};
     permutenodes(mm, sn); // getelementstoelements(mm, )
     cout << "After node compression" << mm.nodesfromelement.lnods << endl;
+
+    many2many en;
+    appendelement(en, {4, 2, 6, 0});
+    appendelement(en, {3, 0});
+    appendelement(en, {3, 1});
+    appendelement(en, {6, 3, 5, 1, 2, 4});
+    setallpointers(en);
+    setallpointers(en);
+    many2many mmee;
+    getelementstoelements(en, mmee);
+    many2many mmnn;
+    getnodestonodes(en, mmnn);
+    cout << "Element neighboors" << endl;
+    cout << mmee.elementsfromnode.lnods << endl;
+    cout << "Nodal neighboors" << endl;
+    cout << mmnn.elementsfromnode.lnods << endl;
+
     thing canbeanelement;
     thing hascoordinates;
     thing haslength;
@@ -89,44 +121,19 @@ int main(int argc, char *argv[])
     setsymmetrygroup(rm, edge.type, node.type, {{0, 1}, {1, 0}});
     setsymmetrygroup(rm, edge.type, haslength.type, {{0}});
     setsymmetrygroup(rm, edge.type, canbeanelement.type, {{0}});
-    setsymmetrygroup(rm, tri.type, node.type, {{0, 1, 2}, {1, 2, 0}, {2, 0, 1}});
+    setsymmetrygroup(rm, tri.type, node.type, t3sym);
     setsymmetrygroup(rm, tri.type, hasarea.type, {{0}});
     setsymmetrygroup(rm, tri.type, canbeanelement.type, {{0}});
-    setsymmetrygroup(rm, quad.type, node.type, {{0, 1, 2, 3}, {1, 2, 3, 0}, {2, 3, 0, 1}, {3, 0, 1, 2}});
+    setsymmetrygroup(rm, quad.type, node.type, q4sym);
     setsymmetrygroup(rm, quad.type, hasarea.type, {{0}});
     setsymmetrygroup(rm, quad.type, canbeanelement.type, {{0}});
-    setsymmetrygroup(rm, tet.type, node.type,
-                     {{0, 1, 2, 3},
-                      {1, 2, 0, 3},
-                      {2, 0, 1, 3},
-                      {0, 3, 1, 2},
-                      {3, 1, 0, 2},
-                      {0, 2, 3, 1},
-                      {0, 3, 2, 1},
-                      {3, 0, 1, 2},
-                      {2, 1, 3, 0},
-                      {1, 3, 0, 2},
-                      {3, 2, 0, 1},
-                      {2, 0, 3, 1}});
+    setsymmetrygroup(rm, tet.type, node.type, tet4sym);
     setsymmetrygroup(rm, tet.type, hasvolume.type, {{0}});
     setsymmetrygroup(rm, tet.type, canbeanelement.type, {{0}});
-    setsymmetrygroup(
-            rm, hex.type, node.type,
-            {{0, 1, 2, 3, 4, 5, 6, 7}, {1, 2, 3, 0, 5, 6, 7, 4}, {2, 3, 0, 1, 6, 7, 4, 5}, {3, 0, 1, 2, 7, 4, 5, 6},
-             {4, 0, 3, 7, 5, 1, 2, 6}, {5, 4, 7, 6, 1, 0, 3, 2}, {1, 5, 6, 2, 0, 4, 7, 3}, {2, 6, 7, 3, 1, 5, 4, 0},
-             {3, 2, 6, 7, 0, 1, 5, 4}, {7, 6, 5, 4, 3, 2, 1, 0}, {4, 5, 1, 0, 7, 6, 2, 3}, {0, 3, 7, 4, 1, 2, 6, 5},
-             {0, 4, 5, 1, 3, 7, 6, 2}, {4, 5, 1, 0, 7, 6, 2, 3}, {5, 1, 0, 4, 6, 2, 3, 7}, {1, 0, 4, 5, 2, 3, 7, 6},
-             {2, 1, 5, 6, 3, 0, 4, 7}, {6, 5, 4, 7, 2, 1, 0, 3}, {7, 4, 0, 3, 6, 5, 1, 2}, {3, 7, 6, 2, 0, 4, 5, 1},
-             {1, 0, 3, 2, 5, 4, 7, 6}, {2, 1, 0, 3, 6, 5, 4, 7}, {3, 2, 1, 0, 7, 6, 5, 4}, {0, 3, 2, 1, 4, 7, 6, 5}});
+    setsymmetrygroup(rm, hex.type, node.type, h8symm);
     setsymmetrygroup(rm, hex.type, hasvolume.type, {{0}});
     setsymmetrygroup(rm, hex.type, canbeanelement.type, {{0}});
-    setsymmetrygroup(rm, wedge.type, node.type,
-                     {{0, 1, 2, 3, 4, 5},
-                      {1, 2, 0, 4, 5, 3},
-                      {2, 0, 1, 5, 3, 4},
-                      {0, 2, 1, 3, 5, 4},
-                      {2, 1, 0, 5, 4, 3},
-                      {1, 0, 2, 4, 3, 5}});
+    setsymmetrygroup(rm, wedge.type, node.type, wedge6);
     setsymmetrygroup(rm, wedge.type, hasvolume.type, {{0}});
     setsymmetrygroup(rm, wedge.type, canbeanelement.type, {{0}});
     appendnodesofonetype(node, hascoordinates.type, {8});
