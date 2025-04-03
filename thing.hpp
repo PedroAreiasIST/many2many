@@ -22,6 +22,6 @@ void appendnodesofonetype(thing &e, size_t nodetype, sequence<size_t> const &nod
 void appendbuilder(thing &eparent, thing &echildren,
                    sequence<std::pair<size_t, sequence<size_t>>> const &typeandlocalnodes);
 
-void insertentity(relationmatrix &m, thing const &e);
+void insertathing(relationmatrix &m, thing const &e);
 
 #endif // RELATIONMANAGER_HPP
