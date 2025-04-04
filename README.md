@@ -2,17 +2,20 @@
 
 ###### A general many-to-many relation manager with:
 
-* Automatic serialization ($$<<$$ and $$>>$$) for all
-* Automatic comparison $$<=>$$ and set-theory operations $$\cap$$ $$\cup$$ and $$\setminus$$
-* Classical symbolic operations for sparse addressing (sum, difference, multiplication)
+* Automatic serialization ($<<$ and $>>$) for all
+* Automatic comparison $==$, $<$, $>$, $leq$, $\geq$ and set-theory operations $\cap$, $\cup$ and $\setminus$ for all
+  relations
+* Classical symbolic operations for sparse addressing ($^T$, $+$, $-$, $\times$)
 * Generalized dependence lookup by node sets
+* Permutation of generalized nodes and elements
+* Compression of nodes and elements
 * Canonical representation of symmetry groups
-* Depth-first search from nodes and elements
-* Depth-first search for types
+* Depth-first (DFS) search from nodes and elements
+* DFS search for types
 * Topological ordering of nodes and elements
 * Topological ordering of types
 * Lexicographical ordering of all dependence relations
-* Automatic instantiation by means of builders
+* Automatic instantiation in a heterogeneous container by means of builders
 
   And much more
 
