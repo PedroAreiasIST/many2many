@@ -1,5 +1,5 @@
 A general many-to-many relation manager with:
-<img src="/home/pedro/SimPlas/SimPre/SimPre/simplastetnotext.png"/>
+![](/home/pedro/SimPlas/SimPre/SimPre/simplastetnotext.png)
 
 1) Automatic serialization
 2) Automatic comparison and set-theory operations
