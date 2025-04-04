@@ -48,7 +48,7 @@ void testmm2m()
     settype(hex, 11);
     settype(wedge, 12);
     settype(elementgroup, 13);
-    // mm2m
+    // symmetry groups
     mm2m rm;
     setnumberoftypes(rm, 14);
     setsymmetrygroup(rm, node.type, hascoordinates.type, {{0}});
