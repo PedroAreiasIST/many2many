@@ -1,6 +1,6 @@
 ![](m2m.png)
 
-A general many-to-many relation manager with:
+###### A general many-to-many relation manager with:
 
 * Automatic serialization
 * Automatic comparison and set-theory operations
