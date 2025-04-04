@@ -5,7 +5,7 @@
 * Automatic serialization ($<<$ and $>>$) for all
 * Automatic comparison $==$, $<$, $>$, $\leq$, $\geq$ and set-theory operations $\cap$, $\cup$ and $\setminus$ for all
   relations
-* Classical symbolic operations for sparse addressing ($^T$, $+$, $-$, $\times$)
+* Classical symbolic operations for sparse addressing ($\mathtt{Transpose}$, $+$, $-$, $\times$)
 * Generalized dependence lookup by node sets
 * Permutation of generalized nodes and elements
 * Compression of nodes and elements
