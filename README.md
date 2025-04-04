@@ -1,6 +1,6 @@
-A general many-to-many relation manager with:
+![](m2m.png)
 
-![](/home/pedro/SimPlas/ConsoleApplication1/simplastetnotext.png)
+A general many-to-many relation manager with:
 
 1) Automatic serialization
 2) Automatic comparison and set-theory operations
