@@ -1,3 +1,0 @@
-/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/CMakeFiles/ConsoleApplication1.dir
-/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/CMakeFiles/rebuild_cache.dir

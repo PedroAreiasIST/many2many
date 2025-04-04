@@ -1,10 +1,10 @@
 #include "thing.hpp"
-void settype(thing &e, size_t type) { e.type = type; }
-void settype(seque<thing> &es, size_t type)
+void settypenumber(thing &e, size_t type) { e.type = type; }
+void settypenumber(seque<thing> &es, size_t type)
 {
     for (auto e: es)
     {
-        settype(e, type);
+        settypenumber(e, type);
     }
 }
 void appendnodesofonetype(thing &e, size_t nodetype, seque<size_t> const &nodes)

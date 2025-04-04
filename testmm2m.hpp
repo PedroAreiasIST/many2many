@@ -28,30 +28,28 @@ void testmm2m()
                                       {0, 2, 1, 3, 5, 4}, {2, 1, 0, 5, 4, 3}, {1, 0, 2, 4, 3, 5}};
     // thing skeletons
     thing isanelement;
-    thing hascoordinates;
     thing haslength;
     thing hasarea;
     thing hasvolume;
     thing node, point, edge, tri, quad, tet, hex, wedge;
     thing elementgroup;
-    settype(isanelement, 0);
-    settype(hascoordinates, 1);
-    settype(haslength, 2);
-    settype(hasarea, 3);
-    settype(hasvolume, 4);
-    settype(node, 5);
-    settype(point, 6);
-    settype(edge, 7);
-    settype(tri, 8);
-    settype(quad, 9);
-    settype(tet, 10);
-    settype(hex, 11);
-    settype(wedge, 12);
-    settype(elementgroup, 13);
+    // assigntype numbers
+    settypenumber(isanelement, 0);
+    settypenumber(haslength, 2);
+    settypenumber(hasarea, 3);
+    settypenumber(hasvolume, 4);
+    settypenumber(node, 5);
+    settypenumber(point, 6);
+    settypenumber(edge, 7);
+    settypenumber(tri, 8);
+    settypenumber(quad, 9);
+    settypenumber(tet, 10);
+    settypenumber(hex, 11);
+    settypenumber(wedge, 12);
+    settypenumber(elementgroup, 13);
     // symmetry groups
     mm2m rm;
     setnumberoftypes(rm, 14);
-    setsymmetrygroup(rm, node.type, hascoordinates.type, {{0}});
     setsymmetrygroup(rm, point.type, node.type, {{0}});
     setsymmetrygroup(rm, point.type, isanelement.type, {{0}});
     setsymmetrygroup(rm, edge.type, node.type, {{0, 1}, {1, 0}});
@@ -72,9 +70,8 @@ void testmm2m()
     setsymmetrygroup(rm, wedge.type, node.type, wedge6);
     setsymmetrygroup(rm, wedge.type, hasvolume.type, {{0}});
     setsymmetrygroup(rm, wedge.type, isanelement.type, {{0}});
-    setsymmetrygroup(rm, elementgroup.type, node.type, {{}});
+    setsymmetrygroup(rm, elementgroup.type, isanelement.type, {{}});
     // specialization of things
-    appendnodesofonetype(node, hascoordinates.type, {8});
     appendnodesofonetype(point, node.type, {0});
     appendnodesofonetype(point, isanelement.type, {0});
     appendnodesofonetype(edge, node.type, {3, 2});
@@ -95,9 +92,8 @@ void testmm2m()
     appendnodesofonetype(wedge, node.type, {5, 4, 3, 2, 1, 0});
     appendnodesofonetype(wedge, hasvolume.type, {0});
     appendnodesofonetype(wedge, isanelement.type, {0});
-
+    appendnodesofonetype(elementgroup, isanelement.type, {0});
     insertathing(rm, isanelement);
-    insertathing(rm, hascoordinates);
     insertathing(rm, haslength);
     insertathing(rm, hasarea);
     insertathing(rm, hasvolume);

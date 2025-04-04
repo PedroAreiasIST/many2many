@@ -13,9 +13,9 @@ struct thing
 };
 PFR_FUNCTIONS_FOR(thing)
 
-void settype(thing &e, size_t type);
+void settypenumber(thing &e, size_t type);
 
-void settype(seque<thing> &es, size_t type);
+void settypenumber(seque<thing> &es, size_t type);
 
 void appendnodesofonetype(thing &e, size_t nodetype, seque<size_t> const &nodes);
 

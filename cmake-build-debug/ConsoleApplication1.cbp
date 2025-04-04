@@ -5,7 +5,7 @@
 		<Option title="ConsoleApplication1"/>
 		<Option makefile_is_custom="1"/>
 		<Option compiler="gcc"/>
-		<Option virtualFolders="CMake Files\;"/>
+		<Option virtualFolders="CMake Files\;CMake Files\vcpck\;CMake Files\vcpck\scripts\;CMake Files\vcpck\scripts\buildsystems\;CMake Files\vcpck\installed\;CMake Files\vcpck\installed\x64-linux\;CMake Files\vcpck\installed\x64-linux\share\;CMake Files\vcpck\installed\x64-linux\share\tabulate\;"/>
 		<Build>
 			<Target title="all">
 				<Option working_dir="/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug"/>
@@ -27,6 +27,7 @@
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include"/>
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr"/>
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/detail"/>
+					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/vcpck/installed/x64-linux/include"/>
 					<Add directory="/usr/include/c++/14"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/14"/>
 					<Add directory="/usr/include/c++/14/backward"/>
@@ -52,6 +53,7 @@
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include"/>
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr"/>
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/detail"/>
+					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/vcpck/installed/x64-linux/include"/>
 					<Add directory="/usr/include/c++/14"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/14"/>
 					<Add directory="/usr/include/c++/14/backward"/>
@@ -141,6 +143,18 @@
 		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/vcpck/scripts/buildsystems/vcpkg.cmake">
+			<Option virtualFolder="CMake Files\vcpck\scripts\buildsystems\"/>
+		</Unit>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/vcpck/installed/x64-linux/share/tabulate/tabulateConfig.cmake">
+			<Option virtualFolder="CMake Files\vcpck\installed\x64-linux\share\tabulate\"/>
+		</Unit>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/vcpck/installed/x64-linux/share/tabulate/tabulateConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\vcpck\installed\x64-linux\share\tabulate\"/>
+		</Unit>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/vcpck/installed/x64-linux/share/tabulate/tabulateTargets.cmake">
+			<Option virtualFolder="CMake Files\vcpck\installed\x64-linux\share\tabulate\"/>
 		</Unit>
 	</Project>
 </CodeBlocks_project_file>
