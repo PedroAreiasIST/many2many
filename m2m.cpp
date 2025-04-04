@@ -107,11 +107,11 @@ void setallpointers(m2m &rel)
     {
         setsize(rel.nodelocation[node], getsize(rel.elementsfromnode.lnods[node]));
     }
-    hidden::lst nextlocalelementofnode(rel.elementsfromnode.nelem, 0);
+    seque<size_t> nextlocalelementofnode(rel.elementsfromnode.nelem, 0);
     size_t nelem = getsize(rel.nodesfromelement.lnods);
     for (size_t element = 0; element < nelem; ++element)
     {
-        const hidden::lst &nodes = rel.nodesfromelement.lnods[element];
+        const seque<size_t> &nodes = rel.nodesfromelement.lnods[element];
         size_t nnode = getsize(nodes);
         for (size_t localnode = 0; localnode < nnode; ++localnode)
         {
@@ -120,7 +120,8 @@ void setallpointers(m2m &rel)
         }
     }
 }
-seque<size_t> getelementswithnodes(m2m const &rel, hidden::lst const &nodes)
+
+seque<size_t> getelementswithnodes(m2m const &rel, seque<size_t> const &nodes)
 {
     seque<size_t> elems;
     if (getsize(nodes) == 0)
@@ -132,7 +133,7 @@ seque<size_t> getelementswithnodes(m2m const &rel, hidden::lst const &nodes)
         elems = getintersection(elems, rel.elementsfromnode.lnods[nodes[elem]]);
     return elems;
 }
-seque<size_t> getelementsfromnodes(m2m const &rel, hidden::lst const &nodes)
+seque<size_t> getelementsfromnodes(m2m const &rel, seque<size_t> const &nodes)
 {
     seque<size_t> elems = getelementswithnodes(rel, nodes);
     seque<size_t> ret;
@@ -143,15 +144,15 @@ seque<size_t> getelementsfromnodes(m2m const &rel, hidden::lst const &nodes)
     }
     return ret;
 }
-hidden::lst getneighbours(m2m const &rel, size_t element)
+seque<size_t> getelementneighbours(m2m const &rel, size_t element)
 {
-    hidden::lst neighbours;
+    seque<size_t> neighbours;
     setsize(neighbours, 0);
-    const hidden::lst &elementNodes = rel.nodesfromelement.lnods[element];
+    const seque<size_t> &elementNodes = rel.nodesfromelement.lnods[element];
     for (size_t nodePos = 0, nodeCount = getsize(elementNodes); nodePos < nodeCount; ++nodePos)
     {
         size_t node = elementNodes[nodePos];
-        const hidden::lst &nodeElements = rel.elementsfromnode.lnods[node];
+        const seque<size_t> &nodeElements = rel.elementsfromnode.lnods[node];
         for (size_t elemPos = 0, elemCount = getsize(nodeElements); elemPos < elemCount; ++elemPos)
         {
             size_t otherElem = nodeElements[elemPos];
@@ -165,16 +166,40 @@ hidden::lst getneighbours(m2m const &rel, size_t element)
     setunique(neighbours);
     return neighbours;
 }
-void indicesfromorder(m2m const &rel, const hidden::lst &elementorder, hidden::lst &oldfromnew, hidden::lst &newfromold)
+
+seque<size_t> getnodeneighbours(m2m const &rel, size_t node){
+    seque<size_t> neighbours;
+    setsize(neighbours, 0);
+    const seque<size_t> &elementsofnode = rel.elementsfromnode.lnods[node];
+    for (size_t nodePos = 0, nodeCount = getsize(elementsofnode); nodePos < nodeCount; ++nodePos)
+    {
+        size_t element = elementsofnode[nodePos];
+        const seque<size_t> &elementnodes = rel.elementsfromnode.lnods[node];
+        for (size_t elemPos = 0, elemCount = getsize(elementnodes); elemPos < elemCount; ++elemPos)
+        {
+            size_t othernode = elementnodes[elemPos];
+            if (othernode != node)
+            {
+                append(neighbours, othernode);
+            }
+        }
+    }
+    setordered(neighbours);
+    setunique(neighbours);
+    return neighbours;
+}
+
+void indicesfromorder(m2m const &rel, const seque<size_t> &elementorder, seque<size_t> &oldfromnew,
+                      seque<size_t> &newfromold)
 {
     indicesfromorder(rel.nodesfromelement, elementorder, oldfromnew, newfromold);
 }
-void compresselements(m2m &rel, hidden::lst const &oldelementfromnew)
+void compresselements(m2m &rel, seque<size_t> const &oldelementfromnew)
 {
     compresselements(rel.nodesfromelement, oldelementfromnew);
     setallpointers(rel);
 }
-void permutenodes(m2m &rel, hidden::lst const &newnodefromold) { permutenodes(rel.nodesfromelement, newnodefromold); }
+void permutenodes(m2m &rel, seque<size_t> const &newnodefromold) { permutenodes(rel.nodesfromelement, newnodefromold); }
 void getelementstoelements(m2m const &rel, m2m &elementstoelements)
 {
     multiplication(rel.nodesfromelement, rel.elementsfromnode, elementstoelements.nodesfromelement);

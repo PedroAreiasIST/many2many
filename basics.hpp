@@ -8,11 +8,15 @@
 #include <random>
 #include <sstream> // Needed for std::ostringstream const& stringfromvalue
 #include <string>
+#include <tabulate/latex_exporter.hpp>
 #include <tuple>
 #include <typeinfo>
 #include <utility>
 #include <vector>
 #include "pfr_non_boost-master/include/pfr.hpp"
+using namespace tabulate;
+using Row_t = Table::Row_t;
+
 
 /**
  * @brief Reads values from standard input.
@@ -207,10 +211,10 @@ struct pfrgetallnames
      * @brief Recursively retrieves member names.
      *
      * @tparam I The current index.
-     * @param lst The list to store member names.
+     * @param seque<size_t>  The list to store member names.
      */
     template<size_t I = 0>
-    static void item(std::vector<std::string> &lst)
+    static void item(std::vector<std::string> &lst )
     {
         lst.push_back(std::string(pfr::get_name<I, StructType>()));
         if constexpr (I + 1 < pfr::tuple_size<StructType>::value)
@@ -231,3 +235,49 @@ std::vector<std::string> pfrgetallnames<StructType>::names;
  * @param nomestodos The vector to store the names.
  */
 #define PFRALLNAMES(sname, nomestodos) pfrgetallnames<sname>::item<>(nomestodos)
+
+/**
+ *
+ *
+ *
+ */
+template<typename A>
+void latextableexport(A const &arr, size_t nrows, size_t ncols)
+{
+    Table movies;
+    Row_t firstrow(ncols + 1);
+    for (int i = 1; i < ncols + 1; ++i)
+    {
+        std::string temp = stringfromvalue(i);
+    }
+
+    movies.add_row(Row_t{"S/N", "Movie Name", "Director", "Estimated Budget", "Release Date"});
+    movies.add_row(Row_t{"tt1979376", "Toy Story 4", "Josh Cooley", "$200,000,000", "21 June 2019"});
+    movies.add_row(Row_t{"tt3263904", "Sully", "Clint Eastwood", "$60,000,000", "9 September 2016"});
+    movies.add_row(Row_t{"tt1535109", "Captain Phillips", "Paul Greengrass", "$55,000,000", " 11 October 2013"});
+
+    // center align 'Director' column
+    movies.column(2).format().font_align(FontAlign::center);
+
+    // right align 'Estimated Budget' column
+    movies.column(3).format().font_align(FontAlign::right);
+
+    // right align 'Release Date' column
+    movies.column(4).format().font_align(FontAlign::right);
+
+    // Color header cells
+    for (size_t i = 0; i < 5; ++i)
+    {
+        movies[0][i].format().font_color(Color::white).font_style({FontStyle::bold}).background_color(Color::blue);
+    }
+
+    LatexExporter exporter;
+    exporter.configure().indentation(8);
+    auto latex = exporter.dump(movies);
+
+    // tabulate::table
+    std::cout << movies << "\n\n";
+
+    // Exported Markdown
+    std::cout << latex << std::endl;
+}

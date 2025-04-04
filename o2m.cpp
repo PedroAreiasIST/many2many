@@ -315,13 +315,13 @@ namespace hidden
 
     seque<size_t> lexiorder(const o2m &rel) { return getorder(rel.lnods); }
 
-    void indicesfromorder(const o2m &rel, const hidden::lst &elemOrder, hidden::lst &oldFromNew,
-                          hidden::lst &newFromOld)
+    void indicesfromorder(const o2m &rel, const seque<size_t> &elemOrder, seque<size_t> &oldFromNew,
+                          seque<size_t> &newFromOld)
     {
         indicesfromorder(rel.lnods, elemOrder, oldFromNew, newFromOld);
     }
 
-    void compresselements(o2m &rel, const hidden::lst &oldelementfromnew)
+    void compresselements(o2m &rel, const seque<size_t> &oldelementfromnew)
     {
         rel.lnods = rel.lnods(oldelementfromnew);
         rel.nelem = getsize(oldelementfromnew);
@@ -340,7 +340,7 @@ namespace hidden
         rel.maxnodenumber = local_max;
     }
 
-    void permutenodes(o2m &rel, const hidden::lst &newnodefromold)
+    void permutenodes(o2m &rel, const seque<size_t> &newnodefromold)
     {
         // Process each row independently.
 #ifdef _OPENMP

@@ -11,6 +11,7 @@ void appendnodesofonetype(thing &e, size_t nodetype, seque<size_t> const &nodes)
 {
     append(e.typeandnodes, std::make_pair(nodetype, nodes));
 }
+
 void appendbuilder(thing &eparent, thing &echildren, seque<std::pair<size_t, seque<size_t>>> const &typeandlocalnodes)
 {
     for (size_t localnodetype = 0; localnodetype < getsize(typeandlocalnodes); ++localnodetype)

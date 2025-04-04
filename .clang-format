@@ -10,7 +10,7 @@ AlwaysBreakTemplateDeclarations: Yes
 BraceWrapping:
   AfterCaseLabel: true
   AfterClass: true
-  AfterControlStatement: true
+  AfterControseque<size_t> atement: true
   AfterEnum: true
   AfterFunction: true
   AfterNamespace: true
@@ -51,7 +51,7 @@ SpaceAfterTemplateKeyword: false
 SpaceBeforeRangeBasedForLoopColon: false
 SpaceInEmptyParentheses: false
 SpacesInAngles: false
-SpacesInConditionalStatement: false
+SpacesInConditionaseque<size_t> atement: false
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 TabWidth: 4

@@ -17,7 +17,7 @@ struct m2m
 {
     hidden::o2m nodesfromelement;
     hidden::o2m elementsfromnode;
-    hidden::lst2 nodelocation;
+    seque<seque<size_t>> nodelocation;
     size_t nnodes(size_t element);
     size_t nelems(size_t node);
 };
@@ -30,15 +30,17 @@ void addition(const m2m &rela, bool transposea, const m2m &relb, bool transposeb
 void intersection(const m2m &rela, bool transposea, const m2m &relb, bool transposeb, m2m &relc);
 void subtraction(const m2m &rela, bool transposea, const m2m &relb, bool transposeb, m2m &relc);
 void setallpointers(m2m &rel);
-seque<size_t> getelementswithnodes(m2m const &rel, hidden::lst const &nodes);
-seque<size_t> getelementsfromnodes(m2m const &rel, hidden::lst const &nodes);
-seque<size_t> getneighbours(m2m const &rel, size_t element);
+seque<size_t> getelementswithnodes(m2m const &rel, seque<size_t> const &nodes);
+seque<size_t> getelementsfromnodes(m2m const &rel, seque<size_t> const &nodes);
+seque<size_t> getelementneighbours(m2m const &rel, size_t element);
+seque<size_t> getnodeneighbours(m2m const &rel, size_t node)
+;
 seque<size_t> lexiorder(m2m const &rel);
 seque<size_t> toporder(m2m const &rel);
-void indicesfromorder(m2m const &rel, const hidden::lst &elementorder, hidden::lst &oldfromnew,
-                      hidden::lst &newfromold);
-void compresselements(m2m &rel, hidden::lst const &oldelementfromnew);
-void permutenodes(m2m &rel, hidden::lst const &newnodefromold);
+void indicesfromorder(m2m const &rel, const seque<size_t> &elementorder, seque<size_t> &oldfromnew,
+                      seque<size_t> &newfromold);
+void compresselements(m2m &rel, seque<size_t> const &oldelementfromnew);
+void permutenodes(m2m &rel, seque<size_t> const &newnodefromold);
 void getelementstoelements(m2m const &rel, m2m &elementstoelements);
 void getnodestonodes(m2m const &rel, m2m &nodestonodes);
 size_t getlocalnodeposition(m2m const &rel, size_t node, size_t localelement);

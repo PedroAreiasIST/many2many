@@ -294,7 +294,7 @@ Z_VCPKG_CL:FILEPATH=Z_VCPKG_CL-NOTFOUND
 _VCPKG_INSTALLED_DIR:PATH=/home/pedro/vcpkg-clion/installed
 
 //The directory containing a CMake configuration file for tabulate.
-tabulate_DIR:PATH=tabulate_DIR-NOTFOUND
+tabulate_DIR:PATH=/home/pedro/vcpkg-clion/installed/x64-linux/share/tabulate
 
 
 ########################

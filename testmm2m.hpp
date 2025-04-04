@@ -35,18 +35,18 @@ void testmm2m()
     thing elementgroup;
     // assigntype numbers
     settypenumber(isanelement, 0);
-    settypenumber(haslength, 2);
-    settypenumber(hasarea, 3);
-    settypenumber(hasvolume, 4);
-    settypenumber(node, 5);
-    settypenumber(point, 6);
-    settypenumber(edge, 7);
-    settypenumber(tri, 8);
-    settypenumber(quad, 9);
-    settypenumber(tet, 10);
-    settypenumber(hex, 11);
-    settypenumber(wedge, 12);
-    settypenumber(elementgroup, 13);
+    settypenumber(haslength, 1);
+    settypenumber(hasarea, 2);
+    settypenumber(hasvolume, 3);
+    settypenumber(node, 4);
+    settypenumber(point, 5);
+    settypenumber(edge, 6);
+    settypenumber(tri, 7);
+    settypenumber(quad, 8);
+    settypenumber(tet, 9);
+    settypenumber(hex, 10);
+    settypenumber(wedge, 11);
+    settypenumber(elementgroup, 12);
     // symmetry groups
     mm2m rm;
     setnumberoftypes(rm, 14);
@@ -71,6 +71,7 @@ void testmm2m()
     setsymmetrygroup(rm, wedge.type, hasvolume.type, {{0}});
     setsymmetrygroup(rm, wedge.type, isanelement.type, {{0}});
     setsymmetrygroup(rm, elementgroup.type, isanelement.type, {{}});
+
     // specialization of things
     appendnodesofonetype(point, node.type, {0});
     appendnodesofonetype(point, isanelement.type, {0});

@@ -5,11 +5,13 @@ project(ConsoleApplication1)
 
 set(CMAKE_CXX_STANDARD 20)
 
+
 include_directories(pfr_non_boost-master/include
         pfr_non_boost-master/include/pfr
         pfr_non_boost-master/include/pfr/detail
-        /usr/local/include)
-
+        /usr/local/include
+        /home/pedro/vcpkg-clion/packages/tabulate_x64-linux/include
+)
 
 add_executable(ConsoleApplication1
         main.cpp
@@ -29,7 +31,9 @@ add_executable(ConsoleApplication1
         testm2m.hpp
         testmm2m.hpp
 )
+
 find_package(tabulate CONFIG REQUIRED)
 target_link_libraries(ConsoleApplication1 PRIVATE tabulate::tabulate)
+
 #find_package(TBB REQUIRED)
 #target_link_libraries(ConsoleApplication1 PUBLIC TBB::tbb)

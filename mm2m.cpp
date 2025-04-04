@@ -204,10 +204,15 @@ seque<size_t> typetoporder(mm2m const &m)
     for (size_t elementtype = 0; elementtype < m.ntypes; ++elementtype)
     {
         for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype)
-            if (m(nodetype, elementtype).nodesfromelement.nelem != 0)
+        {
+            if (nodetype != elementtype)
             {
-                append(typedeps.lnods[elementtype], nodetype);
+                if (m(nodetype, elementtype).nodesfromelement.nelem != 0)
+                {
+                    append(typedeps.lnods[elementtype], nodetype);
+                }
             }
+        }
     }
     return toporder(typedeps);
 }
