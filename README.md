@@ -20,7 +20,7 @@
   And much more
 
 The idea is for the user to define a domain-specific "zoo", then create the fauna, and her own domain-specific functions
-and avoid any housekeeping
+and avoid housekeeping.
 
-It is written in C++ by Pedro Areias (IST) 
+It is written in C-style templated C++ by Pedro Areias (IST) 
 
