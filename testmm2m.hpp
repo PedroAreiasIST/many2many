@@ -48,6 +48,7 @@ void testmm2m()
     settype(hex, 11);
     settype(wedge, 12);
     settype(elementgroup, 13);
+    // mm2m
     mm2m rm;
     setnumberoftypes(rm, 14);
     setsymmetrygroup(rm, node.type, hascoordinates.type, {{0}});
@@ -72,7 +73,7 @@ void testmm2m()
     setsymmetrygroup(rm, wedge.type, hasvolume.type, {{0}});
     setsymmetrygroup(rm, wedge.type, isanelement.type, {{0}});
     setsymmetrygroup(rm, elementgroup.type, node.type, {{}});
-
+    // specialization of things
     appendnodesofonetype(node, hascoordinates.type, {8});
     appendnodesofonetype(point, node.type, {0});
     appendnodesofonetype(point, isanelement.type, {0});
@@ -111,11 +112,8 @@ void testmm2m()
     insertathing(rm, elementgroup);
     std::cout << "tet " << rm.operator()(tet.type, node.type).nodesfromelement.lnods << std::endl;
     std::cout << "hex " << rm.operator()(hex.type, node.type).nodesfromelement.lnods << std::endl;
-    thing hex2;
-    settype(hex2, hex.type);
-    appendnodesofonetype(hex2, node.type, {8, 7, 6, 5, 4, 3, 2, 9});
-    insertathing(rm, hex2);
     closeeverything(rm);
+    std::cout << "type order" << typetoporder(rm) << std::endl;
     std::cout << " rm" << rm(tet.type, node.type).elementsfromnode << std::endl;
     std::cout << "rm nodelocation" << rm(tet.type, node.type).nodelocation << std::endl;
     std::cout << "wedge" << rm(wedge.type, node.type).nodesfromelement.lnods << std::endl;

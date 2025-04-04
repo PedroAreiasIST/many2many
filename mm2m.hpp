@@ -17,8 +17,8 @@ struct mm2m
     seque<std::pair<size_t, size_t>> listofmarked;
     m2m const &operator()(size_t elementtype, size_t nodetype) const { return m[elementtype][nodetype]; }
     m2m &operator()(size_t elementtype, size_t nodetype) { return m[elementtype][nodetype]; }
-    size_t nnode(size_t elementtype, size_t element, size_t nodetype);
-    size_t nelem(size_t nodetype, size_t node, size_t elementtype);
+    size_t nnodes(size_t elementtype, size_t element, size_t nodetype);
+    size_t nelems(size_t nodetype, size_t node, size_t elementtype);
 };
 PFR_FUNCTIONS_FOR(mm2m)
 void resetmarked(mm2m &m);
@@ -41,7 +41,7 @@ namespace hidden
                   seque<size_t> const &newelementfromold);
 }
 void compress(mm2m &m);
-void typetoporder(mm2m const &m, seque<size_t> &order);
+seque<size_t> typetoporder(mm2m const &m);
 
 
 #endif // RELATIONMATRIX_HPP

@@ -6,7 +6,7 @@ CMakeFiles/ConsoleApplication1.dir/m2m.cpp.o: \
  /home/pedro/SimPlas/ConsoleApplication1/godoftypes.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/m2m.cpp \
  /home/pedro/SimPlas/ConsoleApplication1/m2m.hpp \
- /home/pedro/SimPlas/ConsoleApplication1/one2many.hpp \
+ /home/pedro/SimPlas/ConsoleApplication1/o2m.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/config.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/core.hpp \
@@ -55,7 +55,7 @@ CMakeFiles/ConsoleApplication1.dir/main.cpp.o: \
  /home/pedro/SimPlas/ConsoleApplication1/m2m.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/main.cpp \
  /home/pedro/SimPlas/ConsoleApplication1/mm2m.hpp \
- /home/pedro/SimPlas/ConsoleApplication1/one2many.hpp \
+ /home/pedro/SimPlas/ConsoleApplication1/o2m.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/config.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/core.hpp \
@@ -110,7 +110,7 @@ CMakeFiles/ConsoleApplication1.dir/mm2m.cpp.o: \
  /home/pedro/SimPlas/ConsoleApplication1/m2m.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/mm2m.cpp \
  /home/pedro/SimPlas/ConsoleApplication1/mm2m.hpp \
- /home/pedro/SimPlas/ConsoleApplication1/one2many.hpp \
+ /home/pedro/SimPlas/ConsoleApplication1/o2m.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/config.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/core.hpp \
@@ -154,11 +154,11 @@ CMakeFiles/ConsoleApplication1.dir/mm2m.cpp.o: \
  /home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/tuple_size.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/seque.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/symmetries.hpp
-CMakeFiles/ConsoleApplication1.dir/one2many.cpp.o: \
+CMakeFiles/ConsoleApplication1.dir/o2m.cpp.o: \
  /home/pedro/SimPlas/ConsoleApplication1/basics.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/godoftypes.hpp \
- /home/pedro/SimPlas/ConsoleApplication1/one2many.cpp \
- /home/pedro/SimPlas/ConsoleApplication1/one2many.hpp \
+ /home/pedro/SimPlas/ConsoleApplication1/o2m.cpp \
+ /home/pedro/SimPlas/ConsoleApplication1/o2m.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/config.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/core.hpp \
@@ -252,7 +252,7 @@ CMakeFiles/ConsoleApplication1.dir/thing.cpp.o: \
  /home/pedro/SimPlas/ConsoleApplication1/godoftypes.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/m2m.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/mm2m.hpp \
- /home/pedro/SimPlas/ConsoleApplication1/one2many.hpp \
+ /home/pedro/SimPlas/ConsoleApplication1/o2m.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/config.hpp \
  /home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/core.hpp \

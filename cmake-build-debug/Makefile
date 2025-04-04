@@ -201,29 +201,29 @@ mm2m.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/mm2m.cpp.s
 .PHONY : mm2m.cpp.s
 
-one2many.o: one2many.cpp.o
-.PHONY : one2many.o
+o2m.o: o2m.cpp.o
+.PHONY : o2m.o
 
 # target to build an object file
-one2many.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/one2many.cpp.o
-.PHONY : one2many.cpp.o
+o2m.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/o2m.cpp.o
+.PHONY : o2m.cpp.o
 
-one2many.i: one2many.cpp.i
-.PHONY : one2many.i
+o2m.i: o2m.cpp.i
+.PHONY : o2m.i
 
 # target to preprocess a source file
-one2many.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/one2many.cpp.i
-.PHONY : one2many.cpp.i
+o2m.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/o2m.cpp.i
+.PHONY : o2m.cpp.i
 
-one2many.s: one2many.cpp.s
-.PHONY : one2many.s
+o2m.s: o2m.cpp.s
+.PHONY : o2m.s
 
 # target to generate assembly for a file
-one2many.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/one2many.cpp.s
-.PHONY : one2many.cpp.s
+o2m.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/o2m.cpp.s
+.PHONY : o2m.cpp.s
 
 test.o: test.cpp.o
 .PHONY : test.o
@@ -291,9 +291,9 @@ help:
 	@echo "... mm2m.o"
 	@echo "... mm2m.i"
 	@echo "... mm2m.s"
-	@echo "... one2many.o"
-	@echo "... one2many.i"
-	@echo "... one2many.s"
+	@echo "... o2m.o"
+	@echo "... o2m.i"
+	@echo "... o2m.s"
 	@echo "... test.o"
 	@echo "... test.i"
 	@echo "... test.s"

@@ -2,12 +2,12 @@
 #include <map>
 #include <utility>
 
-size_t mm2m::nnode(size_t elementtype, size_t element, size_t nodetype)
+size_t mm2m::nnodes(size_t elementtype, size_t element, size_t nodetype)
 {
     return getsize(operator()(elementtype, nodetype).nodesfromelement.lnods[element]);
 }
 
-size_t mm2m::nelem(size_t nodetype, size_t node, size_t elementtype)
+size_t mm2m::nelems(size_t nodetype, size_t node, size_t elementtype)
 {
     return getsize(operator()(elementtype, nodetype).elementsfromnode.lnods[node]);
 }
@@ -23,7 +23,7 @@ seque<std::pair<size_t, size_t>> getallelements(mm2m &m, std::pair<size_t, size_
     // First pass: count total elements.
     for (size_t elementtype = 0; elementtype < m.ntypes; ++elementtype)
     {
-        nret += m.nelem(nodetype, nodenumber, elementtype);
+        nret += m.nelems(nodetype, nodenumber, elementtype);
     }
 
     setsize(ret, nret);
@@ -32,7 +32,7 @@ seque<std::pair<size_t, size_t>> getallelements(mm2m &m, std::pair<size_t, size_
     // Second pass: collect (element type, element number) pairs.
     for (size_t elementtype = 0; elementtype < m.ntypes; ++elementtype)
     {
-        const size_t numberofelements = m.nelem(nodetype, nodenumber, elementtype);
+        const size_t numberofelements = m.nelems(nodetype, nodenumber, elementtype);
         for (size_t localelement = 0; localelement < numberofelements; ++localelement)
         {
             ret[nret++] = std::make_pair(elementtype,
@@ -53,7 +53,7 @@ seque<std::pair<size_t, size_t>> getallnodes(mm2m &m, std::pair<size_t, size_t> 
     // First pass: count total nodes.
     for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype)
     {
-        nret += m.nnode(elementtype, elementnumber, nodetype);
+        nret += m.nnodes(elementtype, elementnumber, nodetype);
     }
     setsize(ret, nret);
     nret = 0;
@@ -61,7 +61,7 @@ seque<std::pair<size_t, size_t>> getallnodes(mm2m &m, std::pair<size_t, size_t> 
     // Second pass: collect (node type, node number) pairs.
     for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype)
     {
-        const size_t numberofnodes = m.nnode(elementtype, elementnumber, nodetype);
+        const size_t numberofnodes = m.nnodes(elementtype, elementnumber, nodetype);
         for (size_t localnode = 0; localnode < numberofnodes; ++localnode)
         {
             ret[nret++] =
@@ -197,9 +197,9 @@ void compress(mm2m &m)
         }
     }
 }
-void typetoporder(mm2m const &m, seque<size_t> &order)
+seque<size_t> typetoporder(mm2m const &m)
 {
-    hidden::one2many typedeps;
+    hidden::o2m typedeps;
     setnelem(typedeps, m.ntypes);
     for (size_t elementtype = 0; elementtype < m.ntypes; ++elementtype)
     {
@@ -209,7 +209,7 @@ void typetoporder(mm2m const &m, seque<size_t> &order)
                 append(typedeps.lnods[elementtype], nodetype);
             }
     }
-    toporder(typedeps);
+    return toporder(typedeps);
 }
 
 void closeeverything(mm2m &m)

@@ -1,4 +1,4 @@
-#include "one2many.hpp"
+#include "o2m.hpp"
 #include <algorithm>
 #include <cassert>
 #include <queue>
@@ -11,13 +11,13 @@
 namespace hidden
 {
     // No parallel work needed here.
-    void setnelem(hidden::one2many &rel, size_t nelem)
+    void setnelem(hidden::o2m &rel, size_t nelem)
     {
         rel.nelem = nelem;
         setsize(rel.lnods, nelem);
     }
 
-    size_t appendelement(hidden::one2many &rel, seque<size_t> const &nodes)
+    size_t appendelement(hidden::o2m &rel, seque<size_t> const &nodes)
     {
         rel.nelem++;
         setsize(rel.lnods, rel.nelem);
@@ -38,7 +38,7 @@ namespace hidden
         return rel.nelem - 1;
     }
 
-    void transpose(const one2many &rel, one2many &relt)
+    void transpose(const o2m &rel, o2m &relt)
     {
         const size_t numberofnodes = rel.maxnodenumber + 1;
         std::vector<size_t> counts(numberofnodes, 0);
@@ -84,7 +84,7 @@ namespace hidden
         }
     }
 
-    void multiplication(const one2many &rela, const one2many &relb, one2many &relc)
+    void multiplication(const o2m &rela, const o2m &relb, o2m &relc)
     {
         // Preallocate result storage.
         setnelem(relc, rela.nelem);
@@ -127,7 +127,7 @@ namespace hidden
         }
     }
 
-    void addition(const one2many &rela, const one2many &relb, one2many &relc)
+    void addition(const o2m &rela, const o2m &relb, o2m &relc)
     {
         size_t maxelem = std::max(rela.nelem, relb.nelem);
         setnelem(relc, maxelem);
@@ -193,7 +193,7 @@ namespace hidden
         }
     }
 
-    void intersection(const one2many &a, const one2many &b, one2many &c)
+    void intersection(const o2m &a, const o2m &b, o2m &c)
     {
         const size_t nRows = std::min(a.nelem, b.nelem);
         setnelem(c, nRows);
@@ -229,7 +229,7 @@ namespace hidden
         }
     }
 
-    void subtraction(const one2many &rela, const one2many &relb, one2many &relc)
+    void subtraction(const o2m &rela, const o2m &relb, o2m &relc)
     {
         const size_t nRows = std::min(rela.nelem, relb.nelem);
         setnelem(relc, nRows);
@@ -265,7 +265,7 @@ namespace hidden
         }
     }
 
-    seque<size_t> toporder(const one2many &rel)
+    seque<size_t> toporder(const o2m &rel)
     {
         seque<size_t> order;
         setsize(order, 0);
@@ -313,15 +313,15 @@ namespace hidden
         return order;
     }
 
-    seque<size_t> lexiorder(const one2many &rel) { return getorder(rel.lnods); }
+    seque<size_t> lexiorder(const o2m &rel) { return getorder(rel.lnods); }
 
-    void indicesfromorder(const one2many &rel, const hidden::lst &elemOrder, hidden::lst &oldFromNew,
+    void indicesfromorder(const o2m &rel, const hidden::lst &elemOrder, hidden::lst &oldFromNew,
                           hidden::lst &newFromOld)
     {
         indicesfromorder(rel.lnods, elemOrder, oldFromNew, newFromOld);
     }
 
-    void compresselements(one2many &rel, const hidden::lst &oldelementfromnew)
+    void compresselements(o2m &rel, const hidden::lst &oldelementfromnew)
     {
         rel.lnods = rel.lnods(oldelementfromnew);
         rel.nelem = getsize(oldelementfromnew);
@@ -340,7 +340,7 @@ namespace hidden
         rel.maxnodenumber = local_max;
     }
 
-    void permutenodes(one2many &rel, const hidden::lst &newnodefromold)
+    void permutenodes(o2m &rel, const hidden::lst &newnodefromold)
     {
         // Process each row independently.
 #ifdef _OPENMP

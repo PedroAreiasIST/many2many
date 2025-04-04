@@ -19,8 +19,9 @@ void testm2m()
     cout << "Basics mm part 1" << endl;
     cout << "mm1=" << mm1 << endl;
     cout << "How about maxnodenumber" << mm1.nodesfromelement.maxnodenumber << endl;
-    cout << "elements with 3 1 nodes" << getelementsfromnodes(mm1, {3, 1}) << endl;
-    cout << "elements with 3 0 nodes" << getelementsfromnodes(mm1, {3, 0}) << endl;
+    cout << "elements defined by the 3 1 nodes" << getelementsfromnodes(mm1, {3, 1}) << endl;
+    cout << "elements defined by the 3 0 nodes" << getelementsfromnodes(mm1, {3, 0}) << endl;
+    cout << "elements containing the 2 6 nodes" << getelementswithnodes(mm1, {2, 6}) << endl;
     cout << "local node 5 position for 0th element=" << getlocalnodeposition(mm1, 5, 0) << endl;
     cout << "local node 3 position for 1th element=" << getlocalnodeposition(mm1, 3, 1) << endl;
     cout << "neighbours of 0=" << getneighbours(mm1, 0) << endl;

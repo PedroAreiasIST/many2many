@@ -103,10 +103,10 @@
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/mm2m.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/one2many.cpp">
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/o2m.cpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/one2many.hpp">
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/o2m.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr.hpp">

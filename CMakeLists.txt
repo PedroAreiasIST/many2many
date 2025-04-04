@@ -15,9 +15,9 @@ add_executable(ConsoleApplication1
         pfr_non_boost-master/include/pfr.hpp
         pfr_non_boost-master/include/pfr/config.hpp
         pfr_non_boost-master/include/pfr/detail/config.hpp
-        one2many.hpp
+        o2m.hpp
         m2m.hpp
-        one2many.cpp
+        o2m.cpp
         m2m.cpp
         test.cpp
         test.hpp

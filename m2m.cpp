@@ -15,8 +15,8 @@ size_t appendelement(m2m &rel, seque<size_t> const &nodes)
 }
 void multiplication(const m2m &rela, bool transposea, const m2m &relb, bool transposeb, m2m &relc)
 {
-    hidden::one2many const *a;
-    hidden::one2many const *b;
+    hidden::o2m const *a;
+    hidden::o2m const *b;
     if (transposea)
     {
         a = &rela.elementsfromnode;
@@ -36,8 +36,8 @@ void multiplication(const m2m &rela, bool transposea, const m2m &relb, bool tran
 }
 void addition(const m2m &rela, bool transposea, const m2m &relb, bool transposeb, m2m &relc)
 {
-    hidden::one2many const *a;
-    hidden::one2many const *b;
+    hidden::o2m const *a;
+    hidden::o2m const *b;
     if (transposea)
     {
         a = &rela.elementsfromnode;
@@ -57,8 +57,8 @@ void addition(const m2m &rela, bool transposea, const m2m &relb, bool transposeb
 }
 void intersection(const m2m &rela, bool transposea, const m2m &relb, bool transposeb, m2m &relc)
 {
-    hidden::one2many const *a;
-    hidden::one2many const *b;
+    hidden::o2m const *a;
+    hidden::o2m const *b;
     if (transposea)
     {
         a = &rela.elementsfromnode;
@@ -78,8 +78,8 @@ void intersection(const m2m &rela, bool transposea, const m2m &relb, bool transp
 }
 void subtraction(const m2m &rela, bool transposea, const m2m &relb, bool transposeb, m2m &relc)
 {
-    hidden::one2many const *a;
-    hidden::one2many const *b;
+    hidden::o2m const *a;
+    hidden::o2m const *b;
     if (transposea)
     {
         a = &rela.elementsfromnode;
@@ -120,7 +120,7 @@ void setallpointers(m2m &rel)
         }
     }
 }
-hidden::lst getelementsfromnodes(m2m const &rel, hidden::lst const &nodes)
+seque<size_t> getelementswithnodes(m2m const &rel, hidden::lst const &nodes)
 {
     seque<size_t> elems;
     if (getsize(nodes) == 0)
@@ -130,8 +130,12 @@ hidden::lst getelementsfromnodes(m2m const &rel, hidden::lst const &nodes)
     elems = rel.elementsfromnode.lnods[nodes[0]];
     for (size_t elem = 1; elem < getsize(nodes); ++elem)
         elems = getintersection(elems, rel.elementsfromnode.lnods[nodes[elem]]);
+    return elems;
+}
+seque<size_t> getelementsfromnodes(m2m const &rel, hidden::lst const &nodes)
+{
+    seque<size_t> elems = getelementswithnodes(rel, nodes);
     seque<size_t> ret;
-    size_t counter{0};
     for (size_t elem = 0; elem < getsize(elems); ++elem)
     {
         if (getsize(rel.nodesfromelement.lnods[elems[elem]]) == getsize(nodes))

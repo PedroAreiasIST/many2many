@@ -2,7 +2,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/ConsoleApplication1.dir/m2m.cpp.o"
   "CMakeFiles/ConsoleApplication1.dir/main.cpp.o"
   "CMakeFiles/ConsoleApplication1.dir/mm2m.cpp.o"
-  "CMakeFiles/ConsoleApplication1.dir/one2many.cpp.o"
+  "CMakeFiles/ConsoleApplication1.dir/o2m.cpp.o"
   "CMakeFiles/ConsoleApplication1.dir/test.cpp.o"
   "CMakeFiles/ConsoleApplication1.dir/thing.cpp.o"
   "ConsoleApplication1"

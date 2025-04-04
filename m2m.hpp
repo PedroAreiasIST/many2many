@@ -4,7 +4,7 @@
 #include <cstddef>
 
 #include "godoftypes.hpp"
-#include "one2many.hpp"
+#include "o2m.hpp"
 #include "seque.hpp"
 
 namespace hidden
@@ -15,8 +15,8 @@ namespace hidden
 
 struct m2m
 {
-    hidden::one2many nodesfromelement;
-    hidden::one2many elementsfromnode;
+    hidden::o2m nodesfromelement;
+    hidden::o2m elementsfromnode;
     hidden::lst2 nodelocation;
     size_t nnodes(size_t element);
     size_t nelems(size_t node);
@@ -30,6 +30,7 @@ void addition(const m2m &rela, bool transposea, const m2m &relb, bool transposeb
 void intersection(const m2m &rela, bool transposea, const m2m &relb, bool transposeb, m2m &relc);
 void subtraction(const m2m &rela, bool transposea, const m2m &relb, bool transposeb, m2m &relc);
 void setallpointers(m2m &rel);
+seque<size_t> getelementswithnodes(m2m const &rel, hidden::lst const &nodes);
 seque<size_t> getelementsfromnodes(m2m const &rel, hidden::lst const &nodes);
 seque<size_t> getneighbours(m2m const &rel, size_t element);
 seque<size_t> lexiorder(m2m const &rel);
