@@ -3,7 +3,7 @@
 ###### A general many-to-many relation manager with:
 
 * Automatic serialization ($<<$ and $>>$) for all
-* Automatic comparison $==$, $<$, $>$, $leq$, $\geq$ and set-theory operations $\cap$, $\cup$ and $\setminus$ for all
+* Automatic comparison $==$, $<$, $>$, $\leq$, $\geq$ and set-theory operations $\cap$, $\cup$ and $\setminus$ for all
   relations
 * Classical symbolic operations for sparse addressing ($^T$, $+$, $-$, $\times$)
 * Generalized dependence lookup by node sets
