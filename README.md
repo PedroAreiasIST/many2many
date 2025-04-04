@@ -1,6 +1,8 @@
 A general many-to-many relation manager with:
+<img src="/home/pedro/SimPlas/SimPre/SimPre/simplastetnotext.png"/>
+
 1) Automatic serialization
-2) Automatic comparison operators and set-theory operations
+2) Automatic comparison and set-theory operations
 3) Classical symbolic operations for sparse addressing (sum, difference, multiplication)
 4) Generalized dependence lookup by node sets
 5) Canonical representation of symmetry groups
@@ -13,6 +15,6 @@ A general many-to-many relation manager with:
 
     And much more
 
-The idea is to define a domain-specific "zoo", create the fauna, use domain-specific functions and avoid any hassles. 
+The idea is to define a domain-specific "zoo", create the fauna, use domain-specific functions and avoid any hassles.
 
 It is written in C++ because TINA
