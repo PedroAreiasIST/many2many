@@ -95,12 +95,19 @@ void testmm2m()
     setsymmetrygroup(rm, elementgroup, isanelement, {{}});
 
     // specialization of things
-    appendnodesofonetype(nodes[0],node,{0});
-    appendnodesofonetype(point, isanelement, {0});
-    appendnodesofonetype(edge, node.type, {0, 1});
+    appendnodesofonetype(isanelements[0],isanelement,{0});
+    appendnodesofonetype(haslengths[0],haslength,{0});
+    appendnodesofonetype(hasareas[0],hasarea,{0});
+    appendnodesofonetype(hasvolumes[0],hasvolume,{0});
+    for (auto anode : nodes)
+    {
+        appendnodesofonetype(anode,node,{0});
+    }
+    /*appendnodesofonetype(points[0], isanelement, {0});
+    appendnodesofonetype(edge, node, {0, 1});
     appendnodesofonetype(edge, haslength.type, {0});
-    appendnodesofonetype(edge, isanelement.type, {0});
-
+    appendnodesofonetype(edge, isanelement.type, {0});*/
+/*
     appendnodesofonetype(tri, node.type, {5, 4, 3});
     appendnodesofonetype(tri, hasarea.type, {0});
     appendnodesofonetype(tri, isanelement.type, {0});
@@ -130,7 +137,8 @@ void testmm2m()
     insertathing(rm, hex);
     insertathing(rm, wedge);
     insertathing(rm, elementgroup);
-    std::cout << "tet " << rm.operator()(tet.type, node.type).nodesfromelement.lnods << std::endl;
+    */
+  /*  std::cout << "tet " << rm.operator()(tet.type, node.type).nodesfromelement.lnods << std::endl;
     std::cout << "hex " << rm.operator()(hex.type, node.type).nodesfromelement.lnods << std::endl;
     closeeverything(rm);
     std::cout << "type order" << typetoporder(rm) << std::endl;
@@ -138,5 +146,6 @@ void testmm2m()
     std::cout << "rm nodelocation" << rm(tet.type, node.type).nodelocation << std::endl;
     std::cout << "wedge" << rm(wedge.type, node.type).nodesfromelement.lnods << std::endl;
     std::cout << "hex2 " << rm.operator()(hex.type, node.type).nodesfromelement.lnods << std::endl;
+    */
 }
 #endif // TESTMMM_HPP
