@@ -28,8 +28,9 @@ void testm2m()
     cout << "elements containing the 2 6 nodes" << getelementswithnodes(mm1, {2, 6}) << endl;
     cout << "local node 5 position for 0th element=" << getlocalnodeposition(mm1, 5, 0) << endl;
     cout << "local node 3 position for 1th element=" << getlocalnodeposition(mm1, 3, 1) << endl;
-    cout << "neighbours of 0=" << getelementneighbours(mm1, 0) << endl;
-    cout << "neighbours of 2=" << getelementneighbours(mm1, 2) << endl;
+    cout << "neighbours of element 0=" << getelementneighbours(mm1, 0) << endl;
+    cout << "neighbours of element 1=" << getelementneighbours(mm1, 1) << endl;
+    cout<< "neighbours of node 3="<<getnodeneighbours(mm1,3)<<endl;
     cout << "lexicographical order of mm1=" << mm1.nodesfromelement.lnods(lexiorder(mm1)) << endl;
     getnodestonodes(mm1, nn1);
     cout << "nodestonodes=" << nn1.elementsfromnode.lnods << endl;

@@ -127,6 +127,13 @@ size_t appendelement(mm2m &m, size_t elementype, size_t nodetype, seque<size_t> 
     return appendelement(m(elementype, nodetype).nodesfromelement,
                          getcanonicalform(nodes, m.groups[elementype][nodetype]));
 }
+
+size_t appendelement(mm2m &m, size_t elementype){
+    auto newn=getsize(m(elementype,elementype).nodesfromelement.lnods);
+    return appendelement(m(elementype,elementype),{ newn});
+}
+
+
 void setmany2many(mm2m &m, size_t elementype, size_t nodetype, m2m const &relation)
 {
     m(elementype, nodetype) = relation;

@@ -27,57 +27,80 @@ void testmm2m()
     const seque<seque<size_t>> wedge6{{0, 1, 2, 3, 4, 5}, {1, 2, 0, 4, 5, 3}, {2, 0, 1, 5, 3, 4},
                                       {0, 2, 1, 3, 5, 4}, {2, 1, 0, 5, 4, 3}, {1, 0, 2, 4, 3, 5}};
     // thing skeletons
-    thing isanelement;
-    thing haslength;
-    thing hasarea;
-    thing hasvolume;
-    thing node, point, edge, tri, quad, tet, hex, wedge;
-    thing elementgroup;
+    thing isanelements[1];
+    thing haslengths[1];
+    thing hasareas[1];
+    thing hasvolumes[1];
+    thing nodes[11], points[1], edges[1], tris[2], quads[1], tets[1], hexs[1], wedges[1];
+    thing elementgroups[2];
     // assigntype numbers
-    settypenumber(isanelement, 0);
-    settypenumber(haslength, 1);
-    settypenumber(hasarea, 2);
-    settypenumber(hasvolume, 3);
-    settypenumber(node, 4);
-    settypenumber(point, 5);
-    settypenumber(edge, 6);
-    settypenumber(tri, 7);
-    settypenumber(quad, 8);
-    settypenumber(tet, 9);
-    settypenumber(hex, 10);
-    settypenumber(wedge, 11);
-    settypenumber(elementgroup, 12);
+    enum typenumbers : size_t
+    {
+        isanelement=0,
+        haslength,
+        hasarea,
+        hasvolume,
+        node,
+        point,
+        edge,
+        tri,
+        quad,
+        tet,
+        hex,
+        wedge,
+        elementgroup
+    };
+    settypenumber(isanelements[0], 0);
+    settypenumber(haslengths[0], 1);
+    settypenumber(hasareas[0], 2);
+    settypenumber(hasvolumes[0], 3);
+    for (thing & anode : nodes)
+    {
+        settypenumber(anode,4);
+    }
+    settypenumber(points[0], 5);
+    settypenumber(edges[0], 6);
+    settypenumber(tris[0], 7);
+    settypenumber(tris[1],7);
+    settypenumber(quads[0],8);
+    settypenumber(tets[0],9);
+    settypenumber(hexs[0],10);
+    settypenumber(wedges[0],11);
+    settypenumber(elementgroups[0],12);
+    settypenumber(elementgroups[1],12);
     // symmetry groups
     mm2m rm;
-    setnumberoftypes(rm, 14);
-    setsymmetrygroup(rm, point.type, node.type, {{0}});
-    setsymmetrygroup(rm, point.type, isanelement.type, {{0}});
-    setsymmetrygroup(rm, edge.type, node.type, {{0, 1}, {1, 0}});
-    setsymmetrygroup(rm, edge.type, haslength.type, {{0}});
-    setsymmetrygroup(rm, edge.type, isanelement.type, {{0}});
-    setsymmetrygroup(rm, tri.type, node.type, t3sym);
-    setsymmetrygroup(rm, tri.type, hasarea.type, {{0}});
-    setsymmetrygroup(rm, tri.type, isanelement.type, {{0}});
-    setsymmetrygroup(rm, quad.type, node.type, q4sym);
-    setsymmetrygroup(rm, quad.type, hasarea.type, {{0}});
-    setsymmetrygroup(rm, quad.type, isanelement.type, {{0}});
-    setsymmetrygroup(rm, tet.type, node.type, tet4sym);
-    setsymmetrygroup(rm, tet.type, hasvolume.type, {{0}});
-    setsymmetrygroup(rm, tet.type, isanelement.type, {{0}});
-    setsymmetrygroup(rm, hex.type, node.type, h8symm);
-    setsymmetrygroup(rm, hex.type, hasvolume.type, {{0}});
-    setsymmetrygroup(rm, hex.type, isanelement.type, {{0}});
-    setsymmetrygroup(rm, wedge.type, node.type, wedge6);
-    setsymmetrygroup(rm, wedge.type, hasvolume.type, {{0}});
-    setsymmetrygroup(rm, wedge.type, isanelement.type, {{0}});
-    setsymmetrygroup(rm, elementgroup.type, isanelement.type, {{}});
+    setnumberoftypes(rm, 13);
+    setsymmetrygroup(rm,node,node,{{0}});
+    setsymmetrygroup(rm, point, node, {{0}});
+    setsymmetrygroup(rm, point, isanelement, {{0}});
+    setsymmetrygroup(rm, edge, node, {{0, 1}, {1, 0}});
+    setsymmetrygroup(rm, edge, haslength, {{0}});
+    setsymmetrygroup(rm, edge, isanelement, {{0}});
+    setsymmetrygroup(rm, tri, node, t3sym);
+    setsymmetrygroup(rm, tri, hasarea, {{0}});
+    setsymmetrygroup(rm, tri, isanelement, {{0}});
+    setsymmetrygroup(rm, quad, node, q4sym);
+    setsymmetrygroup(rm, quad, hasarea, {{0}});
+    setsymmetrygroup(rm, quad, isanelement, {{0}});
+    setsymmetrygroup(rm, tet, node, tet4sym);
+    setsymmetrygroup(rm, tet, hasvolume, {{0}});
+    setsymmetrygroup(rm, tet, isanelement, {{0}});
+    setsymmetrygroup(rm, hex, node, h8symm);
+    setsymmetrygroup(rm, hex, hasvolume, {{0}});
+    setsymmetrygroup(rm, hex, isanelement, {{0}});
+    setsymmetrygroup(rm, wedge, node, wedge6);
+    setsymmetrygroup(rm, wedge, hasvolume, {{0}});
+    setsymmetrygroup(rm, wedge, isanelement, {{0}});
+    setsymmetrygroup(rm, elementgroup, isanelement, {{}});
 
     // specialization of things
-    appendnodesofonetype(point, node.type, {0});
-    appendnodesofonetype(point, isanelement.type, {0});
-    appendnodesofonetype(edge, node.type, {3, 2});
+    appendnodesofonetype(nodes[0],node,{0});
+    appendnodesofonetype(point, isanelement, {0});
+    appendnodesofonetype(edge, node.type, {0, 1});
     appendnodesofonetype(edge, haslength.type, {0});
     appendnodesofonetype(edge, isanelement.type, {0});
+
     appendnodesofonetype(tri, node.type, {5, 4, 3});
     appendnodesofonetype(tri, hasarea.type, {0});
     appendnodesofonetype(tri, isanelement.type, {0});

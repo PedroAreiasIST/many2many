@@ -20,6 +20,7 @@ struct m2m
     seque<seque<size_t>> nodelocation;
     size_t nnodes(size_t element);
     size_t nelems(size_t node);
+    bool isupdated{false};
 };
 PFR_FUNCTIONS_FOR(m2m)
 void setnumberofelements(m2m &rel, size_t nelem);

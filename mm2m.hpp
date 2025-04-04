@@ -29,6 +29,8 @@ seque<std::pair<size_t, size_t>> depthfirstsearchfromanode(mm2m &m, std::pair<si
 void setnumberoftypes(mm2m &m, size_t ntypes);
 void setsymmetrygroup(mm2m &m, size_t elementype, size_t nodetype, seque<seque<size_t>> const &group);
 size_t appendelement(mm2m &m, size_t elementype, size_t nodetype, seque<size_t> const &nodes);
+size_t appendelement(mm2m &m,size_t elementype)
+;
 void setmany2many(mm2m &m, size_t elementype, size_t nodetype, m2m const &relation);
 m2m &getmany2many(mm2m &m, size_t elementype, size_t nodetype);
 void indicesfromorder(mm2m &m, size_t elementtype, size_t nodetype, seque<size_t> const &order,
