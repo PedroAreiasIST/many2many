@@ -5,7 +5,7 @@
 		<Option title="ConsoleApplication1"/>
 		<Option makefile_is_custom="1"/>
 		<Option compiler="gcc"/>
-		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\vcpkg-clion\;CMake Files\..\..\vcpkg-clion\scripts\;CMake Files\..\..\vcpkg-clion\scripts\buildsystems\;CMake Files\..\..\vcpkg-clion\installed\;CMake Files\..\..\vcpkg-clion\installed\x64-linux\;CMake Files\..\..\vcpkg-clion\installed\x64-linux\share\;CMake Files\..\..\vcpkg-clion\installed\x64-linux\share\tabulate\;"/>
+		<Option virtualFolders="CMake Files\;"/>
 		<Build>
 			<Target title="all">
 				<Option working_dir="/home/pedro/SimPlas/ConsoleApplication1/cmake-build-release"/>
@@ -28,7 +28,6 @@
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr"/>
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/detail"/>
 					<Add directory="/home/pedro/vcpkg-clion/packages/tabulate_x64-linux/include"/>
-					<Add directory="/home/pedro/vcpkg-clion/installed/x64-linux/include"/>
 					<Add directory="/usr/include/c++/11"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/11"/>
 					<Add directory="/usr/include/c++/11/backward"/>
@@ -55,7 +54,6 @@
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr"/>
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/detail"/>
 					<Add directory="/home/pedro/vcpkg-clion/packages/tabulate_x64-linux/include"/>
-					<Add directory="/home/pedro/vcpkg-clion/installed/x64-linux/include"/>
 					<Add directory="/usr/include/c++/11"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/11"/>
 					<Add directory="/usr/include/c++/11/backward"/>
@@ -145,18 +143,6 @@
 		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
-		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/../../vcpkg-clion/scripts/buildsystems/vcpkg.cmake">
-			<Option virtualFolder="CMake Files\..\..\vcpkg-clion\scripts\buildsystems\"/>
-		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/../../vcpkg-clion/installed/x64-linux/share/tabulate/tabulateConfig.cmake">
-			<Option virtualFolder="CMake Files\..\..\vcpkg-clion\installed\x64-linux\share\tabulate\"/>
-		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/../../vcpkg-clion/installed/x64-linux/share/tabulate/tabulateConfigVersion.cmake">
-			<Option virtualFolder="CMake Files\..\..\vcpkg-clion\installed\x64-linux\share\tabulate\"/>
-		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/../../vcpkg-clion/installed/x64-linux/share/tabulate/tabulateTargets.cmake">
-			<Option virtualFolder="CMake Files\..\..\vcpkg-clion\installed\x64-linux\share\tabulate\"/>
 		</Unit>
 	</Project>
 </CodeBlocks_project_file>

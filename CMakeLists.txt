@@ -35,12 +35,6 @@ add_executable(ConsoleApplication1
         testmm2m.hpp
 )
 
-find_package(OpenMP REQUIRED)
-target_compile_options(ConsoleApplication1 PRIVATE -Wall ${OpenMP_CXX_FLAGS})
-target_link_libraries(ConsoleApplication1 PRIVATE OpenMP::OpenMP)
-
-find_package(tabulate CONFIG REQUIRED)
-target_link_libraries(ConsoleApplication1 PRIVATE tabulate::tabulate)
 
 #find_package(TBB REQUIRED)
 #target_link_libraries(ConsoleApplication1 PUBLIC TBB::tbb)
