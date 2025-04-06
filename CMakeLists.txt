@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(GCC_COVERAGE_COMPILE_FLAGS "-Wall -Wextra -Wconversion")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
-set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -openmp -march=native -Wall -Wextra -Wcast-align")
+set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -fopenmp -march=native -Wall -Wextra -Wcast-align")
 
 project(ConsoleApplication1)
 
@@ -33,8 +33,8 @@ add_executable(ConsoleApplication1
         thing.hpp
         testm2m.hpp
         testmm2m.hpp
+        testeo2m.hpp
 )
-
 
 #find_package(TBB REQUIRED)
 #target_link_libraries(ConsoleApplication1 PUBLIC TBB::tbb)

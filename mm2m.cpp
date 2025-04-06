@@ -73,26 +73,38 @@ seque<std::pair<size_t, size_t>> getallnodes(mm2m &m, std::pair<size_t, size_t> 
     return ret;
 }
 
+#include <unordered_set>
+#include <stack>
+#include <utility>
+
+namespace std {
+    template <>
+    struct hash<std::pair<size_t, size_t>> {
+        size_t operator()(const std::pair<size_t, size_t>& p) const noexcept {
+            return std::hash<size_t>{}(p.first) ^ (std::hash<size_t>{}(p.second) << 1);
+        }
+    };
+}
+
 seque<std::pair<size_t, size_t>> depthfirstsearchfromanode(mm2m &m, std::pair<size_t, size_t> const &node)
 {
     using P = std::pair<size_t, size_t>;
-    using SP = seque<P>;
-    std::map<P, bool> visited;
+    seque<P> ret;
+    std::unordered_set<P> visited;
     std::stack<P> stack;
     stack.push(node);
-    seque<P> ret;
     while (!stack.empty())
     {
-        P current = stack.top();
+        auto current = stack.top();
         stack.pop();
-        if (!visited[current])
+        if (visited.find(current) == visited.end())
         {
-            visited[current] = true;
+            visited.insert(current);
             append(ret, current);
-            SP elements = getallelements(m, current);
+            auto elements = getallelements(m, current);
             for (size_t i = 0; i < getsize(elements); ++i)
             {
-                if (!visited[elements[i]])
+                if (visited.find(elements[i]) == visited.end())
                     stack.push(elements[i]);
             }
         }

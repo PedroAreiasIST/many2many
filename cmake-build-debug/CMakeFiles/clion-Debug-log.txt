@@ -8,32 +8,6 @@ CMake Deprecation Warning:
   use the cmake-file-api(7) to view CMake-generated project build trees.
 
 
--- The C compiler identification is GNU 11.4.0
--- The CXX compiler identification is GNU 11.4.0
--- Detecting C compiler ABI info
--- Detecting C compiler ABI info - done
--- Check for working C compiler: /usr/bin/cc - skipped
--- Detecting C compile features
--- Detecting C compile features - done
--- Detecting CXX compiler ABI info
--- Detecting CXX compiler ABI info - done
--- Check for working CXX compiler: /usr/bin/c++ - skipped
--- Detecting CXX compile features
--- Detecting CXX compile features - done
--- Found OpenMP_C: -fopenmp (found version "4.5")
--- Found OpenMP_CXX: -fopenmp (found version "4.5")
--- Found OpenMP: TRUE (found version "4.5")
-CMake Error at CMakeLists.txt:42 (find_package):
-  Could not find a package configuration file provided by "tabulate" with any
-  of the following names:
-
-    tabulateConfig.cmake
-    tabulate-config.cmake
-
-  Add the installation prefix of "tabulate" to CMAKE_PREFIX_PATH or set
-  "tabulate_DIR" to a directory containing one of the above files.  If
-  "tabulate" provides a separate development package or SDK, be sure it has
-  been installed.
-
-
--- Configuring incomplete, errors occurred!
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug

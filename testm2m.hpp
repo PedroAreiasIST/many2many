@@ -11,7 +11,7 @@ void testm2m()
 {
     std::vector<std::string> nomestodos;
     PFRALLNAMES(m2m, nomestodos);
-    for (int i = 0; i < nomestodos.size(); ++i)
+    for (size_t i = 0; i < nomestodos.size(); ++i)
         cout << nomestodos[i] << endl;
     // conectivities
     m2m mm1, mm, nn1, ee1;

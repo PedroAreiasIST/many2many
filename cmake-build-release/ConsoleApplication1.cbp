@@ -129,6 +129,9 @@
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/test.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/testeo2m.hpp">
+			<Option target="ConsoleApplication1"/>
+		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/testm2m.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
