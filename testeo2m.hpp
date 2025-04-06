@@ -40,7 +40,7 @@ inline void testeo2m()
     }
     setallpointers(mm);
     m2m result;
-    getelementstoelements(mm, result);
+    getnodestonodes(mm, result);
     std::cout<<result.nodesfromelement.lnods[0]<<std::endl;
 }
 #endif //TESTEO2M_HPP

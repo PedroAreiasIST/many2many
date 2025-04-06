@@ -4,8 +4,7 @@ cmake_minimum_required(VERSION 3.22)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(GCC_COVERAGE_COMPILE_FLAGS "-Wall -Wextra -Wconversion")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
-set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -fopenmp -march=native -Wall -Wextra -Wcast-align")
+set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -fomit-frame-pointer -fargument-noalias-global -fopenmp -march=native -Wall -Wextra -Wcast-align")
 
 project(ConsoleApplication1)
 
