@@ -1,5 +1,6 @@
 #ifndef GODOFTYPES_HPP
 #define GODOFTYPES_HPP
+#include "basics.hpp"
 #include <tuple>
 #include "seque.hpp"
 

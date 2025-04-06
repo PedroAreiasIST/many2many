@@ -124,7 +124,7 @@ void setsymmetrygroup(mm2m &m, size_t elementype, size_t nodetype, seque<seque<s
 
 size_t appendelement(mm2m &m, size_t elementype, size_t nodetype, seque<size_t> const &nodes)
 {
-    return appendelement(m(elementype, nodetype).nodesfromelement,
+    return appendelement(m(elementype, nodetype),
                          getcanonicalform(nodes, m.groups[elementype][nodetype]));
 }
 
@@ -207,7 +207,7 @@ void compress(mm2m &m)
 seque<size_t> typetoporder(mm2m const &m)
 {
     hidden::o2m typedeps;
-    setnelem(typedeps, m.ntypes);
+    setnumberofelements(typedeps, m.ntypes);
     for (size_t elementtype = 0; elementtype < m.ntypes; ++elementtype)
     {
         for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype)

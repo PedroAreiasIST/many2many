@@ -2,10 +2,11 @@
 
 size_t m2m::nnodes(size_t element) { return getsize(nodesfromelement.lnods[element]); }
 size_t m2m::nelems(size_t node) { return getsize(elementsfromnode.lnods[node]); }
-void setnumberofelements(m2m &rel, size_t nelem) { setnelem(rel.nodesfromelement, nelem); }
+void setnumberofelements(m2m &rel, size_t nelem)
+{ setnumberofelements(rel.nodesfromelement, nelem); }
 void setnodesforelement(m2m &rel, size_t element, seque<size_t> const &nodes)
 {
-    rel.nodesfromelement.lnods[element] = nodes;
+    setnodesforelement(rel.nodesfromelement, element, nodes);
     rel.isupdated=false;
 }
 size_t appendelement(m2m &rel, seque<size_t> const &nodes)

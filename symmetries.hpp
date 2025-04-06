@@ -9,7 +9,6 @@
 
 namespace hidden
 {
-
     using Permutation = seque<size_t>;
     using Group = seque<Permutation>;
     static const size_t UNSET = (std::numeric_limits<size_t>::max)();

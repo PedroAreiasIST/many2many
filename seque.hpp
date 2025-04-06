@@ -5,18 +5,51 @@
 #include <cmath>
 #include <execution>
 #include <initializer_list>
-#include <iostream>
 #include <numeric>
 #include <random>
 #include <stdexcept>
 #include <type_traits>
-#include "basics.hpp"
 #ifdef _OPENMP
 #include <omp.h>
 #endif
+
+/**
+ * @brief Safely deletes a dynamically allocated array.
+ *
+ * @tparam T Array element type.
+ * @param p Pointer to the array to delete. After deletion, p is set to nullptr.
+ */
+template<typename T>
+inline void arraydestroy(T *&p) noexcept
+{
+    if (p)
+    {
+        delete[] p;
+        p = nullptr;
+    }
+}
+
+/**
+ * @brief Creates an array of a given size, destroying any previously allocated memory.
+ *
+ * @tparam T Array element type.
+ * @param p Pointer to store the new array.
+ * @param size Number of elements const& the new array.
+ */
+template<typename T>
+inline void arraycreate(T *&p, size_t size)
+{
+    arraydestroy(p);
+    if (size > 0)
+    {
+        p = new T[size];
+        std::fill(p, p + size, T());
+    }
+}
+
 namespace hidden
 {
-    constexpr size_t STACKSIZE = 10;
+    constexpr size_t STACKSIZE = 8;
 }
 template<typename V, size_t S = hidden::STACKSIZE, auto P = std::execution::par>
 struct seque
@@ -39,7 +72,10 @@ struct seque
             stackdata[i] = V();
         }
     }
-    explicit seque(size_t newSize) : seque() { setsize(*this, newSize); }
+    explicit seque(size_t newSize) : seque()
+    {
+        setsize(*this, newSize);
+    }
     seque(size_t newSize, V value) : seque(newSize)
     {
 #ifdef _OPENMP
@@ -50,12 +86,15 @@ struct seque
             actual[i] = value;
         }
     }
-    seque(std::initializer_list<V> initList) : seque(initList.size())
+    seque(std::initializer_list<V> const& values) : seque(values.size())
     {
-        std::move(initList.begin(), initList.end(), actual);
+        std::copy(values.begin(), values.end(), actual);
     }
     seque(seque const &other) : seque() { copy_from(other); }
-    seque(seque &&other) noexcept : seque() { move_from(std::move(other)); }
+    seque(seque &&other) noexcept : seque()
+    {
+        move_from(std::move(other));
+    }
     ~seque() { setsize(*this, 0); }
     seque &operator=(seque const &other)
     {
@@ -84,12 +123,7 @@ struct seque
         }
         return *this;
     }
-    seque &operator=(std::initializer_list<V> initList)
-    {
-        setsize(*this, initList.size());
-        std::move(initList.begin(), initList.end(), actual);
-        return *this;
-    }
+
     V &operator[](size_t index) { return actual[index]; }
     V const &operator[](size_t index) const { return actual[index]; }
     V &operator()(size_t index)
@@ -100,11 +134,17 @@ struct seque
         }
         return actual[index];
     }
-    V &operator()(size_t index) const
+    V const &operator()(size_t index) const
     {
         _explodeinvalidindex(index);
         return actual[index];
     }
+    seque &operator=(std::initializer_list<V> initList) {
+        setsize(*this, initList.size());
+        std::copy(initList.begin(), initList.end(), actual);
+        return *this;
+    }
+
     V *begin() { return actual; }
     V *end() { return actual + size; }
     V const *begin() const { return actual; }
@@ -112,7 +152,7 @@ struct seque
     seque operator()(seque<size_t, S, P> const &indexContainer) const
     {
         seque result(indexContainer.size);
-        std::transform(indexContainer.actual, indexContainer.actual + indexContainer.size, result.actual,
+        std::transform(indexContainer.parallel,indexContainer.actual, indexContainer.actual + indexContainer.size, result.actual,
                        [&](size_t idx) { return actual[idx]; });
         return result;
     }
@@ -123,6 +163,7 @@ private:
         setsize(*this, other.size);
         std::copy(parallel, other.actual, other.actual + other.size, actual);
     }
+
     void move_from(seque &&other) noexcept
     {
         if (this != &other)
@@ -133,9 +174,6 @@ private:
                 heapdata = nullptr;
                 heapsize = 0;
             }
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
             for (size_t i = 0; i < stacksize; i++)
             {
                 stackdata[i] = V();
@@ -154,9 +192,9 @@ private:
                 other.heapsize = 0;
             }
             other.size = 0;
+            other.actual=other.stackdata;
         }
     }
-
 public:
     void _explodeinvalidindex(size_t index) const
     {
@@ -461,6 +499,7 @@ seque<size_t, S, P> indicesfromcondition(seque<V, S, P> const &container, auto p
     }
     return indices;
 }
+// Corrected implementation of indicesfromvalue
 template<typename V, size_t S, auto P>
 seque<size_t, S, P> indicesfromvalue(seque<V, S, P> const &container, V value, seque<size_t, S, P> const &sortedIndices)
 {
@@ -469,45 +508,51 @@ seque<size_t, S, P> indicesfromvalue(seque<V, S, P> const &container, V value, s
     {
         return seque<size_t, S, P>{};
     }
+
     size_t left = 0;
     size_t right = containerSize - 1;
     seque<size_t, S, P> indices(containerSize);
+
     while (left <= right && left < containerSize)
     {
         size_t middle = left + (right - left) / 2;
         auto valMid = container[sortedIndices[middle]];
+
         if (valMid == value)
         {
             size_t startIndex = middle;
             while (startIndex > 0 && container[sortedIndices[startIndex - 1]] == value)
-            {
                 --startIndex;
-            }
+
             size_t endIndex = middle;
             while (endIndex < containerSize - 1 && container[sortedIndices[endIndex + 1]] == value)
-            {
                 ++endIndex;
-            }
+
             size_t matchCount = endIndex - startIndex + 1;
             for (size_t pos = 0; pos < matchCount; ++pos)
             {
-                indices[pos] = pos + startIndex;
+                indices[pos] = sortedIndices[startIndex + pos]; // Direct index to the original container
             }
             setsize(indices, matchCount);
             return indices;
-        } else if (valMid < value)
+        }
+        else if (valMid < value)
         {
             left = middle + 1;
-        } else
+        }
+        else
         {
             if (middle == 0)
                 break;
             right = middle - 1;
         }
     }
+
     setsize(indices, 0);
     return indices;
 }
+
+// The second overload remains unchanged, as it's correct
 template<typename V, size_t S, auto P>
 seque<size_t, S, P> indicesfromvalue(seque<V, S, P> const &sortedcontainer, V value)
 {

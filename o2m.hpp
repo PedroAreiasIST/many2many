@@ -2,6 +2,7 @@
 #define RELATIONONETOMANY_HPP
 
 #include <algorithm>
+#include "basics.hpp"
 #include <cassert>
 #include <cstddef>
 #include <queue>
@@ -19,7 +20,8 @@ namespace hidden
         size_t maxnodenumber{0};
     };
     PFR_FUNCTIONS_FOR(o2m)
-    void setnelem(o2m &rel, size_t nelem);
+    void setnumberofelements(o2m &rel, size_t nelem);
+    void setnodesforelement(o2m &rel, size_t element, seque<size_t> const &nodes);
     size_t appendelement(o2m &rel, const seque<size_t> &nodes);
     void transpose(const o2m &rel, o2m &relt);
     void multiplication(const o2m &rela, const o2m &relb, o2m &relc);

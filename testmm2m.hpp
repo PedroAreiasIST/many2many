@@ -11,6 +11,7 @@
 using namespace std;
 void testmm2m()
 {
+    std::cout<<"Test of mm2m"<<std::endl;
     // symmetry groups
     const seque<seque<size_t>> h8symm{
             {0, 1, 2, 3, 4, 5, 6, 7}, {1, 2, 3, 0, 5, 6, 7, 4}, {2, 3, 0, 1, 6, 7, 4, 5}, {3, 0, 1, 2, 7, 4, 5, 6},
@@ -27,19 +28,13 @@ void testmm2m()
     const seque<seque<size_t>> wedge6{{0, 1, 2, 3, 4, 5}, {1, 2, 0, 4, 5, 3}, {2, 0, 1, 5, 3, 4},
                                       {0, 2, 1, 3, 5, 4}, {2, 1, 0, 5, 4, 3}, {1, 0, 2, 4, 3, 5}};
     // thing skeletons
-    thing isanelements[1];
-    thing haslengths[1];
-    thing hasareas[1];
-    thing hasvolumes[1];
+    thing isanelements[2];
     thing nodes[11], points[1], edges[1], tris[2], quads[1], tets[1], hexs[1], wedges[1];
     thing elementgroups[2];
     // assigntype numbers
     enum typenumbers : size_t
     {
         isanelement=0,
-        haslength,
-        hasarea,
-        hasvolume,
         node,
         point,
         edge,
@@ -51,9 +46,7 @@ void testmm2m()
         elementgroup
     };
     settypenumber(isanelements[0], 0);
-    settypenumber(haslengths[0], 1);
-    settypenumber(hasareas[0], 2);
-    settypenumber(hasvolumes[0], 3);
+    settypenumber(isanelements[1], 1);
     for (thing & anode : nodes)
     {
         settypenumber(anode,4);
@@ -72,72 +65,61 @@ void testmm2m()
     mm2m rm;
     setnumberoftypes(rm, 13);
     setsymmetrygroup(rm,node,node,{{0}});
+    setsymmetrygroup(rm,isanelement,isanelement,{{0}});
     setsymmetrygroup(rm, point, node, {{0}});
     setsymmetrygroup(rm, point, isanelement, {{0}});
     setsymmetrygroup(rm, edge, node, {{0, 1}, {1, 0}});
-    setsymmetrygroup(rm, edge, haslength, {{0}});
     setsymmetrygroup(rm, edge, isanelement, {{0}});
     setsymmetrygroup(rm, tri, node, t3sym);
-    setsymmetrygroup(rm, tri, hasarea, {{0}});
     setsymmetrygroup(rm, tri, isanelement, {{0}});
     setsymmetrygroup(rm, quad, node, q4sym);
-    setsymmetrygroup(rm, quad, hasarea, {{0}});
     setsymmetrygroup(rm, quad, isanelement, {{0}});
     setsymmetrygroup(rm, tet, node, tet4sym);
-    setsymmetrygroup(rm, tet, hasvolume, {{0}});
     setsymmetrygroup(rm, tet, isanelement, {{0}});
     setsymmetrygroup(rm, hex, node, h8symm);
-    setsymmetrygroup(rm, hex, hasvolume, {{0}});
     setsymmetrygroup(rm, hex, isanelement, {{0}});
     setsymmetrygroup(rm, wedge, node, wedge6);
-    setsymmetrygroup(rm, wedge, hasvolume, {{0}});
     setsymmetrygroup(rm, wedge, isanelement, {{0}});
     setsymmetrygroup(rm, elementgroup, isanelement, {{}});
-
     // specialization of things
     appendnodesofonetype(isanelements[0],isanelement,{0});
-    appendnodesofonetype(haslengths[0],haslength,{0});
-    appendnodesofonetype(hasareas[0],hasarea,{0});
-    appendnodesofonetype(hasvolumes[0],hasvolume,{0});
+    appendnodesofonetype(isanelements[1],isanelement,{1});
     for (auto anode : nodes)
     {
         appendnodesofonetype(anode,node,{0});
     }
-    /*appendnodesofonetype(points[0], isanelement, {0});
-    appendnodesofonetype(edge, node, {0, 1});
-    appendnodesofonetype(edge, haslength.type, {0});
-    appendnodesofonetype(edge, isanelement.type, {0});*/
-/*
-    appendnodesofonetype(tri, node.type, {5, 4, 3});
-    appendnodesofonetype(tri, hasarea.type, {0});
-    appendnodesofonetype(tri, isanelement.type, {0});
-    appendnodesofonetype(quad, node.type, {6, 5, 4, 3});
-    appendnodesofonetype(quad, hasarea.type, {0});
-    appendnodesofonetype(quad, isanelement.type, {0});
-    appendnodesofonetype(tet, node.type, {5, 1, 0, 2});
-    appendnodesofonetype(tet, hasvolume.type, {0});
-    appendnodesofonetype(tet, isanelement.type, {0});
-    appendnodesofonetype(hex, node.type, {8, 7, 6, 5, 4, 3, 2, 1});
-    appendnodesofonetype(hex, hasvolume.type, {0});
-    appendnodesofonetype(hex, isanelement.type, {0});
-    appendnodesofonetype(wedge, node.type, {5, 4, 3, 2, 1, 0});
-    appendnodesofonetype(wedge, hasvolume.type, {0});
-    appendnodesofonetype(wedge, isanelement.type, {0});
-    appendnodesofonetype(elementgroup, isanelement.type, {0});
-    insertathing(rm, isanelement);
-    insertathing(rm, haslength);
-    insertathing(rm, hasarea);
-    insertathing(rm, hasvolume);
-    insertathing(rm, node);
-    insertathing(rm, point);
-    insertathing(rm, edge);
-    insertathing(rm, tri);
-    insertathing(rm, quad);
-    insertathing(rm, tet);
-    insertathing(rm, hex);
-    insertathing(rm, wedge);
-    insertathing(rm, elementgroup);
-    */
+    appendnodesofonetype(points[0],node,{2});
+    appendnodesofonetype(points[0], isanelement, {0});
+    appendnodesofonetype(edges[0], node, {0, 1});
+    appendnodesofonetype(edges[0], isanelement, {0});
+    appendnodesofonetype(tris[0], node, {7, 5,6});
+    appendnodesofonetype(tris[1], node, {0,9,10});
+    appendnodesofonetype(tris[0], isanelement, {0});
+    appendnodesofonetype(tris[1], isanelement, {0});
+
+    appendnodesofonetype(quads[0], node, {9, 7, 6, 10});
+    appendnodesofonetype(quads[0], isanelement, {0});
+
+    appendnodesofonetype(tets[0], node, {0, 9, 8, 10});
+    appendnodesofonetype(tets[0], isanelement, {1});
+    appendnodesofonetype(hexs[0], node, {1, 2, 3, 4, 9, 7, 5, 8});
+    appendnodesofonetype(hexs[0], isanelement, {1});
+    appendnodesofonetype(wedges[0], node, {5, 4, 3, 2, 1, 0});
+    appendnodesofonetype(wedges[0], isanelement, {1});
+    appendnodesofonetype(elementgroups[0], isanelement, {0});
+    appendnodesofonetype(elementgroups[1], isanelement, {1});
+
+    insertathing(rm, isanelements[0]);
+    insertathing(rm, nodes[0]);
+    insertathing(rm, points[0]);
+    insertathing(rm, edges[0]);
+    insertathing(rm, tris[0]);
+    insertathing(rm, quads[0]);
+    insertathing(rm, tets[0]);
+    insertathing(rm, hexs[0]);
+    insertathing(rm, wedges[0]);
+    insertathing(rm, elementgroups[0]);
+
   /*  std::cout << "tet " << rm.operator()(tet.type, node.type).nodesfromelement.lnods << std::endl;
     std::cout << "hex " << rm.operator()(hex.type, node.type).nodesfromelement.lnods << std::endl;
     closeeverything(rm);

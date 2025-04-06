@@ -60,40 +60,6 @@ inline void pointerdestroy(T *&p) noexcept
 }
 
 /**
- * @brief Safely deletes a dynamically allocated array.
- *
- * @tparam T Array element type.
- * @param p Pointer to the array to delete. After deletion, p is set to nullptr.
- */
-template<typename T>
-inline void arraydestroy(T *&p) noexcept
-{
-    if (p)
-    {
-        delete[] p;
-        p = nullptr;
-    }
-}
-
-/**
- * @brief Creates an array of a given size, destroying any previously allocated memory.
- *
- * @tparam T Array element type.
- * @param p Pointer to store the new array.
- * @param size Number of elements const& the new array.
- */
-template<typename T>
-inline void arraycreate(T *&p, size_t size)
-{
-    arraydestroy(p);
-    if (size > 0)
-    {
-        p = new T[size];
-        std::fill(p, p + size, T());
-    }
-}
-
-/**
  * @brief Returns the demangled name of a type.
  *
  * @tparam T The type to inspect.
