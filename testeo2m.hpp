@@ -27,18 +27,40 @@ std::array<std::size_t, 8> generateRandomArray(std::size_t nmax) {
 }
 inline void testeo2m()
 {
-    size_t nmax=100000000;
-    seque<size_t> els(nmax+1);
-    std::array<size_t,8> arr;
+    size_t nel=700;
+    size_t nmax=pow(nel,3);
+    seque<size_t> els(nmax);
     m2m mm;
     std::cout<<"Started"<<std::endl;
-    setnumberofelements(mm, nmax+1);
-    for (size_t e=0;e<nmax;++e) {
-        arr=generateRandomArray(nmax);
-        seque<size_t> nodes(arr.size());
-        std::copy(arr.begin(),arr.end(),nodes.begin());
-        setnodesforelement(mm,e,nodes);
-    }
+    /*
+    $$\begin{aligned}
+    n_1 &amp;= iex + iey\,(nel+1) + iez\,(nel+1)^2,\\[1mm]
+    n_2 &amp;= (iex+1) + iey\,(nel+1) + iez\,(nel+1)^2,\\[1mm]
+    n_3 &amp;= (iex+1) + (iey+1)\,(nel+1) + iez\,(nel+1)^2,\\[1mm]
+    n_4 &amp;= iex + (iey+1)\,(nel+1) + iez\,(nel+1)^2,\\[1mm]
+    n_5 &amp;= iex + iey\,(nel+1) + (iez+1)\,(nel+1)^2,\\[1mm]
+    n_6 &amp;= (iex+1) + iey\,(nel+1) + (iez+1)\,(nel+1)^2,\\[1mm]
+    n_7 &amp;= (iex+1) + (iey+1)\,(nel+1) + (iez+1)\,(nel+1)^2,\\[1mm]
+    n_8 &amp;= iex + (iey+1)\,(nel+1) + (iez+1)\,(nel+1)^2.
+    \end{aligned}$$
+     */
+    setnumberofelements(mm,nmax);
+    size_t e=0;
+    for (size_t iex=0;iex<nel;++iex)
+        for (size_t iey=0;iey<nel;++iey)
+            for (size_t iez=0;iez<nel;++iez) {
+                e++;
+                seque<size_t> nodes(8);
+                nodes[1]=iex+iey*(nel+1)+iez*pow(nel+1,2);
+                nodes[2]=(iex+1)+iey*(nel+1)+iez*pow(nel+1,2);
+                nodes[3]=(iex+1)+(iey+1)*(nel+1)+iez*pow(nel+1,2);
+                nodes[4]=iex+(iey+1)*(nel+1)+iez*pow(nel+1,2);
+                nodes[5]=iex+iey*(nel+1)+(iez+1)*pow(nel+1,2);
+                nodes[6]=(iex+1)+iey*(nel+1)+(iez+1)*pow(nel+1,2);
+                nodes[7]=(iex+1)+(iey+1)*(nel+1)+(iez+1)*pow(nel+1,2);
+                nodes[8]=iex+(iey+1)*(nel+1)+(iez+1)*pow(nel+1,2);
+                setnodesforelement(mm,e,nodes);
+            }
     std::cout<<"Finished inserting stuff"<<std::endl;
     setallpointers(mm);
     std::cout<<"Finished setting the pointers"<<std::endl;

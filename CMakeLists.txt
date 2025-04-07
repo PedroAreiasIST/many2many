@@ -35,5 +35,5 @@ add_executable(ConsoleApplication1
         testeo2m.hpp
 )
 
-#find_package(TBB REQUIRED)
-#target_link_libraries(ConsoleApplication1 PUBLIC TBB::tbb)
+find_package(TBB REQUIRED)
+target_link_libraries(ConsoleApplication1 PUBLIC TBB::tbb)
