@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(GCC_COVERAGE_COMPILE_FLAGS "-Wall -Wextra -Wconversion")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -std=c++20 -fbacktrace")
-set(CMAKE_CXX_FLAGS_RELEASE " -Ofast -g -std=c++20 -mavx512f -fomit-frame-pointer -fargument-noalias -fopenmp -march=native -Wall ")
+set(CMAKE_CXX_FLAGS_RELEASE " -Ofast -std=c++20 -fomit-frame-pointer -fopenmp -march=native -Wall ")
 
 project(ConsoleApplication1)
 

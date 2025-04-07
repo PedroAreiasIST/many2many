@@ -10,6 +10,9 @@
 #include <random>
 #include <stdexcept>
 #include <type_traits>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 template <typename T> inline void arraydestroy(T *&p) {
   if (p) {
@@ -71,6 +74,8 @@ struct seque {
     return *this;
   }
   seque &operator=(V value) {
+// Each element is set independently.
+#pragma omp parallel for if (size > 1000)
     for (size_t i = 0; i < size; i++) {
       actual[i] = value;
     }
@@ -99,7 +104,7 @@ struct seque {
   V const *end() const { return actual + size; }
   seque operator()(seque<size_t, S, P> const &indexContainer) const {
     seque result(indexContainer.size);
-    std::transform(indexContainer.parallel, indexContainer.actual,
+    std::transform(indexContainer.actual,
                    indexContainer.actual + indexContainer.size, result.actual,
                    [&](size_t idx) { return actual[idx]; });
     return result;
@@ -147,6 +152,7 @@ public:
   void _switchfromstacktoheap(size_t newCapacity) {
     heapsize = newCapacity;
     arraycreate(heapdata, newCapacity);
+#pragma omp parallel for if (size > 1000)
     for (size_t i = 0; i < size; i++) {
       heapdata[i] = stackdata[i];
     }
@@ -155,8 +161,12 @@ public:
   void _switchfromheapstostack() {
     const size_t moveCount = std::min(heapsize, stacksize);
     if (heapdata) {
-      if (moveCount > 0)
-        std::copy(heapdata, heapdata + moveCount, stackdata);
+      if (moveCount > 0) {
+#pragma omp parallel for if (moveCount > 1000)
+        for (size_t i = 0; i < moveCount; i++) {
+          stackdata[i] = heapdata[i];
+        }
+      }
       arraydestroy(heapdata);
       heapdata = nullptr;
     }
@@ -167,7 +177,10 @@ public:
     if (newCapacity > heapsize) {
       V *tempArray = nullptr;
       arraycreate(tempArray, newCapacity);
-      std::move(heapdata, heapdata + size, tempArray);
+#pragma omp parallel for if (size > 1000)
+      for (size_t i = 0; i < size; i++) {
+        tempArray[i] = std::move(heapdata[i]);
+      }
       arraydestroy(heapdata);
       heapdata = tempArray;
       heapsize = newCapacity;
@@ -630,12 +643,16 @@ void indicesfromorder(seque<V, S, P> const &sourceContainer,
   }
   setsize(firstSortedIndices, uniqueCount);
   setsize(mappingIndices, totalSize);
+// Parallelize initialization of mappingIndices
+#pragma omp parallel for if (totalSize > 1000)
   for (size_t index = 0; index < totalSize; ++index) {
     mappingIndices[index] = static_cast<size_t>(-1);
   }
   for (size_t uniqueIndex = 0; uniqueIndex < uniqueCount; ++uniqueIndex) {
     mappingIndices[firstSortedIndices[uniqueIndex]] = uniqueIndex;
   }
+// Parallelize the final update loop
+#pragma omp parallel for if (totalSize > 1000)
   for (size_t index = 0; index < totalSize; ++index) {
     if (mappingIndices[index] == static_cast<size_t>(-1)) {
       mappingIndices[index] = mappingIndices[firstSortedIndices[index]];

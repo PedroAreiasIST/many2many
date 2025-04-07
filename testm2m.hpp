@@ -71,7 +71,7 @@ void testm2m() {
   seque<size_t> sn{0, 2, 1, 4, 3, 5, 7, 9, 8};
   cout << "Permute beg" << endl;
   permutenodes(mm1, sn);
-  cout << "Permut end" << endl;
+  cout << "Permute end" << endl;
   cout << "After node compression" << mm1.nodesfromelement.lnods << endl;
 }
 #endif // TESTMM_HPP
