@@ -11,7 +11,7 @@ namespace hidden {
 size_t update_max_for_nodes(seque<size_t> const &nodes, size_t current_max) {
   size_t max_val = current_max;
 #ifdef _OPENMP
-#pragma omp parallel for reduction(max:max_val)
+#pragma omp parallel for reduction(max : max_val)
 #endif
   for (size_t i = 0; i < getsize(nodes); ++i) {
     max_val = std::max(max_val, nodes[i]);
@@ -42,19 +42,16 @@ size_t appendelement(o2m &rel, seque<size_t> const &nodes) {
   assert(getsize(rel.lnods) == rel.nelem);
   rel.lnods[rel.nelem - 1] = nodes;
   size_t local_max = rel.maxnodenumber;
-#ifdef _OPENMP
-#pragma omp parallel for reduction(max:local_max)
-#endif
-  for (size_t i = 0; i < getsize(nodes); ++i) {
+  for (size_t i = 0; i < getsize(nodes); i++) {
     local_max = std::max(local_max, nodes[i]);
   }
   rel.maxnodenumber = local_max;
   return rel.nelem - 1;
 }
 
-// Transposes the one-to-many relation. The result will have as its domain all nodes
-// (assumed to be numbered 0 .. rel.maxnodenumber) and for each node, the list of elements
-// that point to it. (Note: duplicate entries are not removed.)
+// Transposes the one-to-many relation. The result will have as its domain all
+// nodes (assumed to be numbered 0 .. rel.maxnodenumber) and for each node, the
+// list of elements that point to it. (Note: duplicate entries are not removed.)
 void transpose(const o2m &rel, o2m &relt) {
   relt.maxnodenumber = 0;
   relt.nelem = 0;
@@ -76,9 +73,6 @@ void transpose(const o2m &rel, o2m &relt) {
   }
   // Set the domain of the transposed relation to include all nodes.
   setnumberofelements(relt, numberofnodes);
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
   for (size_t localnode = 0; localnode < numberofnodes; ++localnode) {
     setsize(relt.lnods[localnode], counts[localnode]);
   }
@@ -107,13 +101,15 @@ void transpose(const o2m &rel, o2m &relt) {
 void multiplication(const o2m &rela, const o2m &relb, o2m &relc) {
   // The resulting relation's domain is rela's.
   setnumberofelements(relc, rela.nelem);
-  // We assume that rela's node entries refer to valid indices in relb (if not, they are skipped).
+  // We assume that rela's node entries refer to valid indices in relb (if not,
+  // they are skipped).
   relc.maxnodenumber = relb.maxnodenumber;
   seque<size_t> marker(relc.maxnodenumber + 1, 0);
   size_t currentGeneration = 1;
   seque<size_t> temp;
   size_t itemp;
-  // Process each row sequentially because marker and currentGeneration are shared.
+  // Process each row sequentially because marker and currentGeneration are
+  // shared.
   for (size_t aRow = 0; aRow < rela.nelem; ++aRow) {
     itemp = 0;
     seque<size_t> const &rowA = rela.lnods[aRow];
@@ -149,7 +145,8 @@ void multiplication(const o2m &rela, const o2m &relb, o2m &relc) {
 
 // Adds (unites) two relations elementwise.
 // For each element (row), the union of the node lists is computed.
-// (Note: duplicates are removed using a marker technique, but ordering is arbitrary.)
+// (Note: duplicates are removed using a marker technique, but ordering is
+// arbitrary.)
 void addition(const o2m &rela, const o2m &relb, o2m &relc) {
   size_t maxelem = std::max(rela.nelem, relb.nelem);
   setnumberofelements(relc, maxelem);
@@ -217,12 +214,12 @@ void intersection(const o2m &a, const o2m &b, o2m &c) {
     seque<size_t> marker(c.maxnodenumber + 1);
     seque<size_t> common;
     size_t currentGeneration = 1;
-    const seque<size_t>& rowB = b.lnods[r];
+    const seque<size_t> &rowB = b.lnods[r];
     for (size_t node : rowB) {
       marker[node] = currentGeneration;
     }
     size_t count = 0;
-    const seque<size_t>& rowA = a.lnods[r];
+    const seque<size_t> &rowA = a.lnods[r];
     for (size_t node : rowA) {
       if (marker[node] == currentGeneration)
         count++;
@@ -252,11 +249,11 @@ void subtraction(const o2m &rela, const o2m &relb, o2m &relc) {
   for (size_t r = 0; r < nRows; ++r) {
     seque<size_t> marker(relc.maxnodenumber + 1, 0);
     if (r < relb.nelem) {
-      const seque<size_t>& rowB = relb.lnods[r];
+      const seque<size_t> &rowB = relb.lnods[r];
       for (size_t node : rowB)
         marker[node] = 1;
     }
-    const seque<size_t>& rowA = rela.lnods[r];
+    const seque<size_t> &rowA = rela.lnods[r];
     size_t count = 0;
     for (size_t node : rowA)
       if (marker[node] == 0)
@@ -272,11 +269,13 @@ void subtraction(const o2m &rela, const o2m &relb, o2m &relc) {
 }
 
 // Computes a topological order of the graph represented by 'rel'.
-// Assumes 'rel.lnods' is sized to cover all vertices. Throws a runtime_error if a cycle exists.
+// Assumes 'rel.lnods' is sized to cover all vertices. Throws a runtime_error if
+// a cycle exists.
 seque<size_t> toporder(const o2m &rel) {
   seque<size_t> order;
   setsize(order, 0);
-  // 'inDegree' is sized to the number of vertices (assumed to equal getsize(rel.lnods)).
+  // 'inDegree' is sized to the number of vertices (assumed to equal
+  // getsize(rel.lnods)).
   std::vector<size_t> inDegree(getsize(rel.lnods), 0);
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -304,14 +303,13 @@ seque<size_t> toporder(const o2m &rel) {
     }
   }
   if (getsize(order) != getsize(rel.lnods))
-    throw std::runtime_error("The relation contains cycles, topological sort not possible.");
+    throw std::runtime_error(
+        "The relation contains cycles, topological sort not possible.");
   return order;
 }
 
 // Returns a lexicographical order of the relation's rows.
-seque<size_t> lexiorder(const o2m &rel) {
-  return getorder(rel.lnods);
-}
+seque<size_t> lexiorder(const o2m &rel) { return getorder(rel.lnods); }
 
 // Generates index mappings based on a given element order.
 void indicesfromorder(const o2m &rel, const seque<size_t> &elemOrder,
@@ -324,9 +322,6 @@ void compresselements(o2m &rel, const seque<size_t> &oldelementfromnew) {
   rel.lnods = rel.lnods(oldelementfromnew);
   rel.nelem = getsize(oldelementfromnew);
   size_t local_max = 0;
-#ifdef _OPENMP
-#pragma omp parallel for reduction(max:local_max)
-#endif
   for (size_t i = 0; i < getsize(rel.lnods); ++i) {
     seque<size_t> const &row = rel.lnods[i];
     for (size_t j = 0; j < getsize(row); ++j) {
@@ -346,7 +341,7 @@ void permutenodes(o2m &rel, const seque<size_t> &newnodefromold) {
   }
   size_t local_max = 0;
 #ifdef _OPENMP
-#pragma omp parallel for reduction(max:local_max)
+#pragma omp parallel for reduction(max : local_max)
 #endif
   for (size_t i = 0; i < getsize(rel.lnods); ++i) {
     seque<size_t> const &row = rel.lnods[i];

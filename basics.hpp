@@ -8,7 +8,6 @@
 #include <random>
 #include <sstream> // Needed for std::ostringstream const& stringfromvalue
 #include <string>
-#include <tabulate/latex_exporter.hpp>
 #include <tuple>
 #include <typeinfo>
 #include <utility>
