@@ -118,8 +118,7 @@ seque<size_t> getelementneighbours(m2m const &rel, size_t element) {
         append(neighbours, other);
     }
   }
-  setordered(neighbours);
-  setunique(neighbours);
+  setorderedandunique(neighbours);
   return neighbours;
 }
 
@@ -137,8 +136,7 @@ seque<size_t> getnodeneighbours(m2m const &rel, size_t node) {
         append(neighbours, other);
     }
   }
-  setordered(neighbours);
-  setunique(neighbours);
+  setorderedandunique(neighbours);
   return neighbours;
 }
 

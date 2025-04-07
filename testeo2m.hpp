@@ -27,20 +27,24 @@ std::array<std::size_t, 8> generateRandomArray(std::size_t nmax) {
 }
 inline void testeo2m()
 {
-    size_t nmax=10000000;
-    seque<size_t> els(nmax);
+    size_t nmax=100000000;
+    seque<size_t> els(nmax+1);
     std::array<size_t,8> arr;
     m2m mm;
-    setnumberofelements(mm, nmax);
+    std::cout<<"Started"<<std::endl;
+    setnumberofelements(mm, nmax+1);
     for (size_t e=0;e<nmax;++e) {
         arr=generateRandomArray(nmax);
         seque<size_t> nodes(arr.size());
         std::copy(arr.begin(),arr.end(),nodes.begin());
         setnodesforelement(mm,e,nodes);
     }
+    std::cout<<"Finished inserting stuff"<<std::endl;
     setallpointers(mm);
+    std::cout<<"Finished setting the pointers"<<std::endl;
     m2m result;
     getnodestonodes(mm, result);
+    std::cout<<"Finished the transpose stuff"<<std::endl;
     std::cout<<result.nodesfromelement.lnods[0]<<std::endl;
 }
 #endif //TESTEO2M_HPP

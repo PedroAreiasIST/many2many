@@ -16,7 +16,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
     //testsek();
-    //testm2m();
-    //testmm2m();
+    testm2m();
+    testmm2m();
     testeo2m();
 }
