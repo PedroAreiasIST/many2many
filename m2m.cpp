@@ -71,20 +71,29 @@ void subtraction(const m2m &rela, bool transposea, const m2m &relb,
 
 void setallpointers(m2m &rel) {
   if (!rel.isupdated) {
+    // Create inverse mapping from nodes to elements
     transpose(rel.nodesfromelement, rel.elementsfromnode);
+    // Prepare nodelocation storage - this stores position of each node within
+    // elements
     setsize(rel.nodelocation, rel.elementsfromnode.nelem);
-    for (size_t node = 0; node < rel.elementsfromnode.nelem; ++node)
+    for (size_t node = 0; node < rel.elementsfromnode.nelem; ++node) {
       setsize(rel.nodelocation[node],
               getsize(rel.elementsfromnode.lnods[node]));
-    seque<size_t> nextlocalelementofnode(rel.elementsfromnode.nelem, 0);
-    size_t nelem = rel.nodesfromelement.nelem;
-    for (size_t element = 0; element < nelem; ++element) {
-      const seque<size_t> &nodes = rel.nodesfromelement.lnods[element];
-      for (size_t localnode = 0; localnode < getsize(nodes); ++localnode) {
-        size_t node = nodes[localnode];
-        rel.nodelocation[node][nextlocalelementofnode[node]++] = localnode;
+    }
+
+    // Track the next position to fill for each node
+    seque<size_t> nodePositionCounter(rel.elementsfromnode.nelem, 0);
+
+    // Build the node location lookup table
+    for (size_t element = 0; element < rel.nodesfromelement.nelem; ++element) {
+      const auto &nodes = rel.nodesfromelement.lnods[element];
+      for (size_t localPosition = 0; localPosition < getsize(nodes);
+           ++localPosition) {
+        size_t node = nodes[localPosition];
+        rel.nodelocation[node][nodePositionCounter[node]++] = localPosition;
       }
     }
+
     rel.isupdated = true;
   }
 }

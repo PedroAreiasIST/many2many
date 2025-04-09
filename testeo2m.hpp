@@ -26,7 +26,7 @@ std::array<std::size_t, 8> generateRandomArray(std::size_t nmax) {
   return arr;
 }
 inline void testeo2m() {
-  size_t nel = 200;
+  size_t nel = 300;
   size_t nmax = pow(nel, 3);
   seque<size_t> els(nmax);
   m2m mm;
@@ -36,20 +36,22 @@ inline void testeo2m() {
   for (size_t iex = 0; iex < nel; ++iex)
     for (size_t iey = 0; iey < nel; ++iey)
       for (size_t iez = 0; iez < nel; ++iez) {
-        e++;
         seque<size_t> nodes(8);
-        nodes[1] = iex + iey * (nel + 1) + iez * pow(nel + 1, 2);
-        nodes[2] = (iex + 1) + iey * (nel + 1) + iez * pow(nel + 1, 2);
-        nodes[3] = (iex + 1) + (iey + 1) * (nel + 1) + iez * pow(nel + 1, 2);
-        nodes[4] = iex + (iey + 1) * (nel + 1) + iez * pow(nel + 1, 2);
-        nodes[5] = iex + iey * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
-        nodes[6] = (iex + 1) + iey * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
-        nodes[7] =
+        nodes[0] = iex + iey * (nel + 1) + iez * pow(nel + 1, 2);
+        nodes[1] = (iex + 1) + iey * (nel + 1) + iez * pow(nel + 1, 2);
+        nodes[2] = (iex + 1) + (iey + 1) * (nel + 1) + iez * pow(nel + 1, 2);
+        nodes[3] = iex + (iey + 1) * (nel + 1) + iez * pow(nel + 1, 2);
+        nodes[4] = iex + iey * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
+        nodes[5] = (iex + 1) + iey * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
+        nodes[6] =
             (iex + 1) + (iey + 1) * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
-        nodes[8] = iex + (iey + 1) * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
-        setnodesforelement(mm, e, nodes);
+        nodes[7] = iex + (iey + 1) * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
+        // appendelement(mm, nodes);
+        setnodesforelement(mm, e++, nodes);
       }
+  std::cout << "e=" << e << std::endl;
   std::cout << "Finished inserting stuff" << std::endl;
+  std::cout << "How many ?" << mm.nodesfromelement.nelem << std::endl;
   setallpointers(mm);
   std::cout << "Finished setting the pointers" << std::endl;
   m2m result;

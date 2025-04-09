@@ -3,16 +3,13 @@
 
 #include <algorithm>
 #include <cassert>
-#include <cmath>
+#include <cstring> // for std::memcpy
 #include <execution>
 #include <initializer_list>
 #include <numeric>
 #include <random>
 #include <stdexcept>
 #include <type_traits>
-#ifdef _OPENMP
-#include <omp.h>
-#endif
 
 template <typename T> inline void arraydestroy(T *&p) {
   if (p) {
@@ -25,12 +22,11 @@ template <typename T> inline void arraycreate(T *&p, size_t size) {
   arraydestroy(p);
   if (size > 0) {
     p = new T[size];
-    std::fill(p, p + size, T());
   }
 }
 
 namespace hidden {
-constexpr size_t STACKSIZE = 5;
+constexpr size_t STACKSIZE = 10;
 }
 
 template <typename V, size_t S = hidden::STACKSIZE,
@@ -43,65 +39,65 @@ struct seque {
   V *heapdata = nullptr;
   size_t heapsize = 0;
   V *actual = stackdata;
-  seque() {
-    for (size_t i = 0; i < stacksize; i++) {
-      stackdata[i] = V();
-    }
-  }
+
+  seque() {}
+
   explicit seque(size_t newSize) : seque() { setsize(*this, newSize); }
+
   seque(size_t newSize, V value) : seque(newSize) {
     for (size_t i = 0; i < size; i++) {
       actual[i] = value;
     }
   }
+
   seque(std::initializer_list<V> const &values) {
     setsize(*this, values.size());
     std::copy(values.begin(), values.end(), actual);
   }
+
   seque(seque const &other) : seque() { copy_from(other); }
-  seque(seque &&other) noexcept : seque() { move_from(std::move(other)); }
+
   ~seque() { setsize(*this, 0); }
+
   seque &operator=(seque const &other) {
     if (this != &other) {
       copy_from(other);
     }
     return *this;
   }
-  seque &operator=(seque &&other) noexcept {
-    if (this != &other) {
-      move_from(std::move(other));
-    }
+
+  seque &operator=(V const &value) {
+    std::fill(actual, actual + size, value);
     return *this;
   }
-  seque &operator=(V value) {
-// Each element is set independently.
-#pragma omp parallel for if (size > 1000)
-    for (size_t i = 0; i < size; i++) {
-      actual[i] = value;
-    }
-    return *this;
-  }
+
   V &operator[](size_t index) { return actual[index]; }
+
   V const &operator[](size_t index) const { return actual[index]; }
+
   V &operator()(size_t index) {
     if (index >= size) {
       setsize(*this, index + 1);
     }
     return actual[index];
   }
+
   V const &operator()(size_t index) const {
     _explodeinvalidindex(index);
     return actual[index];
   }
+
   seque &operator=(std::initializer_list<V> const &initList) {
     setsize(*this, initList.size());
     std::copy(initList.begin(), initList.end(), actual);
     return *this;
   }
+
   V *begin() { return actual; }
   V *end() { return actual + size; }
   V const *begin() const { return actual; }
   V const *end() const { return actual + size; }
+
   seque operator()(seque<size_t, S, P> const &indexContainer) const {
     seque result(indexContainer.size);
     std::transform(indexContainer.actual,
@@ -110,34 +106,13 @@ struct seque {
     return result;
   }
 
-private:
+  // Bulk copy optimization:
   void copy_from(seque const &other) {
     setsize(*this, other.size);
-    std::copy(parallel, other.actual, other.actual + other.size, actual);
-  }
-  void move_from(seque &&other) noexcept {
-    if (this != &other) {
-      if (heapdata && actual == heapdata) {
-        arraydestroy(heapdata);
-        heapdata = nullptr;
-        heapsize = 0;
-      }
-      for (size_t i = 0; i < stacksize; i++) {
-        stackdata[i] = V();
-      }
-      size = other.size;
-      if (other.actual == other.stackdata) {
-        actual = stackdata;
-        std::move(other.stackdata, other.stackdata + other.size, stackdata);
-      } else {
-        heapdata = other.heapdata;
-        heapsize = other.heapsize;
-        actual = heapdata;
-        other.heapdata = nullptr;
-        other.heapsize = 0;
-      }
-      other.size = 0;
-      other.actual = other.stackdata;
+    if constexpr (std::is_trivially_copyable_v<V>) {
+      std::memcpy(actual, other.actual, other.size * sizeof(V));
+    } else {
+      std::copy(parallel, other.actual, other.actual + other.size, actual);
     }
   }
 
@@ -149,37 +124,41 @@ public:
                               ").");
     }
   }
+
   void _switchfromstacktoheap(size_t newCapacity) {
     heapsize = newCapacity;
     arraycreate(heapdata, newCapacity);
-#pragma omp parallel for if (size > 1000)
-    for (size_t i = 0; i < size; i++) {
-      heapdata[i] = stackdata[i];
+    if constexpr (std::is_trivially_copyable_v<V>) {
+      std::memcpy(heapdata, stackdata,
+                  std::min(stacksize, newCapacity) * sizeof(V));
+    } else {
+      for (size_t i = 0; i < std::min(stacksize, newCapacity); i++) {
+        heapdata[i] = stackdata[i];
+      }
     }
     actual = heapdata;
   }
+
   void _switchfromheapstostack() {
-    const size_t moveCount = std::min(heapsize, stacksize);
+    const size_t moveCount = std::min({size, heapsize, stacksize});
     if (heapdata) {
-      if (moveCount > 0) {
-#pragma omp parallel for if (moveCount > 1000)
-        for (size_t i = 0; i < moveCount; i++) {
-          stackdata[i] = heapdata[i];
-        }
-      }
+      if (moveCount > 0)
+        std::copy(heapdata, heapdata + moveCount, stackdata);
       arraydestroy(heapdata);
       heapdata = nullptr;
     }
     heapsize = 0;
     actual = stackdata;
   }
+
   void _modifysizeofheap(size_t newCapacity) {
     if (newCapacity > heapsize) {
       V *tempArray = nullptr;
       arraycreate(tempArray, newCapacity);
-#pragma omp parallel for if (size > 1000)
-      for (size_t i = 0; i < size; i++) {
-        tempArray[i] = std::move(heapdata[i]);
+      if constexpr (std::is_trivially_copyable_v<V>) {
+        std::memcpy(tempArray, heapdata, size * sizeof(V));
+      } else {
+        std::move(heapdata, heapdata + size, tempArray);
       }
       arraydestroy(heapdata);
       heapdata = tempArray;
@@ -200,12 +179,13 @@ inline V *end(seque<V, S, P> &container) {
 }
 
 template <typename V, size_t S, auto P>
-void setsize(seque<V, S, P> &container, size_t newSize,
-             size_t growthFactor = 2) {
-  assert(growthFactor >= 2);
+void setsize(seque<V, S, P> &container, size_t newSize) {
+  double growthFactor = 1.6e00;
+  if (newSize == container.size)
+    return;
   if (container.actual == container.stackdata) {
     if (newSize > container.stacksize) {
-      container._switchfromstacktoheap(growthFactor * newSize);
+      container._switchfromstacktoheap((size_t)growthFactor * newSize);
     }
   } else {
     if (newSize <= container.stacksize) {
@@ -232,21 +212,6 @@ void load(auto archiver, seque<V, S, P> &container) {
   setsize(container, loadedSize);
   for (size_t index = 0; index < container.size; ++index) {
     archiver(container.actual[index]);
-  }
-}
-
-template <typename V, size_t S, auto P>
-void swap(seque<V, S, P> &containerA, seque<V, S, P> &containerB) {
-  if (containerA.actual == containerA.heapdata &&
-      containerB.actual == containerB.heapdata) {
-    std::swap(containerA.heapdata, containerB.heapdata);
-    std::swap(containerA.actual, containerB.actual);
-    std::swap(containerA.heapsize, containerB.heapsize);
-    std::swap(containerA.size, containerB.size);
-  } else {
-    auto temp = containerA;
-    containerA = containerB;
-    containerB = temp;
   }
 }
 
@@ -297,7 +262,7 @@ void eraseinplace(seque<V, S, P> &container, size_t startIndex,
 }
 
 template <typename V, size_t S, auto P>
-void add(seque<V, S, P> &container, size_t insertIndex, V value) {
+void add(seque<V, S, P> &container, size_t insertIndex, V const &value) {
   container._explodeinvalidindex(insertIndex);
   setsize(container, container.size + 1);
   container[container.size - 1] = container[insertIndex];
@@ -305,7 +270,7 @@ void add(seque<V, S, P> &container, size_t insertIndex, V value) {
 }
 
 template <typename V, size_t S, auto P>
-void addinplace(seque<V, S, P> &container, size_t insertIndex, V value) {
+void addinplace(seque<V, S, P> &container, size_t insertIndex, V const &value) {
   if (insertIndex > container.size) {
     insertIndex = container.size;
   }
@@ -334,7 +299,7 @@ void addinplace(seque<V, S, P> &destContainer, size_t insertIndex,
 }
 
 template <typename V, size_t S, auto P>
-size_t append(seque<V, S, P> &container, V value) {
+size_t append(seque<V, S, P> &container, V const &value) {
   setsize(container, container.size + 1);
   container[container.size - 1] = value;
   return container.size - 1;
@@ -348,17 +313,7 @@ size_t append(seque<V, S, P> &destContainer,
   std::copy(destContainer.parallel, sourceContainer.actual,
             sourceContainer.actual + sourceContainer.size,
             destContainer.actual + oldSize);
-  return oldSize - 1;
-}
-
-template <typename V, size_t S, auto P>
-size_t append(seque<V, S, P> &destContainer, seque<V, S, P> &&sourceContainer) {
-  const size_t oldSize = destContainer.size;
-  setsize(destContainer, destContainer.size + sourceContainer.size);
-  std::move(sourceContainer.actual,
-            sourceContainer.actual + sourceContainer.size,
-            destContainer.actual + oldSize);
-  return oldSize - 1;
+  return oldSize;
 }
 
 template <typename V, size_t S, auto P>
@@ -643,16 +598,12 @@ void indicesfromorder(seque<V, S, P> const &sourceContainer,
   }
   setsize(firstSortedIndices, uniqueCount);
   setsize(mappingIndices, totalSize);
-// Parallelize initialization of mappingIndices
-#pragma omp parallel for if (totalSize > 1000)
   for (size_t index = 0; index < totalSize; ++index) {
     mappingIndices[index] = static_cast<size_t>(-1);
   }
   for (size_t uniqueIndex = 0; uniqueIndex < uniqueCount; ++uniqueIndex) {
     mappingIndices[firstSortedIndices[uniqueIndex]] = uniqueIndex;
   }
-// Parallelize the final update loop
-#pragma omp parallel for if (totalSize > 1000)
   for (size_t index = 0; index < totalSize; ++index) {
     if (mappingIndices[index] == static_cast<size_t>(-1)) {
       mappingIndices[index] = mappingIndices[firstSortedIndices[index]];

@@ -4,8 +4,8 @@ cmake_minimum_required(VERSION 3.22)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(GCC_COVERAGE_COMPILE_FLAGS "-Wall -Wextra -Wconversion")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -std=c++20 -fbacktrace")
-set(CMAKE_CXX_FLAGS_RELEASE " -Ofast -std=c++20 -fomit-frame-pointer -fopenmp -march=native -Wall ")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -std=c++20")
+set(CMAKE_CXX_FLAGS_RELEASE " -Ofast -std=c++20 -ltbb -fargument-noalias-global -fomit-frame-pointer -fopenmp -march=native -flto ")
 
 project(ConsoleApplication1)
 
