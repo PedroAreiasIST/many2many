@@ -27,20 +27,86 @@ std::array<std::size_t, 8> generateRandomArray(std::size_t nmax) {
   return arr;
 }
 inline void testeo2m() {
-  auto start_time = std::chrono::high_resolution_clock::now();
-  constexpr size_t ntype = 4;
   size_t nel, nmax;
   seque<size_t> els;
   m2m mm;
-  size_t e = 0;
-  switch (ntype) {
-  case 6:
-    nel = 450;
+  if (3 == 2) {
+    auto start_time = std::chrono::high_resolution_clock::now();
+    constexpr size_t ntype = 4;
+
+    size_t e = 0;
+    switch (ntype) {
+    case 6:
+      nel = 450;
+      nmax = pow(nel, 3);
+      setsize(els, nmax);
+      std::cout << "Started" << std::endl;
+      setnumberofelements(mm, nmax);
+
+      for (size_t iex = 0; iex < nel; ++iex)
+        for (size_t iey = 0; iey < nel; ++iey)
+          for (size_t iez = 0; iez < nel; ++iez) {
+            seque<size_t> nodes(8);
+            nodes[0] = iex + iey * (nel + 1) + iez * pow(nel + 1, 2);
+            nodes[1] = (iex + 1) + iey * (nel + 1) + iez * pow(nel + 1, 2);
+            nodes[2] =
+                (iex + 1) + (iey + 1) * (nel + 1) + iez * pow(nel + 1, 2);
+            nodes[3] = iex + (iey + 1) * (nel + 1) + iez * pow(nel + 1, 2);
+            nodes[4] = iex + iey * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
+            nodes[5] =
+                (iex + 1) + iey * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
+            nodes[6] =
+                (iex + 1) + (iey + 1) * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
+            nodes[7] =
+                iex + (iey + 1) * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
+            // appendelement(mm, nodes);
+            setnodesforelement(mm, e++, nodes);
+          }
+      break;
+    case 4:
+      nel = 12000;
+      nmax = pow(nel, 2);
+      setsize(els, nmax);
+      std::cout << "Started" << std::endl;
+      setnumberofelements(mm, nmax);
+      std::cout << "Started" << std::endl;
+      setnumberofelements(mm, nmax);
+      for (size_t iex = 0; iex < nel; ++iex)
+        for (size_t iey = 0; iey < nel; ++iey) {
+          seque<size_t> nodes(4);
+          nodes[0] = iex + iey * (nel + 1);
+          nodes[1] = (iex + 1) + iey * (nel + 1);
+          nodes[2] = (iex + 1) + (iey + 1) * (nel + 1);
+          nodes[3] = iex + (iey + 1) * (nel + 1);
+          setnodesforelement(mm, e++, nodes);
+        }
+      break;
+    default:
+      break;
+    }
+    std::cout << "e=" << e << std::endl;
+    std::cout << "Finished inserting stuff" << std::endl;
+    std::cout << "How many ?" << mm.nodesfromelement.nelem << std::endl;
+
+    setallpointers(mm);
+    std::cout << "Finished setting the pointers" << std::endl;
+    m2m result;
+    getnodestonodes(mm, result);
+    std::cout << "Finished the transpose stuff" << std::endl;
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+        end_time - start_time);
+    std::cout << "Duration: " << duration.count() << " milliseconds"
+              << std::endl;
+    std::cout << result.nodesfromelement.lnods[0] << std::endl;
+  } else {
+    nel = 500;
     nmax = pow(nel, 3);
     setsize(els, nmax);
+    seque<size_t> fixenode(8);
     std::cout << "Started" << std::endl;
     setnumberofelements(mm, nmax);
-
+    size_t e = 0;
     for (size_t iex = 0; iex < nel; ++iex)
       for (size_t iey = 0; iey < nel; ++iey)
         for (size_t iez = 0; iez < nel; ++iez) {
@@ -55,43 +121,28 @@ inline void testeo2m() {
               (iex + 1) + (iey + 1) * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
           nodes[7] = iex + (iey + 1) * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
           // appendelement(mm, nodes);
+          if (e == 1302)
+            fixenode = nodes;
           setnodesforelement(mm, e++, nodes);
         }
-    break;
-  case 4:
-    nel = 12000;
-    nmax = pow(nel, 2);
-    setsize(els, nmax);
-    std::cout << "Started" << std::endl;
-    setnumberofelements(mm, nmax);
-    std::cout << "Started" << std::endl;
-    setnumberofelements(mm, nmax);
-    for (size_t iex = 0; iex < nel; ++iex)
-      for (size_t iey = 0; iey < nel; ++iey) {
-        seque<size_t> nodes(4);
-        nodes[0] = iex + iey * (nel + 1);
-        nodes[1] = (iex + 1) + iey * (nel + 1);
-        nodes[2] = (iex + 1) + (iey + 1) * (nel + 1);
-        nodes[3] = iex + (iey + 1) * (nel + 1);
-        setnodesforelement(mm, e++, nodes);
+    constexpr bool HASH(false);
+    setallpointers(mm);
+    auto start_time = std::chrono::high_resolution_clock::now();
+    if (!HASH) {
+      seque<size_t> obtained = getelementsfromnodes(mm, fixenode);
+      std::cout << obtained << std::endl;
+    } else {
+      std::unordered_map<seque<size_t>, size_t> vas;
+      for (size_t i = 0; i < mm.nodesfromelement.nelem; ++i) {
+        vas[mm.nodesfromelement.lnods[i]] = i;
       }
-    break;
-  default:
-    break;
+      seque<size_t> obtained = vas.find(fixenode)->first;
+    }
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+        end_time - start_time);
+    std::cout << "Duration: " << duration.count() << " milliseconds"
+              << std::endl;
   }
-  std::cout << "e=" << e << std::endl;
-  std::cout << "Finished inserting stuff" << std::endl;
-  std::cout << "How many ?" << mm.nodesfromelement.nelem << std::endl;
-
-  setallpointers(mm);
-  std::cout << "Finished setting the pointers" << std::endl;
-  m2m result;
-  getnodestonodes(mm, result);
-  std::cout << "Finished the transpose stuff" << std::endl;
-  auto end_time = std::chrono::high_resolution_clock::now();
-  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-      end_time - start_time);
-  std::cout << "Duration: " << duration.count() << " milliseconds" << std::endl;
-  std::cout << result.nodesfromelement.lnods[0] << std::endl;
 }
 #endif // TESTEO2M_HPP

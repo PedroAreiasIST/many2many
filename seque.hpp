@@ -5,12 +5,12 @@
 #include <cassert>
 #include <cstring> // for std::memcpy
 #include <execution>
+#include <functional> // For std::hash
 #include <initializer_list>
 #include <numeric>
 #include <random>
 #include <stdexcept>
 #include <type_traits>
-
 template <typename T> inline void arraydestroy(T *&p) {
   if (p) {
     delete[] p;
@@ -26,7 +26,7 @@ template <typename T> inline void arraycreate(T *&p, size_t size) {
 }
 
 namespace hidden {
-constexpr size_t STACKSIZE = 8;
+constexpr size_t STACKSIZE = 4;
 constexpr double GROWTHFACTOR = 1.5;
 } // namespace hidden
 
@@ -682,5 +682,18 @@ size_t addretainingorder(seque<V, S, P> &sortedcontainer, V value) {
   addinplace(sortedcontainer, insertPosition, value);
   return insertPosition;
 }
+
+namespace std {
+template <typename V, size_t S, auto P> struct hash<seque<V, S, P>> {
+  size_t operator()(const seque<V, S, P> &seq) const {
+    size_t seed = 0;
+    std::hash<V> valueHasher;
+    for (size_t i = 0; i < seq.size; ++i) {
+      seed ^= valueHasher(seq[i]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+    return seed;
+  }
+};
+} // namespace std
 
 #endif

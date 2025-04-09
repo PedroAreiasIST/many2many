@@ -16,7 +16,7 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
   // testsek();
-  omp_set_num_threads(30);
+  omp_set_num_threads(32);
   testm2m();
   testmm2m();
   testeo2m();
