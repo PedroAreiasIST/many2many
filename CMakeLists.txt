@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(GCC_COVERAGE_COMPILE_FLAGS "-Wall -Wextra -Wconversion")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -std=c++20")
-set(CMAKE_CXX_FLAGS_RELEASE " -Ofast -std=c++20 -ltbb -fargument-noalias-global -fomit-frame-pointer -fopenmp -march=native -flto ")
+set(CMAKE_CXX_FLAGS_RELEASE " -Ofast -std=c++20 -fargument-noalias-global -fomit-frame-pointer -fopenmp -march=native -flto ")
 
 project(ConsoleApplication1)
 
@@ -36,5 +36,5 @@ add_executable(ConsoleApplication1
         testeo2m.hpp
 )
 
-find_package(TBB REQUIRED)
-target_link_libraries(ConsoleApplication1 PUBLIC TBB::tbb)
+#find_package(TBB REQUIRED)
+#target_link_libraries(ConsoleApplication1 PUBLIC TBB::tbb)
