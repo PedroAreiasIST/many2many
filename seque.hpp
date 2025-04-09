@@ -26,7 +26,7 @@ template <typename T> inline void arraycreate(T *&p, size_t size) {
 }
 
 namespace hidden {
-constexpr size_t STACKSIZE = 4;
+constexpr size_t STACKSIZE = 8;
 constexpr double GROWTHFACTOR = 1.5;
 } // namespace hidden
 
@@ -57,7 +57,78 @@ struct seque {
   }
 
   seque(seque const &other) : seque() { copy_from(other); }
+  seque(seque &&other) noexcept {
+    size = other.size;
+    // Check if the other container is using its stack storage.
+    if (other.actual == other.stackdata) {
+      // Move elements one-by-one into our stackdata.
+      for (size_t i = 0; i < other.size; i++) {
+        stackdata[i] = std::move(other.stackdata[i]);
+      }
+      actual = stackdata;
+      heapdata = nullptr;
+      heapsize = 0;
+    } else {
+      // Other is using heap storage; steal its heap pointer.
+      heapdata = other.heapdata;
+      heapsize = other.heapsize;
+      actual = heapdata;
+    }
+    // Reset the other container to a safe empty state.
+    other.size = 0;
+    other.heapdata = nullptr;
+    other.heapsize = 0;
+    other.actual = other.stackdata;
+  }
 
+  seque &operator=(seque &&other) noexcept {
+    if (this != &other) {
+      // Free our current dynamic memory if allocated.
+      if (heapdata) {
+        delete[] heapdata;
+        heapdata = nullptr;
+      }
+      // Copy data from the source.
+      size = other.size;
+      if (other.actual == other.stackdata) {
+        // Source is using stack storage; move element by element.
+        for (size_t i = 0; i < other.size; i++) {
+          stackdata[i] = std::move(other.stackdata[i]);
+        }
+        actual = stackdata;
+        heapdata = nullptr;
+        heapsize = 0;
+      } else {
+        // Source is using heap storage; take ownership.
+        heapdata = other.heapdata;
+        heapsize = other.heapsize;
+        actual = heapdata;
+      }
+      // Reset the source container.
+      other.size = 0;
+      other.heapdata = nullptr;
+      other.heapsize = 0;
+      other.actual = other.stackdata;
+    }
+    return *this;
+  }
+  void swap(seque &other) noexcept {
+    using std::swap;
+    // Swap the size and heapsize
+    swap(size, other.size);
+    swap(heapsize, other.heapsize);
+    // Swap the heapdata pointers.
+    swap(heapdata, other.heapdata);
+    // The internal fixed-size buffers cannot be swapped overall,
+    // but we swap the elements in the buffer up to the minimum size.
+    size_t minStack = (S < other.stacksize ? S : other.stacksize);
+    for (size_t i = 0; i < minStack; ++i) {
+      swap(stackdata[i], other.stackdata[i]);
+    }
+    // Reset the actual pointers based on the new state.
+    actual = (heapdata ? heapdata : stackdata);
+    other.actual = (other.heapdata ? other.heapdata : other.stackdata);
+  }
   ~seque() { setsize(*this, 0); }
 
   seque &operator=(seque const &other) {
@@ -447,10 +518,11 @@ template <typename V, size_t S, auto P>
 seque<size_t, S, P> getorder(seque<V, S, P> const &container) {
   seque<size_t, S, P> sortedIndices(container.size);
   std::iota(sortedIndices.actual, sortedIndices.actual + sortedIndices.size, 0);
-  std::sort(sortedIndices.actual, sortedIndices.actual + sortedIndices.size,
-            [&](size_t idx1, size_t idx2) {
-              return container[idx1] < container[idx2];
-            });
+  std::stable_sort(sortedIndices.actual,
+                   sortedIndices.actual + sortedIndices.size,
+                   [&](size_t idx1, size_t idx2) {
+                     return container[idx1] < container[idx2];
+                   });
   return sortedIndices;
 }
 
@@ -571,21 +643,22 @@ void setorderedandunique(seque<V, S, P> &container) {
 template <typename V, size_t S, auto P>
 void indicesfromorder(seque<V, S, P> const &sourceContainer,
                       seque<size_t, S, P> const &sortedIndices,
-                      seque<size_t, S, P> &mappingIndices,
-                      seque<size_t, S, P> &firstSortedIndices) {
+                      seque<size_t, S, P> &oldfromnew,
+                      seque<size_t, S, P> &newfromold) {
   size_t totalSize = getsize(sourceContainer);
-  setsize(firstSortedIndices, totalSize);
+  setsize(newfromold, totalSize);
   if (!totalSize) {
-    setsize(mappingIndices, 0);
+    setsize(oldfromnew, 0);
     return;
   }
-  size_t firstOccurrence = sortedIndices[0];
-  firstSortedIndices[firstOccurrence] = firstOccurrence;
+  size_t firstOccurrence =
+      sortedIndices[0]; // this is the position of the smallest
+  newfromold[firstOccurrence] = firstOccurrence;
   for (size_t index = 1; index < totalSize; ++index) {
     size_t currentSortedIndex = sortedIndices[index];
     bool sameVal = (sourceContainer[sortedIndices[index]] ==
                     sourceContainer[sortedIndices[index - 1]]);
-    firstSortedIndices[currentSortedIndex] =
+    newfromold[currentSortedIndex] =
         sameVal ? firstOccurrence : currentSortedIndex;
     if (!sameVal) {
       firstOccurrence = currentSortedIndex;
@@ -593,21 +666,21 @@ void indicesfromorder(seque<V, S, P> const &sourceContainer,
   }
   size_t uniqueCount = 0;
   for (size_t index = 0; index < totalSize; ++index) {
-    if (firstSortedIndices[index] == index) {
-      firstSortedIndices[uniqueCount++] = index;
+    if (newfromold[index] == index) {
+      newfromold[uniqueCount++] = index;
     }
   }
-  setsize(firstSortedIndices, uniqueCount);
-  setsize(mappingIndices, totalSize);
+  setsize(newfromold, uniqueCount);
+  setsize(oldfromnew, totalSize);
   for (size_t index = 0; index < totalSize; ++index) {
-    mappingIndices[index] = static_cast<size_t>(-1);
+    oldfromnew[index] = static_cast<size_t>(-1);
   }
   for (size_t uniqueIndex = 0; uniqueIndex < uniqueCount; ++uniqueIndex) {
-    mappingIndices[firstSortedIndices[uniqueIndex]] = uniqueIndex;
+    oldfromnew[newfromold[uniqueIndex]] = uniqueIndex;
   }
   for (size_t index = 0; index < totalSize; ++index) {
-    if (mappingIndices[index] == static_cast<size_t>(-1)) {
-      mappingIndices[index] = mappingIndices[firstSortedIndices[index]];
+    if (oldfromnew[index] == static_cast<size_t>(-1)) {
+      oldfromnew[index] = oldfromnew[newfromold[index]];
     }
   }
 }

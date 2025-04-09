@@ -123,12 +123,6 @@
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/symmetries.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/test.cpp">
-			<Option target="ConsoleApplication1"/>
-		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/test.hpp">
-			<Option target="ConsoleApplication1"/>
-		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/testeo2m.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
@@ -136,6 +130,12 @@
 			<Option target="ConsoleApplication1"/>
 		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/testmm2m.hpp">
+			<Option target="ConsoleApplication1"/>
+		</Unit>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/testseque.cpp">
+			<Option target="ConsoleApplication1"/>
+		</Unit>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/testseque.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/thing.cpp">

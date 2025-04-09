@@ -72,7 +72,7 @@ void subtraction(const m2m &rela, bool transposea, const m2m &relb,
 void setallpointers(m2m &rel) {
   if (!rel.isupdated) {
     // Create inverse mapping from nodes to elements
-    transpose(rel.nodesfromelement, rel.elementsfromnode);
+    rel.elementsfromnode = transpose(rel.nodesfromelement);
     // Prepare nodelocation storage - this stores position of each node within
     // elements
     setsize(rel.nodelocation, rel.elementsfromnode.nelem);

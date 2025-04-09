@@ -225,29 +225,29 @@ o2m.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/o2m.cpp.s
 .PHONY : o2m.cpp.s
 
-test.o: test.cpp.o
-.PHONY : test.o
+testseque.o: testseque.cpp.o
+.PHONY : testseque.o
 
 # target to build an object file
-test.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/test.cpp.o
-.PHONY : test.cpp.o
+testseque.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/testseque.cpp.o
+.PHONY : testseque.cpp.o
 
-test.i: test.cpp.i
-.PHONY : test.i
+testseque.i: testseque.cpp.i
+.PHONY : testseque.i
 
 # target to preprocess a source file
-test.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/test.cpp.i
-.PHONY : test.cpp.i
+testseque.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/testseque.cpp.i
+.PHONY : testseque.cpp.i
 
-test.s: test.cpp.s
-.PHONY : test.s
+testseque.s: testseque.cpp.s
+.PHONY : testseque.s
 
 # target to generate assembly for a file
-test.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/test.cpp.s
-.PHONY : test.cpp.s
+testseque.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/testseque.cpp.s
+.PHONY : testseque.cpp.s
 
 thing.o: thing.cpp.o
 .PHONY : thing.o
@@ -294,9 +294,9 @@ help:
 	@echo "... o2m.o"
 	@echo "... o2m.i"
 	@echo "... o2m.s"
-	@echo "... test.o"
-	@echo "... test.i"
-	@echo "... test.s"
+	@echo "... testseque.o"
+	@echo "... testseque.i"
+	@echo "... testseque.s"
 	@echo "... thing.o"
 	@echo "... thing.i"
 	@echo "... thing.s"

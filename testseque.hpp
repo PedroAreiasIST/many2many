@@ -1,3 +1,5 @@
+#include "basics.hpp"
+#include "seque.hpp"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -7,6 +9,4 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include "basics.hpp"
-#include "seque.hpp"
-void testsek();
+void testseque();

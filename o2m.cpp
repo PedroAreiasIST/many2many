@@ -42,12 +42,10 @@ size_t appendelement(o2m &rel, seque<size_t> const &nodes) {
 #include <omp.h>
 #endif
 
-void transpose(const o2m &rel, o2m &relt) {
-  relt.maxnodenumber = 0;
-  relt.nelem = 0;
-  erase(relt.lnods);
+o2m transpose(const o2m &rel) {
+  o2m relt;
   if (rel.nelem == 0) {
-    return;
+    return relt;
   }
   const size_t numberOfNodes = rel.maxnodenumber + 1;
   std::vector<size_t> counts(numberOfNodes, 0);
@@ -75,6 +73,7 @@ void transpose(const o2m &rel, o2m &relt) {
       relt.lnods[node][pos] = elementIndex;
     }
   }
+  return relt;
 }
 
 #include <vector>
