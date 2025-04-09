@@ -27,31 +27,58 @@ std::array<std::size_t, 8> generateRandomArray(std::size_t nmax) {
   return arr;
 }
 inline void testeo2m() {
-
   auto start_time = std::chrono::high_resolution_clock::now();
-  size_t nel = 450;
-  size_t nmax = pow(nel, 3);
-  seque<size_t> els(nmax);
+  constexpr size_t ntype = 4;
+  size_t nel, nmax;
+  seque<size_t> els;
   m2m mm;
-  std::cout << "Started" << std::endl;
-  setnumberofelements(mm, nmax);
   size_t e = 0;
-  for (size_t iex = 0; iex < nel; ++iex)
-    for (size_t iey = 0; iey < nel; ++iey)
-      for (size_t iez = 0; iez < nel; ++iez) {
-        seque<size_t> nodes(8);
-        nodes[0] = iex + iey * (nel + 1) + iez * pow(nel + 1, 2);
-        nodes[1] = (iex + 1) + iey * (nel + 1) + iez * pow(nel + 1, 2);
-        nodes[2] = (iex + 1) + (iey + 1) * (nel + 1) + iez * pow(nel + 1, 2);
-        nodes[3] = iex + (iey + 1) * (nel + 1) + iez * pow(nel + 1, 2);
-        nodes[4] = iex + iey * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
-        nodes[5] = (iex + 1) + iey * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
-        nodes[6] =
-            (iex + 1) + (iey + 1) * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
-        nodes[7] = iex + (iey + 1) * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
-        // appendelement(mm, nodes);
+  switch (ntype) {
+  case 6:
+    nel = 450;
+    nmax = pow(nel, 3);
+    setsize(els, nmax);
+    std::cout << "Started" << std::endl;
+    setnumberofelements(mm, nmax);
+
+    for (size_t iex = 0; iex < nel; ++iex)
+      for (size_t iey = 0; iey < nel; ++iey)
+        for (size_t iez = 0; iez < nel; ++iez) {
+          seque<size_t> nodes(8);
+          nodes[0] = iex + iey * (nel + 1) + iez * pow(nel + 1, 2);
+          nodes[1] = (iex + 1) + iey * (nel + 1) + iez * pow(nel + 1, 2);
+          nodes[2] = (iex + 1) + (iey + 1) * (nel + 1) + iez * pow(nel + 1, 2);
+          nodes[3] = iex + (iey + 1) * (nel + 1) + iez * pow(nel + 1, 2);
+          nodes[4] = iex + iey * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
+          nodes[5] = (iex + 1) + iey * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
+          nodes[6] =
+              (iex + 1) + (iey + 1) * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
+          nodes[7] = iex + (iey + 1) * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
+          // appendelement(mm, nodes);
+          setnodesforelement(mm, e++, nodes);
+        }
+    break;
+  case 4:
+    nel = 12000;
+    nmax = pow(nel, 2);
+    setsize(els, nmax);
+    std::cout << "Started" << std::endl;
+    setnumberofelements(mm, nmax);
+    std::cout << "Started" << std::endl;
+    setnumberofelements(mm, nmax);
+    for (size_t iex = 0; iex < nel; ++iex)
+      for (size_t iey = 0; iey < nel; ++iey) {
+        seque<size_t> nodes(4);
+        nodes[0] = iex + iey * (nel + 1);
+        nodes[1] = (iex + 1) + iey * (nel + 1);
+        nodes[2] = (iex + 1) + (iey + 1) * (nel + 1);
+        nodes[3] = iex + (iey + 1) * (nel + 1);
         setnodesforelement(mm, e++, nodes);
       }
+    break;
+  default:
+    break;
+  }
   std::cout << "e=" << e << std::endl;
   std::cout << "Finished inserting stuff" << std::endl;
   std::cout << "How many ?" << mm.nodesfromelement.nelem << std::endl;
