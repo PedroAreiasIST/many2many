@@ -100,7 +100,7 @@ inline void testeo2m() {
               << std::endl;
     std::cout << result.nodesfromelement.lnods[0] << std::endl;
   } else {
-    nel = 500;
+    nel = 300;
     nmax = pow(nel, 3);
     setsize(els, nmax);
     seque<size_t> fixenode(8);
@@ -125,7 +125,7 @@ inline void testeo2m() {
             fixenode = nodes;
           setnodesforelement(mm, e++, nodes);
         }
-    constexpr bool HASH(false);
+    constexpr bool HASH(true);
     setallpointers(mm);
     auto start_time = std::chrono::high_resolution_clock::now();
     if (!HASH) {
@@ -136,7 +136,8 @@ inline void testeo2m() {
       for (size_t i = 0; i < mm.nodesfromelement.nelem; ++i) {
         vas[mm.nodesfromelement.lnods[i]] = i;
       }
-      seque<size_t> obtained = vas.find(fixenode)->first;
+      size_t obtained = vas.find(fixenode)->second;
+      std::cout << obtained << std::endl;
     }
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
