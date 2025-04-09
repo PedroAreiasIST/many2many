@@ -6,6 +6,7 @@
 #define TESTEO2M_HPP
 #include "m2m.hpp"
 #include <array>
+#include <chrono>
 #include <cstddef>
 #include <random>
 std::array<std::size_t, 8> generateRandomArray(std::size_t nmax) {
@@ -26,7 +27,9 @@ std::array<std::size_t, 8> generateRandomArray(std::size_t nmax) {
   return arr;
 }
 inline void testeo2m() {
-  size_t nel = 300;
+
+  auto start_time = std::chrono::high_resolution_clock::now();
+  size_t nel = 250;
   size_t nmax = pow(nel, 3);
   seque<size_t> els(nmax);
   m2m mm;
@@ -52,11 +55,16 @@ inline void testeo2m() {
   std::cout << "e=" << e << std::endl;
   std::cout << "Finished inserting stuff" << std::endl;
   std::cout << "How many ?" << mm.nodesfromelement.nelem << std::endl;
+
   setallpointers(mm);
   std::cout << "Finished setting the pointers" << std::endl;
   m2m result;
   getnodestonodes(mm, result);
   std::cout << "Finished the transpose stuff" << std::endl;
+  auto end_time = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+      end_time - start_time);
+  std::cout << "Duration: " << duration.count() << " milliseconds" << std::endl;
   std::cout << result.nodesfromelement.lnods[0] << std::endl;
 }
 #endif // TESTEO2M_HPP
