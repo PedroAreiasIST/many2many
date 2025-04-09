@@ -10,11 +10,13 @@
 #include "typsek.hpp"
 #include <cassert>
 #include <iostream>
+#include <omp.h>
 #include <unordered_set>
 using namespace std;
 
 int main(int argc, char *argv[]) {
   // testsek();
+  omp_set_num_threads(30);
   testm2m();
   testmm2m();
   testeo2m();

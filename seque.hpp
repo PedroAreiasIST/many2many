@@ -26,8 +26,9 @@ template <typename T> inline void arraycreate(T *&p, size_t size) {
 }
 
 namespace hidden {
-constexpr size_t STACKSIZE = 10;
-}
+constexpr size_t STACKSIZE = 8;
+constexpr double GROWTHFACTOR = 1.6;
+} // namespace hidden
 
 template <typename V, size_t S = hidden::STACKSIZE,
           auto P = std::execution::par>
@@ -180,7 +181,7 @@ inline V *end(seque<V, S, P> &container) {
 
 template <typename V, size_t S, auto P>
 void setsize(seque<V, S, P> &container, size_t newSize) {
-  double growthFactor = 1.6e00;
+  double growthFactor = hidden::GROWTHFACTOR;
   if (newSize == container.size)
     return;
   if (container.actual == container.stackdata) {

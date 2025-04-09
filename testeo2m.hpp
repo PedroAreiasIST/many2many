@@ -29,7 +29,7 @@ std::array<std::size_t, 8> generateRandomArray(std::size_t nmax) {
 inline void testeo2m() {
 
   auto start_time = std::chrono::high_resolution_clock::now();
-  size_t nel = 100;
+  size_t nel = 450;
   size_t nmax = pow(nel, 3);
   seque<size_t> els(nmax);
   m2m mm;
