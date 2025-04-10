@@ -433,48 +433,87 @@ void permutenodes(o2m &rel, const seque<size_t> &newnodefromold) {
       });
   rel.maxnodenumber = local_max;
 }
+
+#include <omp.h>
+
+// Function to compute the local node index (location) for each node within
+// every element.
 seque<seque<size_t>> getnodelocation(o2m const &nodesfromelement,
                                      o2m const &elementsfromnode) {
+  // Allocate nodelocation vector with one entry per node.
   seque<seque<size_t>> nodelocation(elementsfromnode.size());
+
+// Parallelize the per-node allocation.
+#pragma omp parallel for
   for (size_t node = 0; node < elementsfromnode.size(); ++node) {
     setsize(nodelocation[node], elementsfromnode.elementsize(node));
   }
-  // Track the next position to fill for each node
+
+  // Track the next free position for each node.
   seque<size_t> nodePositionCounter(elementsfromnode.nelem, 0);
-  // Build the node location lookup table
+
+// Build the node location lookup table.
+// Because multiple elements may update the same node's counter,
+// we use an atomic capture to safely increment nodePositionCounter[node].
+#pragma omp parallel for
   for (size_t element = 0; element < nodesfromelement.size(); ++element) {
     const auto &nodes = nodesfromelement.lnods[element];
-    for (size_t localPosition = 0; localPosition < getsize(nodes);
-         ++localPosition) {
+    size_t ns = getsize(nodes); // Cache number of nodes in this element.
+    for (size_t localPosition = 0; localPosition < ns; ++localPosition) {
       size_t node = nodes[localPosition];
-      nodelocation[node][nodePositionCounter[node]++] = localPosition;
+      size_t pos;
+// Use atomic capture to safely fetch-and-increment.
+#pragma omp atomic capture
+      {
+        pos = nodePositionCounter[node];
+        nodePositionCounter[node]++;
+      }
+      nodelocation[node][pos] = localPosition;
     }
   }
   return nodelocation;
 }
+
+// Function to build the clique addressing table.
 o2m getcliqueaddressing(o2m const &nodesfromelement,
                         o2m const &elementsfromnode) {
+  // Compute local node positions.
   seque<seque<size_t>> nodelocations =
       getnodelocation(nodesfromelement, elementsfromnode);
+
   o2m cliques;
   setnumberofelements(cliques, nodesfromelement.nelem);
+
+// Parallelize allocation of clique matrices for each element.
+#pragma omp parallel for
   for (size_t element = 0; element < nodesfromelement.nelem; ++element) {
-    setsize(cliques[element],
-            (size_t)pow(getsize(nodesfromelement[element]), 2));
+    size_t ns = getsize(nodesfromelement[element]);
+    // Replace pow() with simple multiplication for efficiency.
+    setsize(cliques[element], ns * ns);
   }
+
+  // Marker array to track if a node was encountered in the current generation.
   seque<size_t> marker(elementsfromnode.size(), 0);
-  seque<size_t> nodecounter(nodesfromelement.size(), 0);
+  // Corrected: nodecounter now sized by the number of nodes.
+  seque<size_t> nodecounter(elementsfromnode.size(), 0);
   size_t generation = 0;
+
+  // The following nested loops (over nodes, elements, and local nodes)
+  // are left sequential due to dependencies on the "generation" and shared
+  // arrays.
   for (size_t node = 0; node < elementsfromnode.size(); ++node) {
     size_t nnz = 0;
     for (size_t lelement = 0; lelement < elementsfromnode.elementsize(node);
          ++lelement) {
-      generation++;
+      generation++; // Increment generation for each element connected to this
+                    // node.
       size_t element = elementsfromnode[node][lelement];
       size_t nne = nodesfromelement.elementsize(element);
       size_t localnode = nodelocations[node][lelement];
-      for (size_t lnode = 0; lnode < nodesfromelement.elementsize(element);
-           ++lnode) {
+
+      // Fill in the clique addressing for each pair (localnode, other local
+      // node).
+      for (size_t lnode = 0; lnode < nne; ++lnode) {
         size_t othernode = nodesfromelement[element][lnode];
         if (marker[othernode] != generation) {
           nnz++;

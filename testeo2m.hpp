@@ -108,6 +108,7 @@ inline void testeo2m() {
     //  std::cout << "Finished the transpose stuff" << std::endl;
     auto start_time = std::chrono::high_resolution_clock::now();
     o2m two = transpose(one);
+    o2m cad = getcliqueaddressing(one, two);
     std::cout << "Transposed" << std::endl;
     // auto resultado = two * seque<size_t>({1, 2, 3, 4});
     o2m three = one * two;
