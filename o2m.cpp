@@ -1,6 +1,7 @@
 #include "o2m.hpp"
 #include <algorithm>
 #include <cassert>
+#include <cstring> // For std::memcpy
 #include <execution>
 #include <numeric>
 #include <queue>
@@ -96,11 +97,8 @@ o2m transpose(const o2m &rel) {
 }
 
 void multiplication(const o2m &rel, const seque<size_t> &vec, o2m &vecresult) {
-  o2m rel2 = convertfromlist(vec);
-  multiplication(rel, rel2, vecresult);
+  multiplication(rel, convertfromlist(vec), vecresult);
 }
-
-#include <cstring> // For std::memcpy
 
 void multiplication54(const o2m &rela, const o2m &relb, o2m &relc) {
   // Initialize the output container "relc" based on the input "rela".
@@ -453,4 +451,41 @@ seque<seque<size_t>> getnodelocation(o2m const &nodesfromelement,
     }
   }
   return nodelocation;
+}
+o2m getcliqueaddressing(o2m const &nodesfromelement,
+                        o2m const &elementsfromnode) {
+  seque<seque<size_t>> nodelocations =
+      getnodelocation(nodesfromelement, elementsfromnode);
+  o2m cliques;
+  setnumberofelements(cliques, nodesfromelement.nelem);
+  for (size_t element = 0; element < nodesfromelement.nelem; ++element) {
+    setsize(cliques[element],
+            (size_t)pow(getsize(nodesfromelement[element]), 2));
+  }
+  seque<size_t> marker(elementsfromnode.size(), 0);
+  seque<size_t> nodecounter(nodesfromelement.size(), 0);
+  size_t generation = 0;
+  for (size_t node = 0; node < elementsfromnode.size(); ++node) {
+    size_t nnz = 0;
+    for (size_t lelement = 0; lelement < elementsfromnode.elementsize(node);
+         ++lelement) {
+      generation++;
+      size_t element = elementsfromnode[node][lelement];
+      size_t nne = nodesfromelement.elementsize(element);
+      size_t localnode = nodelocations[node][lelement];
+      for (size_t lnode = 0; lnode < nodesfromelement.elementsize(element);
+           ++lnode) {
+        size_t othernode = nodesfromelement[element][lnode];
+        if (marker[othernode] != generation) {
+          nnz++;
+          nodecounter[othernode] = nnz;
+          cliques[element][localnode + lnode * nne] = nnz;
+          marker[othernode] = generation;
+        } else {
+          cliques[element][localnode + lnode * nne] = nodecounter[othernode];
+        }
+      }
+    }
+  }
+  return cliques;
 }

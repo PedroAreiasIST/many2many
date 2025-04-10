@@ -53,5 +53,8 @@ void permutenodes(o2m &rel, const seque<size_t> &newnodefromold);
 seque<seque<size_t>> getnodelocation(o2m const &nodesfromelement,
                                      o2m const &elementsfromnode);
 
+o2m getcliqueaddressing(o2m const &nodesfromelement,
+                        o2m const &elementsfromnode);
+
 o2m convertfromlist(const seque<size_t> &other);
 #endif
