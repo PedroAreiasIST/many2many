@@ -15,8 +15,8 @@ namespace hidden
 
 struct m2m
 {
-    hidden::o2m nodesfromelement;
-    hidden::o2m elementsfromnode;
+    o2m nodesfromelement;
+    o2m elementsfromnode;
     seque<seque<size_t>> nodelocation;
     size_t nnodes(size_t element);
     size_t nelems(size_t node);

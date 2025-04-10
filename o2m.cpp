@@ -3,27 +3,35 @@
 #include <cassert>
 #include <execution>
 #include <numeric>
-#include <omp.h>
 #include <queue>
 #include <stdexcept>
 #include <vector>
 namespace hidden {
-
 size_t update_max_for_nodes(seque<size_t> const &nodes, size_t current_max) {
-  return std::reduce(std::execution::par, nodes.begin(), nodes.end(),
-                     current_max,
+  return std::reduce(nodes.begin(), nodes.end(), current_max,
                      [](size_t a, size_t b) { return std::max(a, b); });
 }
-
+} // namespace hidden
+o2m convertfromlist(const seque<size_t> &other) {
+  o2m ret;
+  setnumberofelements(ret, getsize(other));
+  for (size_t element = 0; element < ret.nelem; ++element) {
+    setnodesforelement(ret, element, {other[element]});
+  }
+  return ret;
+}
 void setnumberofelements(o2m &rel, size_t nelem) {
   rel.nelem = nelem;
   setsize(rel.lnods, nelem);
 }
-
 void setnodesforelement(o2m &rel, size_t element, seque<size_t> const &nodes) {
   rel.lnods[element] = nodes;
-  for (size_t i = 0; i < getsize(nodes); ++i)
-    rel.maxnodenumber = std::max(rel.maxnodenumber, nodes[i]);
+  rel.maxnodenumber = hidden::update_max_for_nodes(nodes, rel.maxnodenumber);
+}
+
+void setnodesforelement(o2m &rel, size_t element, seque<size_t> &&nodes) {
+  rel.lnods[element] = std::move(nodes);
+  rel.maxnodenumber = hidden::update_max_for_nodes(nodes, rel.maxnodenumber);
 }
 
 size_t appendelement(o2m &rel, seque<size_t> const &nodes) {
@@ -31,24 +39,23 @@ size_t appendelement(o2m &rel, seque<size_t> const &nodes) {
   setsize(rel.lnods, rel.nelem);
   assert(getsize(rel.lnods) == rel.nelem);
   rel.lnods[rel.nelem - 1] = nodes;
-  rel.maxnodenumber = std::reduce(
-      std::execution::par, nodes.begin(), nodes.end(), rel.maxnodenumber,
-      [](size_t a, size_t b) { return std::max(a, b); });
+  rel.maxnodenumber = hidden::update_max_for_nodes(nodes, rel.maxnodenumber);
   return rel.nelem - 1;
 }
-
-#include <vector>
-#ifdef _OPENMP
-#include <omp.h>
-#endif
 
 o2m transpose(const o2m &rel) {
   o2m relt;
   if (rel.nelem == 0) {
     return relt;
   }
+  // Here, we assume that the maximum node number in the transposed relation
+  // will equal the number of elements from the original relation.
+  relt.maxnodenumber = rel.nelem;
   const size_t numberOfNodes = rel.maxnodenumber + 1;
-  std::vector<size_t> counts(numberOfNodes, 0);
+  seque<size_t> counts(numberOfNodes, 0);
+
+  // Parallelize the count of node occurrences per element.
+  // Each thread increments counts[nodeId] atomically.
 #pragma omp parallel for default(none) shared(rel, counts)
   for (size_t elementIdx = 0; elementIdx < rel.nelem; ++elementIdx) {
     for (size_t nodeId : rel.lnods[elementIdx]) {
@@ -56,12 +63,24 @@ o2m transpose(const o2m &rel) {
       counts[nodeId]++;
     }
   }
+
+  // Set up the transposed structure with the proper number of "nodes".
   setnumberofelements(relt, numberOfNodes);
+
+  // Parallelize the allocation of each node's list.
+  // Each iteration is independent.
+#pragma omp parallel for default(none) shared(relt, counts, numberOfNodes)
   for (size_t node = 0; node < numberOfNodes; ++node) {
     setsize(relt.lnods[node], counts[node]);
   }
-  std::vector<size_t> offsets(numberOfNodes, 0);
-#pragma omp parallel for default(none) shared(rel, relt, offsets)
+
+  seque<size_t> offsets(numberOfNodes, 0);
+
+  // Parallelize filling the transposed data structure.
+  // For each element in the original relation, write its index into the
+  // appropriate node's list. Atomic capture guarantees that each update of
+  // offsets[node] is unique.
+#pragma omp parallel for default(none) shared(rel, offsets, relt)
   for (size_t elementIndex = 0; elementIndex < rel.nelem; ++elementIndex) {
     for (size_t node : rel.lnods[elementIndex]) {
       size_t pos;
@@ -76,277 +95,195 @@ o2m transpose(const o2m &rel) {
   return relt;
 }
 
-#include <vector>
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
+void multiplication(const o2m &rel, const seque<size_t> &vec, o2m &vecresult) {
+  o2m rel2 = convertfromlist(vec);
+  multiplication(rel, rel2, vecresult);
+}
 void multiplication(const o2m &rela, const o2m &relb, o2m &relc) {
+  // Configure the output container for "relc" based on the input "rela".
   setnumberofelements(relc, rela.nelem);
-  relc.maxnodenumber = relb.maxnodenumber;
   if (rela.nelem == 0 || relb.maxnodenumber == 0)
     return;
+  relc.maxnodenumber = relb.maxnodenumber;
+
 #pragma omp parallel
   {
-    seque<size_t> marker(relb.maxnodenumber + 1, 0);
+    // Thread-local visited marker array: one byte per possible node.
+    // A value of 0 means “not seen” in the current iteration.
+    seque<char> visited(relb.maxnodenumber + 1, 0);
+
+    // Container to record each unique node ID encountered in pass one.
+    seque<size_t> touchedNodes;
+
+    // A container for the final result. We’ll allocate it exactly
+    // to the number of unique nodes found.
     seque<size_t> resultNodes;
-    size_t generation = 1;
+
 #pragma omp for schedule(static)
     for (size_t elementAIndex = 0; elementAIndex < rela.nelem;
          ++elementAIndex) {
       const seque<size_t> &elementA = rela.lnods[elementAIndex];
-      size_t currentGeneration = generation;
-      generation += 2;
-      size_t estCapacity = 0;
+
+      // --- Pass One: Mark Unique Nodes and Record Their IDs ---
+      // Clear any remnants from prior iterations.
+      erase(touchedNodes);
+
       for (size_t nodeA : elementA) {
-        if (nodeA < relb.nelem)
-          estCapacity += getsize(relb.lnods[nodeA]);
-      }
-      setsize(resultNodes, estCapacity);
-      size_t resultCount = 0;
-      for (size_t nodeA : elementA) {
+        // Only consider valid indices.
         if (nodeA >= relb.nelem)
           continue;
         const seque<size_t> &elementB = relb.lnods[nodeA];
         size_t bSize = getsize(elementB);
+
         for (size_t j = 0; j < bSize; ++j) {
 #if defined(__GNUC__) || defined(__clang__)
           if (j + 1 < bSize)
             __builtin_prefetch(&elementB[j + 1], 0, 3);
 #endif
           size_t nodeB = elementB[j];
-          if (marker[nodeB] != currentGeneration) {
-            marker[nodeB] = currentGeneration;
-            resultNodes[resultCount++] = nodeB;
+          // If not visited, mark it and record its ID.
+          if (visited[nodeB] == 0) {
+            visited[nodeB] = 1;
+            append(touchedNodes, nodeB);
           }
         }
       }
-      setsize(resultNodes, resultCount);
-      relc.lnods[elementAIndex] = resultNodes;
+
+      // --- Pass Two: Build the Output Container ---
+      // Now we know exactly how many unique nodes we have.
+      setsize(resultNodes, touchedNodes.size);
+      for (size_t i = 0; i < touchedNodes.size; ++i) {
+        resultNodes[i] = touchedNodes[i];
+      }
+
+      // --- Cleanup: Reset the visited Flags ---
+      // Instead of scanning the entire "visited" array, we only reset the nodes
+      // touched.
+      for (size_t nodeB : touchedNodes) {
+        visited[nodeB] = 0;
+      }
+
+      // Save the exact result for this element.
+      relc[elementAIndex] = resultNodes;
     }
   }
+}
+
+o2m operator*(const o2m &rela, const o2m &relb) {
+  o2m relc;
+  multiplication(rela, relb, relc);
+  return relc;
+}
+o2m operator*(const o2m &rela, const seque<size_t> &vec) {
+  o2m relc;
+  multiplication(rela, vec, relc);
+  return relc;
 }
 
 void addition(const o2m &rela, const o2m &relb, o2m &relc) {
   size_t maxElements = std::max(rela.nelem, relb.nelem);
   setnumberofelements(relc, maxElements);
   relc.maxnodenumber = std::max(rela.maxnodenumber, relb.maxnodenumber);
-#ifdef _OPENMP
 #pragma omp parallel
   {
-    seque<size_t> marker(relc.maxnodenumber + 1, 0);
-#pragma omp for schedule(dynamic)
+    std::vector<size_t> marker(relc.maxnodenumber + 1, 0);
+    size_t local_generation = 1;
+#pragma omp for schedule(static)
     for (size_t element = 0; element < maxElements; ++element) {
-      std::fill(marker.begin(), marker.end(), 0);
-      size_t currentGeneration = 1;
       size_t count = 0;
       if (element < rela.nelem) {
-        seque<size_t> const &elementA = rela.lnods[element];
+        const seque<size_t> &elementA = rela.lnods[element];
         for (size_t node : elementA) {
-          if (marker[node] != currentGeneration) {
-            marker[node] = currentGeneration;
+          if (marker[node] != local_generation) {
+            marker[node] = local_generation;
             count++;
           }
         }
       }
       if (element < relb.nelem) {
-        seque<size_t> const &elementB = relb.lnods[element];
+        const seque<size_t> &elementB = relb.lnods[element];
         for (size_t node : elementB) {
-          if (marker[node] != currentGeneration) {
-            marker[node] = currentGeneration;
+          if (marker[node] != local_generation) {
+            marker[node] = local_generation;
             count++;
           }
         }
       }
-      seque<size_t> temp;
-      setsize(temp, count);
+      seque<size_t> temp(count);
       count = 0;
       if (element < rela.nelem) {
-        seque<size_t> const &elementA = rela.lnods[element];
+        const seque<size_t> &elementA = rela.lnods[element];
         for (size_t node : elementA) {
-          if (marker[node] == currentGeneration) {
+          if (marker[node] == local_generation) {
             temp[count++] = node;
-            marker[node] = currentGeneration + 1;
+            marker[node] = local_generation + 1;
           }
         }
       }
       if (element < relb.nelem) {
-        seque<size_t> const &elementB = relb.lnods[element];
+        const seque<size_t> &elementB = relb.lnods[element];
         for (size_t node : elementB) {
-          if (marker[node] == currentGeneration) {
+          if (marker[node] == local_generation) {
             temp[count++] = node;
-            marker[node] = currentGeneration + 1;
+            marker[node] = local_generation + 1;
           }
         }
       }
-      relc.lnods[element] = temp;
+      relc.lnods[element] = std::move(temp);
+      local_generation += 2;
     }
   }
-#else
-  for (size_t element = 0; element < maxElements; ++element) {
-    seque<size_t> marker(relc.maxnodenumber + 1, 0);
-    size_t currentGeneration = 1;
-    size_t count = 0;
-    if (element < rela.nelem) {
-      seque<size_t> const &elementA = rela.lnods[element];
-      for (size_t node : elementA) {
-        if (marker[node] != currentGeneration) {
-          marker[node] = currentGeneration;
-          count++;
-        }
-      }
-    }
-    if (element < relb.nelem) {
-      seque<size_t> const &elementB = relb.lnods[element];
-      for (size_t node : elementB) {
-        if (marker[node] != currentGeneration) {
-          marker[node] = currentGeneration;
-          count++;
-        }
-      }
-    }
-    seque<size_t> temp;
-    setsize(temp, count);
-    count = 0;
-    if (element < rela.nelem) {
-      seque<size_t> const &elementA = rela.lnods[element];
-      for (size_t node : elementA) {
-        if (marker[node] == currentGeneration) {
-          temp[count++] = node;
-          marker[node] = currentGeneration + 1;
-        }
-      }
-    }
-    if (element < relb.nelem) {
-      seque<size_t> const &elementB = relb.lnods[element];
-      for (size_t node : elementB) {
-        if (marker[node] == currentGeneration) {
-          temp[count++] = node;
-          marker[node] = currentGeneration + 1;
-        }
-      }
-    }
-    relc.lnods[element] = temp;
-  }
-#endif
 }
-
-void intersection(const o2m &a, const o2m &b, o2m &c) {
-  const size_t nElements = std::min(a.nelem, b.nelem);
-  setnumberofelements(c, nElements);
-  c.maxnodenumber = std::max(a.maxnodenumber, b.maxnodenumber);
-#ifdef _OPENMP
-#pragma omp parallel
-  {
-    seque<size_t> marker(c.maxnodenumber + 1);
-#pragma omp for schedule(dynamic)
-    for (size_t element = 0; element < nElements; ++element) {
-      std::fill(marker.begin(), marker.end(), 0);
-      size_t currentGeneration = 1;
-      seque<size_t> common;
-      const seque<size_t> &elementB = b.lnods[element];
-      for (size_t node : elementB) {
-        marker[node] = currentGeneration;
-      }
-      size_t count = 0;
-      const seque<size_t> &elementA = a.lnods[element];
-      for (size_t node : elementA) {
-        if (marker[node] == currentGeneration)
-          count++;
-      }
-      setsize(common, count);
-      count = 0;
-      for (size_t node : elementA) {
-        if (marker[node] == currentGeneration) {
-          common[count++] = node;
-          marker[node] = currentGeneration + 1;
-        }
-      }
-      c.lnods[element] = common;
-    }
-  }
-#else
+o2m operator+(const o2m &rela, const o2m &rel) {
+  o2m relc;
+  addition(rela, rel, relc);
+  return relc;
+}
+o2m operator||(const o2m &a, const o2m &b) {
+  o2m c;
+  addition(a, b, c);
+  return c;
+}
+o2m operator&&(const o2m &a, const o2m &b) {
+  o2m c;
+  intersection(a, b, c);
+  return c;
+}
+void intersection(const o2m &rela, const o2m &relb, o2m &relc) {
+  const size_t nElements = std::min(rela.nelem, relb.nelem);
+  setnumberofelements(relc, nElements);
+  relc.maxnodenumber = std::max(rela.maxnodenumber, relb.maxnodenumber);
+#pragma omp parallel for schedule(static)
   for (size_t element = 0; element < nElements; ++element) {
-    seque<size_t> marker(c.maxnodenumber + 1);
-    seque<size_t> common;
-    size_t currentGeneration = 1;
-    const seque<size_t> &elementB = b.lnods[element];
-    for (size_t node : elementB) {
-      marker[node] = currentGeneration;
-    }
-    size_t count = 0;
-    const seque<size_t> &elementA = a.lnods[element];
-    for (size_t node : elementA) {
-      if (marker[node] == currentGeneration)
-        count++;
-    }
-    setsize(common, count);
-    count = 0;
-    for (size_t node : elementA) {
-      if (marker[node] == currentGeneration) {
-        common[count++] = node;
-        marker[node] = currentGeneration + 1;
-      }
-    }
-    c.lnods[element] = common;
+    seque<size_t> elementB = relb.lnods[element];
+    seque<size_t> elementA = rela.lnods[element];
+    setordered(elementB);
+    setordered(elementA);
+    relc.lnods[element] = std::move(getintersection(elementA, elementB));
   }
-#endif
 }
-
 void subtraction(const o2m &rela, const o2m &relb, o2m &relc) {
   const size_t nElements = rela.nelem;
   setnumberofelements(relc, nElements);
   relc.maxnodenumber = std::max(rela.maxnodenumber, relb.maxnodenumber);
-#ifdef _OPENMP
-#pragma omp parallel
-  {
-    seque<size_t> marker(relc.maxnodenumber + 1, 0);
-#pragma omp for schedule(dynamic)
-    for (size_t element = 0; element < nElements; ++element) {
-      std::fill(marker.begin(), marker.end(), 0);
-      if (element < relb.nelem) {
-        const seque<size_t> &elementB = relb.lnods[element];
-        for (size_t node : elementB)
-          marker[node] = 1;
-      }
-      const seque<size_t> &elementA = rela.lnods[element];
-      size_t count = 0;
-      for (size_t node : elementA)
-        if (marker[node] == 0)
-          count++;
-      seque<size_t> diff;
-      setsize(diff, count);
-      count = 0;
-      for (size_t node : elementA)
-        if (marker[node] == 0)
-          diff[count++] = node;
-      relc.lnods[element] = diff;
-    }
-  }
-#else
+#pragma omp parallel for schedule(static)
   for (size_t element = 0; element < nElements; ++element) {
-    seque<size_t> marker(relc.maxnodenumber + 1, 0);
     if (element < relb.nelem) {
-      const seque<size_t> &elementB = relb.lnods[element];
-      for (size_t node : elementB)
-        marker[node] = 1;
+      seque<size_t> elementB = relb.lnods[element];
+      seque<size_t> elementA = rela.lnods[element];
+      setordered(elementB);
+      setordered(elementA);
+      relc.lnods[element] = std::move(getdifference(elementA, elementB));
+    } else {
+      relc.lnods[element] = std::move(rela.lnods[element]);
     }
-    const seque<size_t> &elementA = rela.lnods[element];
-    size_t count = 0;
-    for (size_t node : elementA)
-      if (marker[node] == 0)
-        count++;
-    seque<size_t> diff;
-    setsize(diff, count);
-    count = 0;
-    for (size_t node : elementA)
-      if (marker[node] == 0)
-        diff[count++] = node;
-    relc.lnods[element] = diff;
   }
-#endif
 }
-
+o2m operator-(const o2m &rela, const o2m &relb) {
+  o2m relc;
+  subtraction(rela, relb, relc);
+  return relc;
+}
 seque<size_t> toporder(const o2m &rel) {
   seque<size_t> order;
   setsize(order, 0);
@@ -381,14 +318,11 @@ seque<size_t> toporder(const o2m &rel) {
         "The relation contains cycles, topological sort not possible.");
   return order;
 }
-
 seque<size_t> lexiorder(const o2m &rel) { return getorder(rel.lnods); }
-
 void indicesfromorder(const o2m &rel, const seque<size_t> &elemOrder,
                       seque<size_t> &oldFromNew, seque<size_t> &newFromOld) {
   indicesfromorder(rel.lnods, elemOrder, oldFromNew, newFromOld);
 }
-
 void compresselements(o2m &rel, const seque<size_t> &oldelementfromnew) {
   rel.lnods = rel.lnods(oldelementfromnew);
   rel.nelem = getsize(oldelementfromnew);
@@ -402,7 +336,6 @@ void compresselements(o2m &rel, const seque<size_t> &oldelementfromnew) {
       });
   rel.maxnodenumber = local_max;
 }
-
 void permutenodes(o2m &rel, const seque<size_t> &newnodefromold) {
 #ifdef _OPENMP
 #pragma omp parallel for schedule(dynamic)
@@ -420,5 +353,22 @@ void permutenodes(o2m &rel, const seque<size_t> &newnodefromold) {
       });
   rel.maxnodenumber = local_max;
 }
-
-} // namespace hidden
+seque<seque<size_t>> getnodelocation(o2m const &nodesfromelement,
+                                     o2m const &elementsfromnode) {
+  seque<seque<size_t>> nodelocation(elementsfromnode.size());
+  for (size_t node = 0; node < elementsfromnode.size(); ++node) {
+    setsize(nodelocation[node], elementsfromnode.elementsize(node));
+  }
+  // Track the next position to fill for each node
+  seque<size_t> nodePositionCounter(elementsfromnode.nelem, 0);
+  // Build the node location lookup table
+  for (size_t element = 0; element < nodesfromelement.size(); ++element) {
+    const auto &nodes = nodesfromelement.lnods[element];
+    for (size_t localPosition = 0; localPosition < getsize(nodes);
+         ++localPosition) {
+      size_t node = nodes[localPosition];
+      nodelocation[node][nodePositionCounter[node]++] = localPosition;
+    }
+  }
+  return nodelocation;
+}

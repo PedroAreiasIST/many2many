@@ -41,7 +41,7 @@ inline void testeo2m() {
   seque<size_t> els;
   m2m mm;
   if (2 == 2) {
-    auto start_time = std::chrono::high_resolution_clock::now();
+
     constexpr size_t ntype = 6;
 
     size_t e = 0;
@@ -94,15 +94,24 @@ inline void testeo2m() {
     default:
       break;
     }
+
+    o2m one = mm.nodesfromelement;
+
     std::cout << "e=" << e << std::endl;
     std::cout << "Finished inserting stuff" << std::endl;
     std::cout << "How many ?" << mm.nodesfromelement.nelem << std::endl;
 
-    setallpointers(mm);
-    std::cout << "Finished setting the pointers" << std::endl;
+    // setallpointers(mm);
+    // std::cout << "Finished setting the pointers" << std::endl;
     m2m result;
-    getnodestonodes(mm, result);
-    std::cout << "Finished the transpose stuff" << std::endl;
+    // getnodestonodes(mm, result);
+    //  std::cout << "Finished the transpose stuff" << std::endl;
+    auto start_time = std::chrono::high_resolution_clock::now();
+    o2m two = transpose(one);
+    std::cout << "Transposed" << std::endl;
+    // auto resultado = two * seque<size_t>({1, 2, 3, 4});
+    o2m three = one * two;
+    std::cout << three.lnods[0] << std::endl;
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
         end_time - start_time);

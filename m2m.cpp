@@ -6,10 +6,10 @@
 #endif
 
 namespace {
-inline const hidden::o2m *select_o2m(const m2m &rel, bool transpose) {
+inline const o2m *select_o2m(const m2m &rel, bool transpose) {
   return transpose ? &rel.elementsfromnode : &rel.nodesfromelement;
 }
-inline hidden::o2m *select_o2m(m2m &rel, bool transpose) {
+inline o2m *select_o2m(m2m &rel, bool transpose) {
   return transpose ? &rel.elementsfromnode : &rel.nodesfromelement;
 }
 } // namespace
@@ -32,40 +32,40 @@ void setnodesforelement(m2m &rel, size_t element, seque<size_t> const &nodes) {
 }
 
 size_t appendelement(m2m &rel, seque<size_t> const &nodes) {
-  size_t newel = hidden::appendelement(rel.nodesfromelement, nodes);
+  size_t newel = appendelement(rel.nodesfromelement, nodes);
   rel.isupdated = false;
   return newel;
 }
 
 void multiplication(const m2m &rela, bool transposea, const m2m &relb,
                     bool transposeb, m2m &relc) {
-  const hidden::o2m *a = select_o2m(rela, transposea);
-  const hidden::o2m *b = select_o2m(relb, transposeb);
-  hidden::multiplication(*a, *b, relc.nodesfromelement);
+  const o2m *a = select_o2m(rela, transposea);
+  const o2m *b = select_o2m(relb, transposeb);
+  multiplication(*a, *b, relc.nodesfromelement);
   relc.isupdated = false;
 }
 
 void addition(const m2m &rela, bool transposea, const m2m &relb,
               bool transposeb, m2m &relc) {
-  const hidden::o2m *a = select_o2m(rela, transposea);
-  const hidden::o2m *b = select_o2m(relb, transposeb);
-  hidden::addition(*a, *b, relc.nodesfromelement);
+  const o2m *a = select_o2m(rela, transposea);
+  const o2m *b = select_o2m(relb, transposeb);
+  addition(*a, *b, relc.nodesfromelement);
   relc.isupdated = false;
 }
 
 void intersection(const m2m &rela, bool transposea, const m2m &relb,
                   bool transposeb, m2m &relc) {
-  const hidden::o2m *a = select_o2m(rela, transposea);
-  const hidden::o2m *b = select_o2m(relb, transposeb);
-  hidden::intersection(*a, *b, relc.nodesfromelement);
+  const o2m *a = select_o2m(rela, transposea);
+  const o2m *b = select_o2m(relb, transposeb);
+  intersection(*a, *b, relc.nodesfromelement);
   relc.isupdated = false;
 }
 
 void subtraction(const m2m &rela, bool transposea, const m2m &relb,
                  bool transposeb, m2m &relc) {
-  const hidden::o2m *a = select_o2m(rela, transposea);
-  const hidden::o2m *b = select_o2m(relb, transposeb);
-  hidden::subtraction(*a, *b, relc.nodesfromelement);
+  const o2m *a = select_o2m(rela, transposea);
+  const o2m *b = select_o2m(relb, transposeb);
+  subtraction(*a, *b, relc.nodesfromelement);
   relc.isupdated = false;
 }
 
@@ -171,15 +171,15 @@ void permutenodes(m2m &rel, seque<size_t> const &newnodefromold) {
 
 void getelementstoelements(m2m const &rel, m2m &elementstoelements) {
   assert(rel.isupdated);
-  hidden::multiplication(rel.nodesfromelement, rel.elementsfromnode,
-                         elementstoelements.nodesfromelement);
+  multiplication(rel.nodesfromelement, rel.elementsfromnode,
+                 elementstoelements.nodesfromelement);
   elementstoelements.isupdated = false;
 }
 
 void getnodestonodes(m2m const &rel, m2m &nodestonodes) {
   assert(rel.isupdated);
-  hidden::multiplication(rel.elementsfromnode, rel.nodesfromelement,
-                         nodestonodes.nodesfromelement);
+  multiplication(rel.elementsfromnode, rel.nodesfromelement,
+                 nodestonodes.nodesfromelement);
   nodestonodes.isupdated = false;
 }
 

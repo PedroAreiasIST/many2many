@@ -194,7 +194,7 @@ void compress(mm2m &m) {
   }
 }
 seque<size_t> typetoporder(mm2m const &m) {
-  hidden::o2m typedeps;
+  o2m typedeps;
   setnumberofelements(typedeps, m.ntypes);
   for (size_t elementtype = 0; elementtype < m.ntypes; ++elementtype) {
     for (size_t nodetype = 0; nodetype < m.ntypes; ++nodetype) {
