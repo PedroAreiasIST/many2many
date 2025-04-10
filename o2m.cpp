@@ -50,7 +50,7 @@ o2m transpose(const o2m &rel) {
   }
   // Here, we assume that the maximum node number in the transposed relation
   // will equal the number of elements from the original relation.
-  relt.maxnodenumber = rel.nelem;
+  relt.maxnodenumber = rel.nelem - 1;
   const size_t numberOfNodes = rel.maxnodenumber + 1;
   seque<size_t> counts(numberOfNodes, 0);
 
@@ -99,6 +99,87 @@ void multiplication(const o2m &rel, const seque<size_t> &vec, o2m &vecresult) {
   o2m rel2 = convertfromlist(vec);
   multiplication(rel, rel2, vecresult);
 }
+
+#include <cstring> // For std::memcpy
+
+void multiplication54(const o2m &rela, const o2m &relb, o2m &relc) {
+  // Initialize the output container "relc" based on the input "rela".
+  setnumberofelements(relc, rela.nelem);
+  if (rela.nelem == 0 || relb.maxnodenumber == 0)
+    return;
+  relc.maxnodenumber = relb.maxnodenumber;
+
+  // Begin OpenMP parallel region.
+#pragma omp parallel
+  {
+    // Allocate a thread-local generational marker array.
+    // Each index corresponds to a node, storing the generation when it was last
+    // marked.
+    seque<size_t> marker(relb.maxnodenumber + 1, 0);
+
+    // Allocate a temporary container to record unique node IDs in pass one.
+    // Preallocated to the maximum possible capacity.
+    seque<size_t> touchedNodes(relb.maxnodenumber + 1, 0);
+    size_t ntouched = 0; // Counter for unique nodes.
+
+    // A thread-local counter to generate a unique marker for each iteration.
+    size_t localGeneration = 1;
+
+    // Distribute iterations over the elements in 'rela' among threads.
+#pragma omp for schedule(static)
+    for (size_t elementAIndex = 0; elementAIndex < rela.nelem;
+         ++elementAIndex) {
+      // Grab the input element for this iteration.
+      const seque<size_t> &elementA = rela.lnods[elementAIndex];
+
+      // Assign a unique generation value for the current iteration.
+      size_t currentGeneration = localGeneration++;
+
+      // Reset the unique nodes counter.
+      ntouched = 0;
+
+      // --- Pass One: Marking and Recording Unique Node IDs ---
+      for (size_t nodeA : elementA) {
+        // Most nodeA values are expected to be valid.
+        if (__builtin_expect(nodeA >= relb.nelem, 0))
+          continue; // Skip invalid indices.
+
+        // Get the corresponding elementB from relb.
+        const seque<size_t> &elementB = relb.lnods[nodeA];
+        const size_t bSize = getsize(elementB);
+
+        // Iterate over elementB.
+        for (size_t j = 0; j < bSize; ++j) {
+#if defined(__GNUC__) || defined(__clang__)
+          // Prefetch the next element to reduce memory latency.
+          if (j + 1 < bSize)
+            __builtin_prefetch(&elementB[j + 1], 0, 3);
+#endif
+          size_t nodeB = elementB[j];
+          // Hint that the condition is most likely true.
+          if (__builtin_expect(marker[nodeB] != currentGeneration, 1)) {
+            // Mark nodeB with the current generation.
+            marker[nodeB] = currentGeneration;
+            // Record the unique node.
+            touchedNodes[ntouched++] = nodeB;
+          }
+        }
+      } // end Pass One
+
+      // --- Pass Two: Building the Final Output ---
+      // Resize relc for the current element to the exact count of unique nodes.
+      setsize(relc[elementAIndex], ntouched);
+
+      // Use memcpy if there is something to copy.
+      if (ntouched > 0) {
+        // Assuming seque's underlying storage is contiguous.
+        std::memcpy(relc[elementAIndex].begin(), touchedNodes.actual,
+                    ntouched * sizeof(size_t));
+      }
+    } // end for each elementA
+  } // end parallel region
+}
+
 void multiplication(const o2m &rela, const o2m &relb, o2m &relc) {
   // Configure the output container for "relc" based on the input "rela".
   setnumberofelements(relc, rela.nelem);
@@ -174,6 +255,7 @@ o2m operator*(const o2m &rela, const o2m &relb) {
   multiplication(rela, relb, relc);
   return relc;
 }
+
 o2m operator*(const o2m &rela, const seque<size_t> &vec) {
   o2m relc;
   multiplication(rela, vec, relc);
