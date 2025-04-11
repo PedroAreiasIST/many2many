@@ -1,23 +1,23 @@
 #include "thing.hpp"
-void settypenumber(thing &e, size_t type) { e.type = type; }
-void settypenumber(seque<thing> &es, size_t type)
+void settypenumber(thing &e, int type) { e.type = type; }
+void settypenumber(seque<thing> &es, int type)
 {
     for (auto e: es)
     {
         settypenumber(e, type);
     }
 }
-void appendnodesofonetype(thing &e, size_t nodetype, seque<size_t> const &nodes)
+void appendnodesofonetype(thing &e, int nodetype, seque<int> const &nodes)
 {
     append(e.typeandnodes, std::make_pair(nodetype, nodes));
 }
 
-void appendbuilder(thing &eparent, thing &echildren, seque<std::pair<size_t, seque<size_t>>> const &typeandlocalnodes)
+void appendbuilder(thing &eparent, thing &echildren, seque<std::pair<int, seque<int>>> const &typeandlocalnodes)
 {
-    for (size_t localnodetype = 0; localnodetype < getsize(typeandlocalnodes); ++localnodetype)
+    for (int localnodetype = 0; localnodetype < getsize(typeandlocalnodes); ++localnodetype)
     {
-        size_t type = typeandlocalnodes[localnodetype].first;
-        for (size_t localtype = 0; localtype < getsize(eparent.typeandnodes); ++localtype)
+        int type = typeandlocalnodes[localnodetype].first;
+        for (int localtype = 0; localtype < getsize(eparent.typeandnodes); ++localtype)
         {
             if (eparent.typeandnodes[localtype].first == type)
             {
@@ -29,7 +29,7 @@ void appendbuilder(thing &eparent, thing &echildren, seque<std::pair<size_t, seq
 }
 void insertathing(mm2m &m, thing const &e)
 {
-    for (size_t localtype = 0; localtype < getsize(e.typeandnodes); ++localtype)
+    for (int localtype = 0; localtype < getsize(e.typeandnodes); ++localtype)
     {
         appendelement(m, e.type, e.typeandnodes[localtype].first, e.typeandnodes[localtype].second);
     }

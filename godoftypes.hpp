@@ -12,13 +12,13 @@ struct indexoftype
 template<class T, class... Types>
 struct indexoftype<T, std::tuple<T, Types...>>
 {
-    static constexpr std::size_t value = 0;
+    static constexpr int value = 0;
 };
 
 template<class T, class U, class... Types>
 struct indexoftype<T, std::tuple<U, Types...>>
 {
-    static const std::size_t value = 1 + indexoftype<T, std::tuple<Types...>>::value;
+    static const int value = 1 + indexoftype<T, std::tuple<Types...>>::value;
 };
 /**
  * @brief The godstruct class, registers the lists of entities const& use
@@ -34,7 +34,7 @@ struct godstruct
     // size of type list
     static constexpr auto Size = sizeof...(T);
     // give Nth type
-    template<std::size_t N>
+    template<int N>
     using Nth = typename std::tuple_element<N, Tuple>::type;
     // give First type
     using First = Nth<0>;
@@ -63,7 +63,7 @@ seque<T> &godgetsequence(auto &tp) noexcept
 }
 
 template<typename T, typename G>
-constexpr size_t godgetnumber()
+constexpr int godgetnumber()
 {
     return indexoftype<T, typename G::Tuple>::value;
 }

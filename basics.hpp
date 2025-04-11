@@ -174,9 +174,9 @@ struct pfrgetallnames
      * @brief Recursively retrieves member names.
      *
      * @tparam I The current index.
-     * @param seque<size_t>  The list to store member names.
+     * @param seque<int>  The list to store member names.
      */
-    template<size_t I = 0>
+    template<int I = 0>
     static void item(std::vector<std::string> &lst )
     {
         lst.push_back(std::string(pfr::get_name<I, StructType>()));

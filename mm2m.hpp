@@ -1,49 +1,55 @@
 #ifndef RELATIONMATRIX_HPP
 #define RELATIONMATRIX_HPP
+#include "m2m.hpp"
+#include "symmetries.hpp"
 #include <map>
 #include <stack>
 #include <utility>
-#include "m2m.hpp"
-#include "symmetries.hpp"
-namespace hidden
-{
-    using matrix = seque<seque<m2m>>;
+namespace hidden {
+using matrix = seque<seque<m2m>>;
 }
-struct mm2m
-{
-    hidden::matrix m{};
-    seque<seque<seque<seque<size_t>>>> groups{{}};
-    size_t ntypes{0};
-    seque<std::pair<size_t, size_t>> listofmarked;
-    m2m const &operator()(size_t elementtype, size_t nodetype) const { return m[elementtype][nodetype]; }
-    m2m &operator()(size_t elementtype, size_t nodetype) { return m[elementtype][nodetype]; }
-    size_t nnodes(size_t elementtype, size_t element, size_t nodetype);
-    size_t nelems(size_t nodetype, size_t node, size_t elementtype);
+struct mm2m {
+  hidden::matrix m{};
+  seque<seque<seque<seque<int>>>> groups{{}};
+  int ntypes{0};
+  seque<std::pair<int, int>> listofmarked;
+  m2m const &operator()(int elementtype, int nodetype) const {
+    return m[elementtype][nodetype];
+  }
+  m2m &operator()(int elementtype, int nodetype) {
+    return m[elementtype][nodetype];
+  }
+  int nnodes(int elementtype, int element, int nodetype);
+  int nelems(int nodetype, int node, int elementtype);
 };
 PFR_FUNCTIONS_FOR(mm2m)
 void resetmarked(mm2m &m);
-void marktoerase(mm2m &m, std::pair<size_t, size_t> const &node);
-seque<std::pair<size_t, size_t>> getallelements(mm2m &m, std::pair<size_t, size_t> const &node);
-seque<std::pair<size_t, size_t>> getallnodes(mm2m &m, std::pair<size_t, size_t> const &element);
-seque<std::pair<size_t, size_t>> depthfirstsearchfromanode(mm2m &m, std::pair<size_t, size_t> const &node);
-void setnumberoftypes(mm2m &m, size_t ntypes);
-void setsymmetrygroup(mm2m &m, size_t elementype, size_t nodetype, seque<seque<size_t>> const &group);
-size_t appendelement(mm2m &m, size_t elementype, size_t nodetype, seque<size_t> const &nodes);
-size_t appendelement(mm2m &m,size_t elementype)
-;
-void setmany2many(mm2m &m, size_t elementype, size_t nodetype, m2m const &relation);
-m2m &getmany2many(mm2m &m, size_t elementype, size_t nodetype);
-void indicesfromorder(mm2m &m, size_t elementtype, size_t nodetype, seque<size_t> const &order,
-                      seque<size_t> &oldfromnew, seque<size_t> &newfromold);
+void marktoerase(mm2m &m, std::pair<int, int> const &node);
+seque<std::pair<int, int>> getallelements(mm2m &m,
+                                          std::pair<int, int> const &node);
+seque<std::pair<int, int>> getallnodes(mm2m &m,
+                                       std::pair<int, int> const &element);
+seque<std::pair<int, int>>
+depthfirstsearchfromanode(mm2m &m, std::pair<int, int> const &node);
+void setnumberoftypes(mm2m &m, int ntypes);
+void setsymmetrygroup(mm2m &m, int elementype, int nodetype,
+                      seque<seque<int>> const &group);
+int appendelement(mm2m &m, int elementype, int nodetype,
+                  seque<int> const &nodes);
+int appendelement(mm2m &m, int elementype);
+void setmany2many(mm2m &m, int elementype, int nodetype, m2m const &relation);
+m2m &getmany2many(mm2m &m, int elementype, int nodetype);
+void indicesfromorder(mm2m &m, int elementtype, int nodetype,
+                      seque<int> const &order, seque<int> &oldfromnew,
+                      seque<int> &newfromold);
 void closeeverything(mm2m &m);
-seque<size_t> getselementsfromnodes(mm2m &matrix, size_t elementtype, size_t nodestype, seque<size_t> const &nodes);
-namespace hidden
-{
-    void compress(mm2m &m, size_t elementtype, seque<size_t> const &oldelementfromnew,
-                  seque<size_t> const &newelementfromold);
+seque<int> getselementsfromnodes(mm2m &matrix, int elementtype, int nodestype,
+                                 seque<int> const &nodes);
+namespace hidden {
+void compress(mm2m &m, int elementtype, seque<int> const &oldelementfromnew,
+              seque<int> const &newelementfromold);
 }
 void compress(mm2m &m);
-seque<size_t> typetoporder(mm2m const &m);
-
+seque<int> typetoporder(mm2m const &m);
 
 #endif // RELATIONMATRIX_HPP

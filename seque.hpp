@@ -18,7 +18,7 @@ template <typename T> inline void arraydestroy(T *&p) {
   }
 }
 
-template <typename T> inline void arraycreate(T *&p, size_t size) {
+template <typename T> inline void arraycreate(T *&p, int size) {
   arraydestroy(p);
   if (size > 0) {
     p = new T[size];
@@ -26,27 +26,26 @@ template <typename T> inline void arraycreate(T *&p, size_t size) {
 }
 
 namespace hidden {
-constexpr size_t STACKSIZE = 8;
-constexpr double GROWTHFACTOR = 1.5;
+constexpr int STACKSIZE = 8;
+constexpr double GROWTHFACTOR = 1.2;
 } // namespace hidden
 
-template <typename V, size_t S = hidden::STACKSIZE,
-          auto P = std::execution::par>
+template <typename V, int S = hidden::STACKSIZE, auto P = std::execution::par>
 struct seque {
-  static constexpr size_t stacksize = S;
+  static constexpr int stacksize = S;
   static constexpr auto parallel = P;
-  size_t size = 0;
+  int size = 0;
   V stackdata[S];
   V *heapdata = nullptr;
-  size_t heapsize = 0;
+  int heapsize = 0;
   V *actual = stackdata;
 
   seque() {}
 
-  explicit seque(size_t newSize) : seque() { setsize(*this, newSize); }
+  explicit seque(int newSize) : seque() { setsize(*this, newSize); }
 
-  seque(size_t newSize, V value) : seque(newSize) {
-    for (size_t i = 0; i < size; i++) {
+  seque(int newSize, V value) : seque(newSize) {
+    for (int i = 0; i < size; i++) {
       actual[i] = value;
     }
   }
@@ -62,7 +61,7 @@ struct seque {
     // Check if the other container is using its stack storage.
     if (other.actual == other.stackdata) {
       // Move elements one-by-one into our stackdata.
-      for (size_t i = 0; i < other.size; i++) {
+      for (int i = 0; i < other.size; i++) {
         stackdata[i] = std::move(other.stackdata[i]);
       }
       actual = stackdata;
@@ -92,7 +91,7 @@ struct seque {
       size = other.size;
       if (other.actual == other.stackdata) {
         // Source is using stack storage; move element by element.
-        for (size_t i = 0; i < other.size; i++) {
+        for (int i = 0; i < other.size; i++) {
           stackdata[i] = std::move(other.stackdata[i]);
         }
         actual = stackdata;
@@ -121,8 +120,8 @@ struct seque {
     swap(heapdata, other.heapdata);
     // The internal fixed-size buffers cannot be swapped overall,
     // but we swap the elements in the buffer up to the minimum size.
-    size_t minStack = (S < other.stacksize ? S : other.stacksize);
-    for (size_t i = 0; i < minStack; ++i) {
+    int minStack = (S < other.stacksize ? S : other.stacksize);
+    for (int i = 0; i < minStack; ++i) {
       swap(stackdata[i], other.stackdata[i]);
     }
     // Reset the actual pointers based on the new state.
@@ -139,22 +138,22 @@ struct seque {
   }
 
   seque &operator=(V const &value) {
-    std::fill(actual, actual + size, value);
+    std::fill(std::execution::par, actual, actual + size, value);
     return *this;
   }
 
-  V &operator[](size_t index) { return actual[index]; }
+  V &operator[](int index) { return actual[index]; }
 
-  V const &operator[](size_t index) const { return actual[index]; }
+  V const &operator[](int index) const { return actual[index]; }
 
-  V &operator()(size_t index) {
+  V &operator()(int index) {
     if (index >= size) {
       setsize(*this, index + 1);
     }
     return actual[index];
   }
 
-  V const &operator()(size_t index) const {
+  V const &operator()(int index) const {
     _explodeinvalidindex(index);
     return actual[index];
   }
@@ -170,11 +169,11 @@ struct seque {
   V const *begin() const { return actual; }
   V const *end() const { return actual + size; }
 
-  seque operator()(seque<size_t, S, P> const &indexContainer) const {
+  seque operator()(seque<int, S, P> const &indexContainer) const {
     seque result(indexContainer.size);
-    std::transform(indexContainer.actual,
+    std::transform(std::execution::par, indexContainer.actual,
                    indexContainer.actual + indexContainer.size, result.actual,
-                   [&](size_t idx) { return actual[idx]; });
+                   [&](int idx) { return actual[idx]; });
     return result;
   }
 
@@ -184,12 +183,13 @@ struct seque {
     if constexpr (std::is_trivially_copyable_v<V>) {
       std::memcpy(actual, other.actual, other.size * sizeof(V));
     } else {
-      std::copy(parallel, other.actual, other.actual + other.size, actual);
+      std::copy(std::execution::par, other.actual, other.actual + other.size,
+                actual);
     }
   }
 
 public:
-  void _explodeinvalidindex(size_t index) const {
+  void _explodeinvalidindex(int index) const {
     if (index >= size) {
       throw std::out_of_range("sek: index " + std::to_string(index) +
                               " out of range [0, " + std::to_string(size) +
@@ -197,14 +197,14 @@ public:
     }
   }
 
-  void _switchfromstacktoheap(size_t newCapacity) {
+  void _switchfromstacktoheap(int newCapacity) {
     heapsize = newCapacity;
     arraycreate(heapdata, newCapacity);
     if constexpr (std::is_trivially_copyable_v<V>) {
       std::memcpy(heapdata, stackdata,
                   std::min(stacksize, newCapacity) * sizeof(V));
     } else {
-      for (size_t i = 0; i < std::min(stacksize, newCapacity); i++) {
+      for (int i = 0; i < std::min(stacksize, newCapacity); i++) {
         heapdata[i] = stackdata[i];
       }
     }
@@ -212,7 +212,7 @@ public:
   }
 
   void _switchfromheapstostack() {
-    const size_t moveCount = std::min({size, heapsize, stacksize});
+    const int moveCount = std::min({size, heapsize, stacksize});
     if (heapdata) {
       if (moveCount > 0)
         std::copy(heapdata, heapdata + moveCount, stackdata);
@@ -223,14 +223,14 @@ public:
     actual = stackdata;
   }
 
-  void _modifysizeofheap(size_t newCapacity) {
+  void _modifysizeofheap(int newCapacity) {
     if (newCapacity > heapsize) {
       V *tempArray = nullptr;
       arraycreate(tempArray, newCapacity);
       if constexpr (std::is_trivially_copyable_v<V>) {
         std::memcpy(tempArray, heapdata, size * sizeof(V));
       } else {
-        std::move(heapdata, heapdata + size, tempArray);
+        std::move(std::execution::par, heapdata, heapdata + size, tempArray);
       }
       arraydestroy(heapdata);
       heapdata = tempArray;
@@ -240,27 +240,26 @@ public:
   }
 };
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 inline V *begin(seque<V, S, P> &container) {
   return container.begin();
 }
 
-template <typename V, size_t S, auto P>
-inline V *end(seque<V, S, P> &container) {
+template <typename V, int S, auto P> inline V *end(seque<V, S, P> &container) {
   return container.end();
 }
 
-template <typename V, size_t S, auto P>
-void setsize(seque<V, S, P> &container, size_t newSize) {
+template <typename V, int S, auto P>
+void setsize(seque<V, S, P> &container, int newSize) {
   double growthFactor = hidden::GROWTHFACTOR;
   if (newSize == container.size)
     return;
   if (container.actual == container.stackdata) {
     if (newSize > container.stacksize) {
-      container._switchfromstacktoheap((size_t)growthFactor * newSize);
+      container._switchfromstacktoheap((int)growthFactor * newSize);
     }
   } else {
-    if (newSize <= container.stacksize) {
+    if (newSize == 0) {
       container._switchfromheapstostack();
     } else if (newSize > container.heapsize) {
       container._modifysizeofheap(growthFactor * newSize);
@@ -269,35 +268,35 @@ void setsize(seque<V, S, P> &container, size_t newSize) {
   container.size = newSize;
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 void save(auto archiver, seque<V, S, P> const &container) {
   archiver(container.size);
-  for (size_t index = 0; index < container.size; ++index) {
+  for (int index = 0; index < container.size; ++index) {
     archiver(container.actual[index]);
   }
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 void load(auto archiver, seque<V, S, P> &container) {
-  size_t loadedSize = 0;
+  int loadedSize = 0;
   archiver(loadedSize);
   setsize(container, loadedSize);
-  for (size_t index = 0; index < container.size; ++index) {
+  for (int index = 0; index < container.size; ++index) {
     archiver(container.actual[index]);
   }
 }
 
-template <typename V, size_t S, auto P>
-bool isindexvalid(seque<V, S, P> const &container, size_t index) {
+template <typename V, int S, auto P>
+bool isindexvalid(seque<V, S, P> const &container, int index) {
   return (index < container.size);
 }
 
-template <typename V, size_t S, auto P> void erase(seque<V, S, P> &container) {
+template <typename V, int S, auto P> void erase(seque<V, S, P> &container) {
   setsize(container, 0);
 }
 
-template <typename V, size_t S, auto P>
-void erase(seque<V, S, P> &container, size_t eraseIndex) {
+template <typename V, int S, auto P>
+void erase(seque<V, S, P> &container, int eraseIndex) {
   if (isindexvalid(container, eraseIndex) && container.size > 0) {
     container.actual[eraseIndex] = container.actual[container.size - 1];
     container.actual[container.size - 1] = V();
@@ -305,24 +304,22 @@ void erase(seque<V, S, P> &container, size_t eraseIndex) {
   }
 }
 
-template <typename V, size_t S, auto P>
-void erase(seque<V, S, P> &container,
-           seque<size_t, S, P> const &indexContainer) {
-  for (size_t pos = 0; pos < indexContainer.size; ++pos) {
+template <typename V, int S, auto P>
+void erase(seque<V, S, P> &container, seque<int, S, P> const &indexContainer) {
+  for (int pos = 0; pos < indexContainer.size; ++pos) {
     erase(container, indexContainer[pos]);
   }
 }
 
-template <typename V, size_t S, auto P>
-void eraselast(seque<V, S, P> &container) {
+template <typename V, int S, auto P> void eraselast(seque<V, S, P> &container) {
   if (container.size > 0) {
     setsize(container, container.size - 1);
   }
 }
 
-template <typename V, size_t S, auto P>
-void eraseinplace(seque<V, S, P> &container, size_t startIndex,
-                  size_t numToErase = 1) {
+template <typename V, int S, auto P>
+void eraseinplace(seque<V, S, P> &container, int startIndex,
+                  int numToErase = 1) {
   if (!numToErase || startIndex >= container.size)
     return;
   if (startIndex + numToErase > container.size) {
@@ -333,16 +330,16 @@ void eraseinplace(seque<V, S, P> &container, size_t startIndex,
   setsize(container, container.size - numToErase);
 }
 
-template <typename V, size_t S, auto P>
-void add(seque<V, S, P> &container, size_t insertIndex, V const &value) {
+template <typename V, int S, auto P>
+void add(seque<V, S, P> &container, int insertIndex, V const &value) {
   container._explodeinvalidindex(insertIndex);
   setsize(container, container.size + 1);
   container[container.size - 1] = container[insertIndex];
   container[insertIndex] = value;
 }
 
-template <typename V, size_t S, auto P>
-void addinplace(seque<V, S, P> &container, size_t insertIndex, V const &value) {
+template <typename V, int S, auto P>
+void addinplace(seque<V, S, P> &container, int insertIndex, V const &value) {
   if (insertIndex > container.size) {
     insertIndex = container.size;
   }
@@ -353,14 +350,14 @@ void addinplace(seque<V, S, P> &container, size_t insertIndex, V const &value) {
   container[insertIndex] = value;
 }
 
-template <typename V, size_t S, auto P>
-void addinplace(seque<V, S, P> &destContainer, size_t insertIndex,
+template <typename V, int S, auto P>
+void addinplace(seque<V, S, P> &destContainer, int insertIndex,
                 seque<V, S, P> const &sourceContainer) {
   if (insertIndex > destContainer.size) {
     insertIndex = destContainer.size;
   }
   destContainer._explodeinvalidindex(insertIndex == 0 ? 0 : (insertIndex - 1));
-  const size_t oldSize = destContainer.size;
+  const int oldSize = destContainer.size;
   setsize(destContainer, destContainer.size + sourceContainer.size);
   std::move_backward(destContainer.actual + insertIndex,
                      destContainer.actual + oldSize,
@@ -370,17 +367,17 @@ void addinplace(seque<V, S, P> &destContainer, size_t insertIndex,
             destContainer.actual + insertIndex);
 }
 
-template <typename V, size_t S, auto P>
-size_t append(seque<V, S, P> &container, V const &value) {
+template <typename V, int S, auto P>
+int append(seque<V, S, P> &container, V const &value) {
   setsize(container, container.size + 1);
   container[container.size - 1] = value;
   return container.size - 1;
 }
 
-template <typename V, size_t S, auto P>
-size_t append(seque<V, S, P> &destContainer,
-              seque<V, S, P> const &sourceContainer) {
-  const size_t oldSize = destContainer.size;
+template <typename V, int S, auto P>
+int append(seque<V, S, P> &destContainer,
+           seque<V, S, P> const &sourceContainer) {
+  const int oldSize = destContainer.size;
   setsize(destContainer, destContainer.size + sourceContainer.size);
   std::copy(destContainer.parallel, sourceContainer.actual,
             sourceContainer.actual + sourceContainer.size,
@@ -388,29 +385,29 @@ size_t append(seque<V, S, P> &destContainer,
   return oldSize;
 }
 
-template <typename V, size_t S, auto P>
-size_t getsize(seque<V, S, P> const &container) {
+template <typename V, int S, auto P>
+int getsize(seque<V, S, P> const &container) {
   return container.size;
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 bool operator<(seque<V, S, P> const &lhs, seque<V, S, P> const &rhs) {
   return std::lexicographical_compare(
       lhs.actual, lhs.actual + lhs.size, rhs.actual, rhs.actual + rhs.size,
       [](auto const &a, auto const &b) { return a < b; });
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 bool operator>(seque<V, S, P> const &lhs, seque<V, S, P> const &rhs) {
   return rhs < lhs;
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 bool operator>=(seque<V, S, P> const &lhs, seque<V, S, P> const &rhs) {
   return (lhs > rhs) || (lhs == rhs);
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 bool operator==(seque<V, S, P> const &lhs, seque<V, S, P> const &rhs) {
   if (lhs.size != rhs.size)
     return false;
@@ -418,40 +415,40 @@ bool operator==(seque<V, S, P> const &lhs, seque<V, S, P> const &rhs) {
                     rhs.actual);
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 bool operator!=(seque<V, S, P> const &lhs, seque<V, S, P> const &rhs) {
   return !(lhs == rhs);
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 std::ostream &operator<<(std::ostream &os, seque<V, S, P> const &container) {
   auto outputElement = [&](auto element) { os << element << " "; };
   save(outputElement, container);
   return os;
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 std::istream &operator>>(std::istream &is, seque<V, S, P> &container) {
   auto inputElement = [&](auto &element) { is >> element; };
   load(inputElement, container);
   return is;
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 bool isfullysatisfied(seque<V, S, P> const &container, auto predicate) {
   return std::all_of(container.actual, container.actual + container.size,
                      predicate);
 }
 
-template <typename V, size_t S, auto P>
-seque<size_t, S, P> indicesfromcondition(seque<V, S, P> const &container,
-                                         auto predicate) {
-  seque<size_t, S, P> indices;
+template <typename V, int S, auto P>
+seque<int, S, P> indicesfromcondition(seque<V, S, P> const &container,
+                                      auto predicate) {
+  seque<int, S, P> indices;
   auto matchCount = std::count_if(container.parallel, container.actual,
                                   container.actual + container.size, predicate);
   setsize(indices, matchCount);
-  size_t currentIndex = 0;
-  for (size_t pos = 0; pos < container.size; ++pos) {
+  int currentIndex = 0;
+  for (int pos = 0; pos < container.size; ++pos) {
     if (predicate(container[pos])) {
       indices[currentIndex++] = pos;
     }
@@ -459,30 +456,30 @@ seque<size_t, S, P> indicesfromcondition(seque<V, S, P> const &container,
   return indices;
 }
 
-template <typename V, size_t S, auto P>
-seque<size_t, S, P> indicesfromvalue(seque<V, S, P> const &container, V value,
-                                     seque<size_t, S, P> const &sortedIndices) {
-  size_t containerSize = container.size;
+template <typename V, int S, auto P>
+seque<int, S, P> indicesfromvalue(seque<V, S, P> const &container, V value,
+                                  seque<int, S, P> const &sortedIndices) {
+  int containerSize = container.size;
   if (containerSize == 0) {
-    return seque<size_t, S, P>{};
+    return seque<int, S, P>{};
   }
-  size_t left = 0;
-  size_t right = containerSize - 1;
-  seque<size_t, S, P> indices(containerSize);
+  int left = 0;
+  int right = containerSize - 1;
+  seque<int, S, P> indices(containerSize);
   while (left <= right && left < containerSize) {
-    size_t middle = left + (right - left) / 2;
+    int middle = left + (right - left) / 2;
     auto valMid = container[sortedIndices[middle]];
     if (valMid == value) {
-      size_t startIndex = middle;
+      int startIndex = middle;
       while (startIndex > 0 &&
              container[sortedIndices[startIndex - 1]] == value)
         --startIndex;
-      size_t endIndex = middle;
+      int endIndex = middle;
       while (endIndex < containerSize - 1 &&
              container[sortedIndices[endIndex + 1]] == value)
         ++endIndex;
-      size_t matchCount = endIndex - startIndex + 1;
-      for (size_t pos = 0; pos < matchCount; ++pos) {
+      int matchCount = endIndex - startIndex + 1;
+      for (int pos = 0; pos < matchCount; ++pos) {
         indices[pos] = sortedIndices[startIndex + pos];
       }
       setsize(indices, matchCount);
@@ -499,35 +496,33 @@ seque<size_t, S, P> indicesfromvalue(seque<V, S, P> const &container, V value,
   return indices;
 }
 
-template <typename V, size_t S, auto P>
-seque<size_t, S, P> indicesfromvalue(seque<V, S, P> const &sortedcontainer,
-                                     V value) {
+template <typename V, int S, auto P>
+seque<int, S, P> indicesfromvalue(seque<V, S, P> const &sortedcontainer,
+                                  V value) {
   auto rangeResult =
       std::equal_range(sortedcontainer.actual,
                        sortedcontainer.actual + sortedcontainer.size, value);
-  size_t rangeSize = rangeResult.second - rangeResult.first;
-  seque<size_t, S, P> indices(rangeSize);
-  for (size_t pos = 0; pos < rangeSize; ++pos) {
+  int rangeSize = rangeResult.second - rangeResult.first;
+  seque<int, S, P> indices(rangeSize);
+  for (int pos = 0; pos < rangeSize; ++pos) {
     indices[pos] =
-        static_cast<size_t>((rangeResult.first - sortedcontainer.actual) + pos);
+        static_cast<int>((rangeResult.first - sortedcontainer.actual) + pos);
   }
   return indices;
 }
 
-template <typename V, size_t S, auto P>
-seque<size_t, S, P> getorder(seque<V, S, P> const &container) {
-  seque<size_t, S, P> sortedIndices(container.size);
+template <typename V, int S, auto P>
+seque<int, S, P> getorder(seque<V, S, P> const &container) {
+  seque<int, S, P> sortedIndices(container.size);
   std::iota(sortedIndices.actual, sortedIndices.actual + sortedIndices.size, 0);
-  std::stable_sort(sortedIndices.actual,
-                   sortedIndices.actual + sortedIndices.size,
-                   [&](size_t idx1, size_t idx2) {
-                     return container[idx1] < container[idx2];
-                   });
+  std::stable_sort(
+      sortedIndices.actual, sortedIndices.actual + sortedIndices.size,
+      [&](int idx1, int idx2) { return container[idx1] < container[idx2]; });
   return sortedIndices;
 }
 
-template <typename V, size_t S, auto P>
-seque<V, S, P> getasample(seque<V, S, P> const &container, size_t sampleSize) {
+template <typename V, int S, auto P>
+seque<V, S, P> getasample(seque<V, S, P> const &container, int sampleSize) {
   if (sampleSize > container.size) {
     sampleSize = container.size;
   }
@@ -539,24 +534,24 @@ seque<V, S, P> getasample(seque<V, S, P> const &container, size_t sampleSize) {
   return sampleContainer;
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 void setordered(seque<V, S, P> &container) {
   std::stable_sort(container.actual, container.actual + container.size);
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 void setordered(seque<V, S, P> &container, auto compareFunc) {
   std::stable_sort(container.actual, container.actual + container.size,
                    compareFunc);
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 void applyfunction(seque<V, S, P> const &container, auto func) {
   std::for_each(container.parallel, container.actual,
                 container.actual + container.size, func);
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 auto getmapped(seque<V, S, P> const &container, auto func) {
   using ReturnType = decltype(func(std::declval<V>()));
   seque<ReturnType, S, P> mappedContainer(container.size);
@@ -566,10 +561,10 @@ auto getmapped(seque<V, S, P> const &container, auto func) {
   return mappedContainer;
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 auto getmapped(seque<V, S, P> const &containerA,
                seque<V, S, P> const &containerB, auto func) {
-  const size_t minSize = (std::min)(containerA.size, containerB.size);
+  const int minSize = (std::min)(containerA.size, containerB.size);
   using ReturnType = decltype(func(std::declval<V>(), std::declval<V>()));
   seque<ReturnType, S, P> mappedContainer(minSize);
   std::transform(containerA.parallel, containerA.actual,
@@ -578,13 +573,13 @@ auto getmapped(seque<V, S, P> const &containerA,
   return mappedContainer;
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 auto reduce(seque<V, S, P> const &container, auto init, auto binaryFunc) {
   return std::reduce(container.parallel, container.actual,
                      container.actual + container.size, init, binaryFunc);
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 auto dotproduct(seque<V, S, P> const &containerA,
                 seque<V, S, P> const &containerB, auto init, auto sumFunc,
                 auto prodFunc) {
@@ -593,20 +588,20 @@ auto dotproduct(seque<V, S, P> const &containerA,
                             containerB.actual, init, sumFunc, prodFunc);
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 void setshuffled(seque<V, S, P> &container) {
   std::random_device rd;
   std::mt19937 rng(rd());
   std::shuffle(container.actual, container.actual + container.size, rng);
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 void setreversed(seque<V, S, P> &container) {
   std::reverse(container.actual, container.actual + container.size);
 }
 
-template <typename V, size_t S, auto P>
-void setrotatedaroundindex(seque<V, S, P> &container, size_t rotationIndex) {
+template <typename V, int S, auto P>
+void setrotatedaroundindex(seque<V, S, P> &container, int rotationIndex) {
   if (rotationIndex > container.size) {
     rotationIndex = container.size;
   }
@@ -614,48 +609,47 @@ void setrotatedaroundindex(seque<V, S, P> &container, size_t rotationIndex) {
               container.actual + container.size);
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 bool setpermuteclockwise(seque<V, S, P> &container) {
   return std::next_permutation(container.actual,
                                container.actual + container.size);
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 bool setpermutecounterclockwise(seque<V, S, P> &container) {
   return std::prev_permutation(container.actual,
                                container.actual + container.size);
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 void setunique(seque<V, S, P> &sortedcontainer) {
   auto newEnd = std::unique(sortedcontainer.actual,
                             sortedcontainer.actual + sortedcontainer.size);
-  setsize(sortedcontainer,
-          static_cast<size_t>(newEnd - sortedcontainer.actual));
+  setsize(sortedcontainer, static_cast<int>(newEnd - sortedcontainer.actual));
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 void setorderedandunique(seque<V, S, P> &container) {
   setordered(container);
   setunique(container);
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 void indicesfromorder(seque<V, S, P> const &sourceContainer,
-                      seque<size_t, S, P> const &sortedIndices,
-                      seque<size_t, S, P> &oldfromnew,
-                      seque<size_t, S, P> &newfromold) {
-  size_t totalSize = getsize(sourceContainer);
+                      seque<int, S, P> const &sortedIndices,
+                      seque<int, S, P> &oldfromnew,
+                      seque<int, S, P> &newfromold) {
+  int totalSize = getsize(sourceContainer);
   setsize(newfromold, totalSize);
   if (!totalSize) {
     setsize(oldfromnew, 0);
     return;
   }
-  size_t firstOccurrence =
+  int firstOccurrence =
       sortedIndices[0]; // this is the position of the smallest
   newfromold[firstOccurrence] = firstOccurrence;
-  for (size_t index = 1; index < totalSize; ++index) {
-    size_t currentSortedIndex = sortedIndices[index];
+  for (int index = 1; index < totalSize; ++index) {
+    int currentSortedIndex = sortedIndices[index];
     bool sameVal = (sourceContainer[sortedIndices[index]] ==
                     sourceContainer[sortedIndices[index - 1]]);
     newfromold[currentSortedIndex] =
@@ -664,28 +658,28 @@ void indicesfromorder(seque<V, S, P> const &sourceContainer,
       firstOccurrence = currentSortedIndex;
     }
   }
-  size_t uniqueCount = 0;
-  for (size_t index = 0; index < totalSize; ++index) {
+  int uniqueCount = 0;
+  for (int index = 0; index < totalSize; ++index) {
     if (newfromold[index] == index) {
       newfromold[uniqueCount++] = index;
     }
   }
   setsize(newfromold, uniqueCount);
   setsize(oldfromnew, totalSize);
-  for (size_t index = 0; index < totalSize; ++index) {
-    oldfromnew[index] = static_cast<size_t>(-1);
+  for (int index = 0; index < totalSize; ++index) {
+    oldfromnew[index] = static_cast<int>(-1);
   }
-  for (size_t uniqueIndex = 0; uniqueIndex < uniqueCount; ++uniqueIndex) {
+  for (int uniqueIndex = 0; uniqueIndex < uniqueCount; ++uniqueIndex) {
     oldfromnew[newfromold[uniqueIndex]] = uniqueIndex;
   }
-  for (size_t index = 0; index < totalSize; ++index) {
-    if (oldfromnew[index] == static_cast<size_t>(-1)) {
+  for (int index = 0; index < totalSize; ++index) {
+    if (oldfromnew[index] == static_cast<int>(-1)) {
       oldfromnew[index] = oldfromnew[newfromold[index]];
     }
   }
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 seque<V, S, P> getintersection(seque<V, S, P> const &sortedcontainerA,
                                seque<V, S, P> const &sortedcontainerB) {
   seque<V, S, P> resultContainer(sortedcontainerA.size + sortedcontainerB.size);
@@ -693,11 +687,11 @@ seque<V, S, P> getintersection(seque<V, S, P> const &sortedcontainerA,
       sortedcontainerA.actual, sortedcontainerA.actual + sortedcontainerA.size,
       sortedcontainerB.actual, sortedcontainerB.actual + sortedcontainerB.size,
       resultContainer.actual);
-  setsize(resultContainer, static_cast<size_t>(endIt - resultContainer.actual));
+  setsize(resultContainer, static_cast<int>(endIt - resultContainer.actual));
   return resultContainer;
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 seque<V, S, P> getunion(seque<V, S, P> const &sortedcontainerA,
                         seque<V, S, P> const &sortedcontainerB) {
   seque<V, S, P> resultContainer(sortedcontainerA.size + sortedcontainerB.size);
@@ -705,11 +699,11 @@ seque<V, S, P> getunion(seque<V, S, P> const &sortedcontainerA,
       sortedcontainerA.actual, sortedcontainerA.actual + sortedcontainerA.size,
       sortedcontainerB.actual, sortedcontainerB.actual + sortedcontainerB.size,
       resultContainer.actual);
-  setsize(resultContainer, static_cast<size_t>(endIt - resultContainer.actual));
+  setsize(resultContainer, static_cast<int>(endIt - resultContainer.actual));
   return resultContainer;
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 seque<V, S, P> getdifference(seque<V, S, P> const &sortedcontainerA,
                              seque<V, S, P> const &sortedcontainerB) {
   seque<V, S, P> resultContainer(sortedcontainerA.size + sortedcontainerB.size);
@@ -717,11 +711,11 @@ seque<V, S, P> getdifference(seque<V, S, P> const &sortedcontainerA,
       sortedcontainerA.actual, sortedcontainerA.actual + sortedcontainerA.size,
       sortedcontainerB.actual, sortedcontainerB.actual + sortedcontainerB.size,
       resultContainer.actual);
-  setsize(resultContainer, static_cast<size_t>(endIt - resultContainer.actual));
+  setsize(resultContainer, static_cast<int>(endIt - resultContainer.actual));
   return resultContainer;
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 seque<V, S, P> getsymmetricdifference(seque<V, S, P> const &sortedcontainerA,
                                       seque<V, S, P> const &sortedcontainerB) {
   seque<V, S, P> resultContainer(sortedcontainerA.size + sortedcontainerB.size);
@@ -729,11 +723,11 @@ seque<V, S, P> getsymmetricdifference(seque<V, S, P> const &sortedcontainerA,
       sortedcontainerA.actual, sortedcontainerA.actual + sortedcontainerA.size,
       sortedcontainerB.actual, sortedcontainerB.actual + sortedcontainerB.size,
       resultContainer.actual);
-  setsize(resultContainer, static_cast<size_t>(endIt - resultContainer.actual));
+  setsize(resultContainer, static_cast<int>(endIt - resultContainer.actual));
   return resultContainer;
 }
 
-template <typename V, size_t S, auto P>
+template <typename V, int S, auto P>
 bool getincludessubset(seque<V, S, P> const &sortedsuperset,
                        seque<V, S, P> const &sortedsubset) {
   return std::includes(
@@ -741,32 +735,19 @@ bool getincludessubset(seque<V, S, P> const &sortedsuperset,
       sortedsubset.actual, sortedsubset.actual + sortedsubset.size);
 }
 
-template <typename V, size_t S, auto P>
-size_t getindextoinsert(seque<V, S, P> const &sortedcontainer, V value) {
-  return static_cast<size_t>(
+template <typename V, int S, auto P>
+int getindextoinsert(seque<V, S, P> const &sortedcontainer, V value) {
+  return static_cast<int>(
       std::lower_bound(sortedcontainer.actual,
                        sortedcontainer.actual + sortedcontainer.size, value) -
       sortedcontainer.actual);
 }
 
-template <typename V, size_t S, auto P>
-size_t addretainingorder(seque<V, S, P> &sortedcontainer, V value) {
-  size_t insertPosition = getindextoinsert(sortedcontainer, value);
+template <typename V, int S, auto P>
+int addretainingorder(seque<V, S, P> &sortedcontainer, V value) {
+  int insertPosition = getindextoinsert(sortedcontainer, value);
   addinplace(sortedcontainer, insertPosition, value);
   return insertPosition;
 }
-
-namespace std {
-template <typename V, size_t S, auto P> struct hash<seque<V, S, P>> {
-  size_t operator()(const seque<V, S, P> &seq) const {
-    size_t seed = 0;
-    std::hash<V> valueHasher;
-    for (size_t i = 0; i < seq.size; ++i) {
-      seed ^= valueHasher(seq[i]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    }
-    return seed;
-  }
-};
-} // namespace std
 
 #endif

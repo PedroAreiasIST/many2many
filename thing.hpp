@@ -6,20 +6,20 @@
 
 struct thing
 {
-    using NodeType = size_t;
-    using ListofNodes = seque<size_t>;
-    size_t type;
+    using NodeType = int;
+    using ListofNodes = seque<int>;
+    int type;
     seque<std::pair<NodeType, ListofNodes>> typeandnodes;
 };
 PFR_FUNCTIONS_FOR(thing)
 
-void settypenumber(thing &e, size_t type);
+void settypenumber(thing &e, int type);
 
-void settypenumber(seque<thing> &es, size_t type);
+void settypenumber(seque<thing> &es, int type);
 
-void appendnodesofonetype(thing &e, size_t nodetype, seque<size_t> const &nodes);
+void appendnodesofonetype(thing &e, int nodetype, seque<int> const &nodes);
 
-void appendbuilder(thing &eparent, thing &echildren, seque<std::pair<size_t, seque<size_t>>> const &typeandlocalnodes);
+void appendbuilder(thing &eparent, thing &echildren, seque<std::pair<int, seque<int>>> const &typeandlocalnodes);
 
 void insertathing(mm2m &m, thing const &e);
 

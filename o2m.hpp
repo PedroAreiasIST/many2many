@@ -9,34 +9,32 @@
 #include "seque.hpp"
 
 namespace hidden {
-using lst = seque<size_t>;
+using lst = seque<int>;
 }
 
 struct o2m {
-  seque<seque<size_t>> lnods{{}};
-  size_t nelem{0};
-  size_t maxnodenumber{0};
+  seque<seque<int>> lnods{{}};
+  int nelem{0};
+  int maxnodenumber{0};
   // Access operators
-  seque<size_t> &operator[](size_t element) { return lnods[element]; }
-  seque<size_t> const &operator[](size_t element) const {
-    return lnods[element];
-  }
+  seque<int> &operator[](int element) { return lnods[element]; }
+  seque<int> const &operator[](int element) const { return lnods[element]; }
   // Utility methods
-  size_t size() const { return nelem; }
-  size_t elementsize(size_t element) const { return lnods[element].size; }
+  int size() const { return nelem; }
+  int elementsize(int element) const { return lnods[element].size; }
 };
 PFR_FUNCTIONS_FOR(o2m)
 
-void setnumberofelements(o2m &rel, size_t nelem);
-void setnodesforelement(o2m &rel, size_t element, seque<size_t> &&nodes);
-void setnodesforelement(o2m &rel, size_t element, seque<size_t> const &nodes);
-size_t appendelement(o2m &rel, const seque<size_t> &nodes);
+void setnumberofelements(o2m &rel, int nelem);
+void setnodesforelement(o2m &rel, int element, seque<int> &&nodes);
+void setnodesforelement(o2m &rel, int element, seque<int> const &nodes);
+int appendelement(o2m &rel, const seque<int> &nodes);
 o2m transpose(const o2m &rel);
 
 void multiplication(const o2m &rela, const o2m &relb, o2m &relc);
-void multiplication(const o2m &rela, const seque<size_t> &relb, o2m &relc);
+void multiplication(const o2m &rela, const seque<int> &relb, o2m &relc);
 o2m operator*(const o2m &rela, const o2m &relb);
-o2m operator*(const o2m &rela, const seque<size_t> &vec);
+o2m operator*(const o2m &rela, const seque<int> &vec);
 void addition(const o2m &rela, const o2m &relb, o2m &relc);
 o2m operator+(const o2m &rela, const o2m &rel);
 void intersection(const o2m &a, const o2m &b, o2m &c);
@@ -44,17 +42,17 @@ o2m operator||(const o2m &a, const o2m &b);
 o2m operator&&(const o2m &a, const o2m &b);
 void subtraction(const o2m &rela, const o2m &relb, o2m &relc);
 o2m operator-(const o2m &rela, const o2m &relb);
-seque<size_t> toporder(const o2m &rel);
-seque<size_t> lexiorder(const o2m &rel);
-void indicesfromorder(const o2m &rel, const seque<size_t> &elemOrder,
-                      seque<size_t> &oldFromNew, seque<size_t> &newFromOld);
-void compresselements(o2m &rel, const seque<size_t> &oldelementfromnew);
-void permutenodes(o2m &rel, const seque<size_t> &newnodefromold);
-seque<seque<size_t>> getnodelocation(o2m const &nodesfromelement,
-                                     o2m const &elementsfromnode);
+seque<int> toporder(const o2m &rel);
+seque<int> lexiorder(const o2m &rel);
+void indicesfromorder(const o2m &rel, const seque<int> &elemOrder,
+                      seque<int> &oldFromNew, seque<int> &newFromOld);
+void compresselements(o2m &rel, const seque<int> &oldelementfromnew);
+void permutenodes(o2m &rel, const seque<int> &newnodefromold);
+seque<seque<int>> getlistofnodelocations(o2m const &nodesfromelement,
+                                         o2m const &elementsfromnode);
 
 o2m getcliqueaddressing(o2m const &nodesfromelement,
                         o2m const &elementsfromnode);
 
-o2m convertfromlist(const seque<size_t> &other);
+o2m convertfromlist(const seque<int> &other);
 #endif

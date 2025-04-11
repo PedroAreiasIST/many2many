@@ -74,7 +74,7 @@
                 <type>constexpr decltype(auto)</type>
                 <template>
                     <template-nontype-parameter name="I">
-                        <type>std::size_t</type>
+                        <type>int</type>
                     </template-nontype-parameter>
                     <template-type-parameter name="T"/>
                 </template>
@@ -113,7 +113,7 @@
                 <type>constexpr decltype(auto)</type>
                 <template>
                     <template-nontype-parameter name="I">
-                        <type>std::size_t</type>
+                        <type>int</type>
                     </template-nontype-parameter>
                     <template-type-parameter name="T"/>
                 </template>
@@ -129,7 +129,7 @@
                 <type>constexpr auto</type>
                 <template>
                     <template-nontype-parameter name="I">
-                        <type>std::size_t</type>
+                        <type>int</type>
                     </template-nontype-parameter>
                     <template-type-parameter name="T"/>
                 </template>
@@ -145,7 +145,7 @@
                 <type>constexpr auto</type>
                 <template>
                     <template-nontype-parameter name="I">
-                        <type>std::size_t</type>
+                        <type>int</type>
                     </template-nontype-parameter>
                     <template-type-parameter name="T"/>
                 </template>
@@ -332,11 +332,11 @@
                                     </para>
                                 </listitem>
                                 <listitem>
-                                    <para>any_return_type func(U&amp;&amp; field, std::size_t i)</para>
+                                    <para>any_return_type func(U&amp;&amp; field, int i)</para>
                                 </listitem>
                                 <listitem>
                                     <para>any_return_type func(U&amp;&amp; value, I i) // Here I is an
-                                        <computeroutput>std::integral_constant&lt;size_t, field_index&gt;
+                                        <computeroutput>integral_constant&lt;int, field_index&gt;
                                         </computeroutput>
                                     </para>
                                 </listitem>
@@ -417,7 +417,7 @@
                 <type>constexpr std::string_view</type>
                 <template>
                     <template-nontype-parameter name="I">
-                        <type>std::size_t</type>
+                        <type>int</type>
                     </template-nontype-parameter>
                     <template-type-parameter name="T"/>
                 </template>
@@ -535,7 +535,7 @@
                         in, T&amp; value);
 
                         // helper function for Boost unordered containers and boost::hash&lt;&gt;.
-                        std::size_t hash_value(const T&amp; value);
+                        int hash_value(const T&amp; value);
                     </programlisting>
                 </para>
             </description>
@@ -755,7 +755,7 @@
                 </purpose>
                 <method-group name="public member functions">
                     <method name="operator()" cv="const">
-                        <type>std::size_t</type>
+                        <type>int</type>
                         <parameter name="x">
                             <paramtype>const T &amp;</paramtype>
                         </parameter>
@@ -1404,7 +1404,7 @@
                     </para>
                 </description>
                 <returns>
-                    <para>std::size_t with hash of the value</para>
+                    <para>int with hash of the value</para>
                 </returns>
             </function>
             <function name="hash_value">
@@ -1609,7 +1609,7 @@
                 </returns>
             </function>
             <function name="hash_fields">
-                <type>std::size_t</type>
+                <type>int</type>
                 <template>
                     <template-type-parameter name="T"/>
                 </template>
@@ -1762,7 +1762,7 @@
                 </type>
             </typedef>
             <data-member name="tuple_size_v">
-                <type>constexpr std::size_t</type>
+                <type>constexpr int</type>
                 <description>
                     <para>
                         <computeroutput>tuple_size_v</computeroutput>

@@ -14,25 +14,23 @@ inline o2m *select_o2m(m2m &rel, bool transpose) {
 }
 } // namespace
 
-size_t m2m::nnodes(size_t element) {
+int m2m::nnodes(int element) {
   return getsize(nodesfromelement.lnods[element]);
 }
 
-size_t m2m::nelems(size_t node) {
-  return getsize(elementsfromnode.lnods[node]);
-}
+int m2m::nelems(int node) { return getsize(elementsfromnode.lnods[node]); }
 
-void setnumberofelements(m2m &rel, size_t nelem) {
+void setnumberofelements(m2m &rel, int nelem) {
   setnumberofelements(rel.nodesfromelement, nelem);
 }
 
-void setnodesforelement(m2m &rel, size_t element, seque<size_t> const &nodes) {
+void setnodesforelement(m2m &rel, int element, seque<int> const &nodes) {
   setnodesforelement(rel.nodesfromelement, element, nodes);
   rel.isupdated = false;
 }
 
-size_t appendelement(m2m &rel, seque<size_t> const &nodes) {
-  size_t newel = appendelement(rel.nodesfromelement, nodes);
+int appendelement(m2m &rel, seque<int> const &nodes) {
+  int newel = appendelement(rel.nodesfromelement, nodes);
   rel.isupdated = false;
   return newel;
 }
@@ -76,20 +74,20 @@ void setallpointers(m2m &rel) {
     // Prepare nodelocation storage - this stores position of each node within
     // elements
     setsize(rel.nodelocation, rel.elementsfromnode.nelem);
-    for (size_t node = 0; node < rel.elementsfromnode.nelem; ++node) {
+    for (int node = 0; node < rel.elementsfromnode.nelem; ++node) {
       setsize(rel.nodelocation[node],
               getsize(rel.elementsfromnode.lnods[node]));
     }
 
     // Track the next position to fill for each node
-    seque<size_t> nodePositionCounter(rel.elementsfromnode.nelem, 0);
+    seque<int> nodePositionCounter(rel.elementsfromnode.nelem, 0);
 
     // Build the node location lookup table
-    for (size_t element = 0; element < rel.nodesfromelement.nelem; ++element) {
+    for (int element = 0; element < rel.nodesfromelement.nelem; ++element) {
       const auto &nodes = rel.nodesfromelement.lnods[element];
-      for (size_t localPosition = 0; localPosition < getsize(nodes);
+      for (int localPosition = 0; localPosition < getsize(nodes);
            ++localPosition) {
-        size_t node = nodes[localPosition];
+        int node = nodes[localPosition];
         rel.nodelocation[node][nodePositionCounter[node]++] = localPosition;
       }
     }
@@ -98,36 +96,36 @@ void setallpointers(m2m &rel) {
   }
 }
 
-seque<size_t> getelementswithnodes(m2m const &rel, seque<size_t> const &nodes) {
+seque<int> getelementswithnodes(m2m const &rel, seque<int> const &nodes) {
   assert(rel.isupdated);
-  seque<size_t> elems;
+  seque<int> elems;
   if (getsize(nodes) == 0)
     return elems;
   elems = rel.elementsfromnode.lnods[nodes[0]];
-  for (size_t i = 1; i < getsize(nodes); ++i)
+  for (int i = 1; i < getsize(nodes); ++i)
     elems = getintersection(elems, rel.elementsfromnode.lnods[nodes[i]]);
   return elems;
 }
 
-seque<size_t> getelementsfromnodes(m2m const &rel, seque<size_t> const &nodes) {
+seque<int> getelementsfromnodes(m2m const &rel, seque<int> const &nodes) {
   assert(rel.isupdated);
-  seque<size_t> elems = getelementswithnodes(rel, nodes), ret;
-  for (size_t i = 0; i < getsize(elems); ++i)
+  seque<int> elems = getelementswithnodes(rel, nodes), ret;
+  for (int i = 0; i < getsize(elems); ++i)
     if (getsize(rel.nodesfromelement.lnods[elems[i]]) == getsize(nodes))
       append(ret, elems[i]);
   return ret;
 }
 
-seque<size_t> getelementneighbours(m2m const &rel, size_t element) {
+seque<int> getelementneighbours(m2m const &rel, int element) {
   assert(rel.isupdated);
-  seque<size_t> neighbours;
+  seque<int> neighbours;
   setsize(neighbours, 0);
-  const seque<size_t> &elementNodes = rel.nodesfromelement.lnods[element];
-  for (size_t i = 0; i < getsize(elementNodes); ++i) {
-    size_t node = elementNodes[i];
-    const seque<size_t> &nodeElements = rel.elementsfromnode.lnods[node];
-    for (size_t j = 0; j < getsize(nodeElements); ++j) {
-      size_t other = nodeElements[j];
+  const seque<int> &elementNodes = rel.nodesfromelement.lnods[element];
+  for (int i = 0; i < getsize(elementNodes); ++i) {
+    int node = elementNodes[i];
+    const seque<int> &nodeElements = rel.elementsfromnode.lnods[node];
+    for (int j = 0; j < getsize(nodeElements); ++j) {
+      int other = nodeElements[j];
       if (other != element)
         append(neighbours, other);
     }
@@ -136,16 +134,16 @@ seque<size_t> getelementneighbours(m2m const &rel, size_t element) {
   return neighbours;
 }
 
-seque<size_t> getnodeneighbours(m2m const &rel, size_t node) {
+seque<int> getnodeneighbours(m2m const &rel, int node) {
   assert(rel.isupdated);
-  seque<size_t> neighbours;
+  seque<int> neighbours;
   setsize(neighbours, 0);
-  const seque<size_t> &elements = rel.elementsfromnode.lnods[node];
-  for (size_t i = 0; i < getsize(elements); ++i) {
-    size_t elem = elements[i];
-    const seque<size_t> &nodes = rel.nodesfromelement.lnods[elem];
-    for (size_t j = 0; j < getsize(nodes); ++j) {
-      size_t other = nodes[j];
+  const seque<int> &elements = rel.elementsfromnode.lnods[node];
+  for (int i = 0; i < getsize(elements); ++i) {
+    int elem = elements[i];
+    const seque<int> &nodes = rel.nodesfromelement.lnods[elem];
+    for (int j = 0; j < getsize(nodes); ++j) {
+      int other = nodes[j];
       if (other != node)
         append(neighbours, other);
     }
@@ -154,17 +152,17 @@ seque<size_t> getnodeneighbours(m2m const &rel, size_t node) {
   return neighbours;
 }
 
-void indicesfromorder(m2m const &rel, const seque<size_t> &elementorder,
-                      seque<size_t> &oldfromnew, seque<size_t> &newfromold) {
+void indicesfromorder(m2m const &rel, const seque<int> &elementorder,
+                      seque<int> &oldfromnew, seque<int> &newfromold) {
   indicesfromorder(rel.nodesfromelement, elementorder, oldfromnew, newfromold);
 }
 
-void compresselements(m2m &rel, seque<size_t> const &oldelementfromnew) {
+void compresselements(m2m &rel, seque<int> const &oldelementfromnew) {
   compresselements(rel.nodesfromelement, oldelementfromnew);
   setallpointers(rel);
 }
 
-void permutenodes(m2m &rel, seque<size_t> const &newnodefromold) {
+void permutenodes(m2m &rel, seque<int> const &newnodefromold) {
   permutenodes(rel.nodesfromelement, newnodefromold);
   setallpointers(rel);
 }
@@ -183,15 +181,11 @@ void getnodestonodes(m2m const &rel, m2m &nodestonodes) {
   nodestonodes.isupdated = false;
 }
 
-seque<size_t> lexiorder(m2m const &rel) {
-  return lexiorder(rel.nodesfromelement);
-}
+seque<int> lexiorder(m2m const &rel) { return lexiorder(rel.nodesfromelement); }
 
-seque<size_t> toporder(m2m const &rel) {
-  return toporder(rel.nodesfromelement);
-}
+seque<int> toporder(m2m const &rel) { return toporder(rel.nodesfromelement); }
 
-size_t getlocalnodeposition(m2m const &rel, size_t node, size_t localelement) {
+int getlocalnodeposition(m2m const &rel, int node, int localelement) {
   assert(rel.isupdated);
   return rel.nodelocation[node][localelement];
 }

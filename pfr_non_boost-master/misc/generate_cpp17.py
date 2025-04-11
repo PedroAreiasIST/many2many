@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright (c) 2016-2023 Antony Polukhin
+# Copyright (c) 2016-2024 Antony Polukhin
 # Copyright (c) 2023 Denis Mikhailov
 #
 # Distributed under the Boost Software License, Version 1.0. (See accompanying
@@ -8,15 +8,14 @@
 
 ############################################################################################################################
 
-import string
 import sys
+import string
 
 # Skipping some letters that may produce keywords or are hard to read, or shadow template parameters
-ascii_letters = string.ascii_letters.replace("o", "").replace("O", "").replace("i", "").replace("I", "").replace("T",
-                                                                                                                 "")
+ascii_letters = string.ascii_letters.replace("o", "").replace("O", "").replace("i", "").replace("I", "").replace("T", "")
 WORKAROUND_CAST_EXPRESSIONS_LIMIT_PER_LINE = 3
 
-PROLOGUE = """// Copyright (c) 2016-2023 Antony Polukhin
+PROLOGUE = """// Copyright (c) 2016-2024 Antony Polukhin
 // Copyright (c) 2023 Denis Mikhailov
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
@@ -39,7 +38,12 @@ PROLOGUE = """// Copyright (c) 2016-2023 Antony Polukhin
 
 #include <pfr/detail/sequence_tuple.hpp>
 #include <pfr/detail/size_t_.hpp>
+
+#ifdef PFR_HAS_STD_MODULE
+import std;
+#else
 #include <type_traits> // for std::conditional_t, std::is_reference
+#endif
 
 namespace pfr { namespace detail {
 
@@ -103,7 +107,6 @@ constexpr void tie_as_tuple(T& /*val*/, size_t_<I>) noexcept {
 #endif // PFR_DETAIL_CORE17_GENERATED_HPP
 """
 
-
 ############################################################################################################################
 
 def fold_workaround_cast(indexes, divider):
@@ -116,31 +119,27 @@ detail::workaround_cast<T, decltype({arg})>({arg})
     casts = [WORKAROUND_CAST_TEMPLATE.strip().format(arg=tok)
              for tok in tokens]
     for i in range(0, len(casts)):
-        if i % WORKAROUND_CAST_EXPRESSIONS_LIMIT_PER_LINE == 0:
+        if i%WORKAROUND_CAST_EXPRESSIONS_LIMIT_PER_LINE==0:
             div = ''
             lines.append('')
         lines[-1] += div + casts[i]
         div = ','
     return divider.join(lines)
 
-
 def calc_indexes_count(indexes):
     tokens = [x.strip() for x in indexes.split(',')]
     return len(tokens)
-
 
 class EmptyLinePrinter:
     def print_once(self):
         if not self.printed:
             print("")
             self.printed = True
-
     printed = False
-
 
 indexes = "    a"
 print(PROLOGUE)
-funcs_count = 100 if len(sys.argv) == 1 else int(sys.argv[1])
+funcs_count = 200 if len(sys.argv) == 1 else int(sys.argv[1])
 max_args_on_a_line = len(ascii_letters)
 for i in range(1, funcs_count):
     if i % max_args_on_a_line == 0:
@@ -159,15 +158,13 @@ for i in range(1, funcs_count):
     print("template <class T>")
     print("constexpr auto tie_as_tuple(T& val, size_t_<" + str(i + 1) + ">) noexcept {")
     if i < max_args_on_a_line:
-        print(
-            "  auto& [" + indexes.strip() + "] = const_cast<std::remove_cv_t<T>&>(val); // ====================> Boost.PFR: User-provided type is not a SimpleAggregate.")
+        print("  auto& [" + indexes.strip() + "] = const_cast<std::remove_cv_t<T>&>(val); // ====================> Boost.PFR: User-provided type is not a SimpleAggregate.")
     else:
         print("  auto& [")
         print(indexes)
-        print(
-            "  ] = const_cast<std::remove_cv_t<T>&>(val); // ====================> Boost.PFR: User-provided type is not a SimpleAggregate.")
+        print("  ] = const_cast<std::remove_cv_t<T>&>(val); // ====================> Boost.PFR: User-provided type is not a SimpleAggregate.")
         empty_printer.print_once()
-
+ 
     if indexes_count < WORKAROUND_CAST_EXPRESSIONS_LIMIT_PER_LINE:
         print("  return ::pfr::detail::make_tuple_of_references(" + printed_casts + ");")
     else:

@@ -4,38 +4,39 @@
 #include <cstring> // For std::memcpy
 #include <execution>
 #include <numeric>
+#include <omp.h>
 #include <queue>
 #include <stdexcept>
 #include <vector>
 namespace hidden {
-size_t update_max_for_nodes(seque<size_t> const &nodes, size_t current_max) {
+int update_max_for_nodes(seque<int> const &nodes, int current_max) {
   return std::reduce(nodes.begin(), nodes.end(), current_max,
-                     [](size_t a, size_t b) { return std::max(a, b); });
+                     [](int a, int b) { return std::max(a, b); });
 }
 } // namespace hidden
-o2m convertfromlist(const seque<size_t> &other) {
+o2m convertfromlist(const seque<int> &other) {
   o2m ret;
   setnumberofelements(ret, getsize(other));
-  for (size_t element = 0; element < ret.nelem; ++element) {
+  for (int element = 0; element < ret.nelem; ++element) {
     setnodesforelement(ret, element, {other[element]});
   }
   return ret;
 }
-void setnumberofelements(o2m &rel, size_t nelem) {
+void setnumberofelements(o2m &rel, int nelem) {
   rel.nelem = nelem;
   setsize(rel.lnods, nelem);
 }
-void setnodesforelement(o2m &rel, size_t element, seque<size_t> const &nodes) {
+void setnodesforelement(o2m &rel, int element, seque<int> const &nodes) {
   rel.lnods[element] = nodes;
   rel.maxnodenumber = hidden::update_max_for_nodes(nodes, rel.maxnodenumber);
 }
 
-void setnodesforelement(o2m &rel, size_t element, seque<size_t> &&nodes) {
+void setnodesforelement(o2m &rel, int element, seque<int> &&nodes) {
   rel.lnods[element] = std::move(nodes);
   rel.maxnodenumber = hidden::update_max_for_nodes(nodes, rel.maxnodenumber);
 }
 
-size_t appendelement(o2m &rel, seque<size_t> const &nodes) {
+int appendelement(o2m &rel, seque<int> const &nodes) {
   rel.nelem++;
   setsize(rel.lnods, rel.nelem);
   assert(getsize(rel.lnods) == rel.nelem);
@@ -46,136 +47,53 @@ size_t appendelement(o2m &rel, seque<size_t> const &nodes) {
 
 o2m transpose(const o2m &rel) {
   o2m relt;
+
+  // Return immediately for empty relation.
   if (rel.nelem == 0) {
     return relt;
   }
-  // Here, we assume that the maximum node number in the transposed relation
-  // will equal the number of elements from the original relation.
-  relt.maxnodenumber = rel.nelem - 1;
-  const size_t numberOfNodes = rel.maxnodenumber + 1;
-  seque<size_t> counts(numberOfNodes, 0);
 
-  // Parallelize the count of node occurrences per element.
-  // Each thread increments counts[nodeId] atomically.
-#pragma omp parallel for default(none) shared(rel, counts)
-  for (size_t elementIdx = 0; elementIdx < rel.nelem; ++elementIdx) {
-    for (size_t nodeId : rel.lnods[elementIdx]) {
+  // Assume that the maximum node number in the transposed relation
+  // equals the number of elements from the original relation.
+  relt.maxnodenumber = rel.nelem - 1;
+  const int numberOfNodes = rel.maxnodenumber + 1;
+
+  // Use vector instead of seque for counts and offsets to avoid potential
+  // overhead
+  std::vector<int> counts(numberOfNodes, 0);
+
+// Count occurrences of nodes per element
+#pragma omp parallel for schedule(static)
+  for (int elementIdx = 0; elementIdx < rel.nelem; ++elementIdx) {
+    for (int nodeId : rel.lnods[elementIdx]) {
 #pragma omp atomic
       counts[nodeId]++;
     }
   }
 
-  // Set up the transposed structure with the proper number of "nodes".
+  // Set the number of elements in the transposed relation
   setnumberofelements(relt, numberOfNodes);
 
-  // Parallelize the allocation of each node's list.
-  // Each iteration is independent.
-#pragma omp parallel for default(none) shared(relt, counts, numberOfNodes)
-  for (size_t node = 0; node < numberOfNodes; ++node) {
+  // Allocate node lists in the transposed relation
+  for (int node = 0; node < numberOfNodes; ++node) {
     setsize(relt.lnods[node], counts[node]);
   }
 
-  seque<size_t> offsets(numberOfNodes, 0);
+  // Reuse the counts array as offsets to avoid unnecessary memory allocations
+  std::vector<int> offsets(numberOfNodes, 0);
 
-  // Parallelize filling the transposed data structure.
-  // For each element in the original relation, write its index into the
-  // appropriate node's list. Atomic capture guarantees that each update of
-  // offsets[node] is unique.
-#pragma omp parallel for default(none) shared(rel, offsets, relt)
-  for (size_t elementIndex = 0; elementIndex < rel.nelem; ++elementIndex) {
-    for (size_t node : rel.lnods[elementIndex]) {
-      size_t pos;
-#pragma omp atomic capture
-      {
-        pos = offsets[node];
-        offsets[node]++;
-      }
-      relt.lnods[node][pos] = elementIndex;
+  // Fill in the transposed relation
+  for (int elementIndex = 0; elementIndex < rel.nelem; ++elementIndex) {
+    for (int node : rel.lnods[elementIndex]) {
+      relt.lnods[node][offsets[node]++] = elementIndex;
     }
   }
+
   return relt;
 }
 
-void multiplication(const o2m &rel, const seque<size_t> &vec, o2m &vecresult) {
+void multiplication(const o2m &rel, const seque<int> &vec, o2m &vecresult) {
   multiplication(rel, convertfromlist(vec), vecresult);
-}
-
-void multiplication54(const o2m &rela, const o2m &relb, o2m &relc) {
-  // Initialize the output container "relc" based on the input "rela".
-  setnumberofelements(relc, rela.nelem);
-  if (rela.nelem == 0 || relb.maxnodenumber == 0)
-    return;
-  relc.maxnodenumber = relb.maxnodenumber;
-
-  // Begin OpenMP parallel region.
-#pragma omp parallel
-  {
-    // Allocate a thread-local generational marker array.
-    // Each index corresponds to a node, storing the generation when it was last
-    // marked.
-    seque<size_t> marker(relb.maxnodenumber + 1, 0);
-
-    // Allocate a temporary container to record unique node IDs in pass one.
-    // Preallocated to the maximum possible capacity.
-    seque<size_t> touchedNodes(relb.maxnodenumber + 1, 0);
-    size_t ntouched = 0; // Counter for unique nodes.
-
-    // A thread-local counter to generate a unique marker for each iteration.
-    size_t localGeneration = 1;
-
-    // Distribute iterations over the elements in 'rela' among threads.
-#pragma omp for schedule(static)
-    for (size_t elementAIndex = 0; elementAIndex < rela.nelem;
-         ++elementAIndex) {
-      // Grab the input element for this iteration.
-      const seque<size_t> &elementA = rela.lnods[elementAIndex];
-
-      // Assign a unique generation value for the current iteration.
-      size_t currentGeneration = localGeneration++;
-
-      // Reset the unique nodes counter.
-      ntouched = 0;
-
-      // --- Pass One: Marking and Recording Unique Node IDs ---
-      for (size_t nodeA : elementA) {
-        // Most nodeA values are expected to be valid.
-        if (__builtin_expect(nodeA >= relb.nelem, 0))
-          continue; // Skip invalid indices.
-
-        // Get the corresponding elementB from relb.
-        const seque<size_t> &elementB = relb.lnods[nodeA];
-        const size_t bSize = getsize(elementB);
-
-        // Iterate over elementB.
-        for (size_t j = 0; j < bSize; ++j) {
-#if defined(__GNUC__) || defined(__clang__)
-          // Prefetch the next element to reduce memory latency.
-          if (j + 1 < bSize)
-            __builtin_prefetch(&elementB[j + 1], 0, 3);
-#endif
-          size_t nodeB = elementB[j];
-          // Hint that the condition is most likely true.
-          if (__builtin_expect(marker[nodeB] != currentGeneration, 1)) {
-            // Mark nodeB with the current generation.
-            marker[nodeB] = currentGeneration;
-            // Record the unique node.
-            touchedNodes[ntouched++] = nodeB;
-          }
-        }
-      } // end Pass One
-
-      // --- Pass Two: Building the Final Output ---
-      // Resize relc for the current element to the exact count of unique nodes.
-      setsize(relc[elementAIndex], ntouched);
-
-      // Use memcpy if there is something to copy.
-      if (ntouched > 0) {
-        // Assuming seque's underlying storage is contiguous.
-        std::memcpy(relc[elementAIndex].begin(), touchedNodes.actual,
-                    ntouched * sizeof(size_t));
-      }
-    } // end for each elementA
-  } // end parallel region
 }
 
 void multiplication(const o2m &rela, const o2m &relb, o2m &relc) {
@@ -192,34 +110,33 @@ void multiplication(const o2m &rela, const o2m &relb, o2m &relc) {
     seque<char> visited(relb.maxnodenumber + 1, 0);
 
     // Container to record each unique node ID encountered in pass one.
-    seque<size_t> touchedNodes;
+    seque<int> touchedNodes;
 
     // A container for the final result. We’ll allocate it exactly
     // to the number of unique nodes found.
-    seque<size_t> resultNodes;
+    seque<int> resultNodes;
 
 #pragma omp for schedule(static)
-    for (size_t elementAIndex = 0; elementAIndex < rela.nelem;
-         ++elementAIndex) {
-      const seque<size_t> &elementA = rela.lnods[elementAIndex];
+    for (int elementAIndex = 0; elementAIndex < rela.nelem; ++elementAIndex) {
+      const seque<int> &elementA = rela.lnods[elementAIndex];
 
       // --- Pass One: Mark Unique Nodes and Record Their IDs ---
       // Clear any remnants from prior iterations.
       erase(touchedNodes);
 
-      for (size_t nodeA : elementA) {
+      for (int nodeA : elementA) {
         // Only consider valid indices.
         if (nodeA >= relb.nelem)
           continue;
-        const seque<size_t> &elementB = relb.lnods[nodeA];
-        size_t bSize = getsize(elementB);
+        const seque<int> &elementB = relb.lnods[nodeA];
+        int bSize = getsize(elementB);
 
-        for (size_t j = 0; j < bSize; ++j) {
+        for (int j = 0; j < bSize; ++j) {
 #if defined(__GNUC__) || defined(__clang__)
           if (j + 1 < bSize)
             __builtin_prefetch(&elementB[j + 1], 0, 3);
 #endif
-          size_t nodeB = elementB[j];
+          int nodeB = elementB[j];
           // If not visited, mark it and record its ID.
           if (visited[nodeB] == 0) {
             visited[nodeB] = 1;
@@ -231,14 +148,14 @@ void multiplication(const o2m &rela, const o2m &relb, o2m &relc) {
       // --- Pass Two: Build the Output Container ---
       // Now we know exactly how many unique nodes we have.
       setsize(resultNodes, touchedNodes.size);
-      for (size_t i = 0; i < touchedNodes.size; ++i) {
+      for (int i = 0; i < touchedNodes.size; ++i) {
         resultNodes[i] = touchedNodes[i];
       }
 
       // --- Cleanup: Reset the visited Flags ---
       // Instead of scanning the entire "visited" array, we only reset the nodes
       // touched.
-      for (size_t nodeB : touchedNodes) {
+      for (int nodeB : touchedNodes) {
         visited[nodeB] = 0;
       }
 
@@ -254,26 +171,26 @@ o2m operator*(const o2m &rela, const o2m &relb) {
   return relc;
 }
 
-o2m operator*(const o2m &rela, const seque<size_t> &vec) {
+o2m operator*(const o2m &rela, const seque<int> &vec) {
   o2m relc;
   multiplication(rela, vec, relc);
   return relc;
 }
 
 void addition(const o2m &rela, const o2m &relb, o2m &relc) {
-  size_t maxElements = std::max(rela.nelem, relb.nelem);
+  int maxElements = std::max(rela.nelem, relb.nelem);
   setnumberofelements(relc, maxElements);
   relc.maxnodenumber = std::max(rela.maxnodenumber, relb.maxnodenumber);
 #pragma omp parallel
   {
-    std::vector<size_t> marker(relc.maxnodenumber + 1, 0);
-    size_t local_generation = 1;
+    std::vector<int> marker(relc.maxnodenumber + 1, 0);
+    int local_generation = 1;
 #pragma omp for schedule(static)
-    for (size_t element = 0; element < maxElements; ++element) {
-      size_t count = 0;
+    for (int element = 0; element < maxElements; ++element) {
+      int count = 0;
       if (element < rela.nelem) {
-        const seque<size_t> &elementA = rela.lnods[element];
-        for (size_t node : elementA) {
+        const seque<int> &elementA = rela.lnods[element];
+        for (int node : elementA) {
           if (marker[node] != local_generation) {
             marker[node] = local_generation;
             count++;
@@ -281,19 +198,19 @@ void addition(const o2m &rela, const o2m &relb, o2m &relc) {
         }
       }
       if (element < relb.nelem) {
-        const seque<size_t> &elementB = relb.lnods[element];
-        for (size_t node : elementB) {
+        const seque<int> &elementB = relb.lnods[element];
+        for (int node : elementB) {
           if (marker[node] != local_generation) {
             marker[node] = local_generation;
             count++;
           }
         }
       }
-      seque<size_t> temp(count);
+      seque<int> temp(count);
       count = 0;
       if (element < rela.nelem) {
-        const seque<size_t> &elementA = rela.lnods[element];
-        for (size_t node : elementA) {
+        const seque<int> &elementA = rela.lnods[element];
+        for (int node : elementA) {
           if (marker[node] == local_generation) {
             temp[count++] = node;
             marker[node] = local_generation + 1;
@@ -301,8 +218,8 @@ void addition(const o2m &rela, const o2m &relb, o2m &relc) {
         }
       }
       if (element < relb.nelem) {
-        const seque<size_t> &elementB = relb.lnods[element];
-        for (size_t node : elementB) {
+        const seque<int> &elementB = relb.lnods[element];
+        for (int node : elementB) {
           if (marker[node] == local_generation) {
             temp[count++] = node;
             marker[node] = local_generation + 1;
@@ -330,27 +247,27 @@ o2m operator&&(const o2m &a, const o2m &b) {
   return c;
 }
 void intersection(const o2m &rela, const o2m &relb, o2m &relc) {
-  const size_t nElements = std::min(rela.nelem, relb.nelem);
+  const int nElements = std::min(rela.nelem, relb.nelem);
   setnumberofelements(relc, nElements);
   relc.maxnodenumber = std::max(rela.maxnodenumber, relb.maxnodenumber);
 #pragma omp parallel for schedule(static)
-  for (size_t element = 0; element < nElements; ++element) {
-    seque<size_t> elementB = relb.lnods[element];
-    seque<size_t> elementA = rela.lnods[element];
+  for (int element = 0; element < nElements; ++element) {
+    seque<int> elementB = relb.lnods[element];
+    seque<int> elementA = rela.lnods[element];
     setordered(elementB);
     setordered(elementA);
     relc.lnods[element] = std::move(getintersection(elementA, elementB));
   }
 }
 void subtraction(const o2m &rela, const o2m &relb, o2m &relc) {
-  const size_t nElements = rela.nelem;
+  const int nElements = rela.nelem;
   setnumberofelements(relc, nElements);
   relc.maxnodenumber = std::max(rela.maxnodenumber, relb.maxnodenumber);
 #pragma omp parallel for schedule(static)
-  for (size_t element = 0; element < nElements; ++element) {
+  for (int element = 0; element < nElements; ++element) {
     if (element < relb.nelem) {
-      seque<size_t> elementB = relb.lnods[element];
-      seque<size_t> elementA = rela.lnods[element];
+      seque<int> elementB = relb.lnods[element];
+      seque<int> elementA = rela.lnods[element];
       setordered(elementB);
       setordered(elementA);
       relc.lnods[element] = std::move(getdifference(elementA, elementB));
@@ -364,31 +281,31 @@ o2m operator-(const o2m &rela, const o2m &relb) {
   subtraction(rela, relb, relc);
   return relc;
 }
-seque<size_t> toporder(const o2m &rel) {
-  seque<size_t> order;
+seque<int> toporder(const o2m &rel) {
+  seque<int> order;
   setsize(order, 0);
-  std::vector<size_t> inDegree(getsize(rel.lnods), 0);
+  std::vector<int> inDegree(getsize(rel.lnods), 0);
 #ifdef _OPENMP
 #pragma omp parallel for schedule(dynamic)
 #endif
-  for (size_t i = 0; i < getsize(rel.lnods); ++i) {
-    seque<size_t> const &element = rel.lnods[i];
-    for (size_t node : element) {
+  for (int i = 0; i < getsize(rel.lnods); ++i) {
+    seque<int> const &element = rel.lnods[i];
+    for (int node : element) {
 #ifdef _OPENMP
 #pragma omp atomic
 #endif
       ++inDegree[node];
     }
   }
-  std::queue<size_t> q;
-  for (size_t i = 0; i < inDegree.size(); ++i)
+  std::queue<int> q;
+  for (int i = 0; i < inDegree.size(); ++i)
     if (inDegree[i] == 0)
       q.push(i);
   while (!q.empty()) {
-    size_t cur = q.front();
+    int cur = q.front();
     q.pop();
     append(order, cur);
-    for (size_t nbr : rel.lnods[cur]) {
+    for (int nbr : rel.lnods[cur]) {
       if (--inDegree[nbr] == 0)
         q.push(nbr);
     }
@@ -398,38 +315,36 @@ seque<size_t> toporder(const o2m &rel) {
         "The relation contains cycles, topological sort not possible.");
   return order;
 }
-seque<size_t> lexiorder(const o2m &rel) { return getorder(rel.lnods); }
-void indicesfromorder(const o2m &rel, const seque<size_t> &elemOrder,
-                      seque<size_t> &oldFromNew, seque<size_t> &newFromOld) {
+seque<int> lexiorder(const o2m &rel) { return getorder(rel.lnods); }
+void indicesfromorder(const o2m &rel, const seque<int> &elemOrder,
+                      seque<int> &oldFromNew, seque<int> &newFromOld) {
   indicesfromorder(rel.lnods, elemOrder, oldFromNew, newFromOld);
 }
-void compresselements(o2m &rel, const seque<size_t> &oldelementfromnew) {
+void compresselements(o2m &rel, const seque<int> &oldelementfromnew) {
   rel.lnods = rel.lnods(oldelementfromnew);
   rel.nelem = getsize(oldelementfromnew);
-  size_t local_max = std::transform_reduce(
-      std::execution::par, rel.lnods.begin(), rel.lnods.end(), size_t(0),
-      [](size_t a, size_t b) { return std::max(a, b); },
-      [](seque<size_t> const &element) {
+  int local_max = std::transform_reduce(
+      std::execution::par, rel.lnods.begin(), rel.lnods.end(), int(0),
+      [](int a, int b) { return std::max(a, b); },
+      [](seque<int> const &element) {
         return std::reduce(std::execution::par, element.begin(), element.end(),
-                           size_t(0),
-                           [](size_t a, size_t b) { return std::max(a, b); });
+                           int(0), [](int a, int b) { return std::max(a, b); });
       });
   rel.maxnodenumber = local_max;
 }
-void permutenodes(o2m &rel, const seque<size_t> &newnodefromold) {
+void permutenodes(o2m &rel, const seque<int> &newnodefromold) {
 #ifdef _OPENMP
 #pragma omp parallel for schedule(dynamic)
 #endif
-  for (size_t i = 0; i < getsize(rel.lnods); ++i) {
+  for (int i = 0; i < getsize(rel.lnods); ++i) {
     rel.lnods[i] = newnodefromold(rel.lnods[i]);
   }
-  size_t local_max = std::transform_reduce(
-      std::execution::par, rel.lnods.begin(), rel.lnods.end(), size_t(0),
-      [](size_t a, size_t b) { return std::max(a, b); },
-      [](seque<size_t> const &element) {
+  int local_max = std::transform_reduce(
+      std::execution::par, rel.lnods.begin(), rel.lnods.end(), int(0),
+      [](int a, int b) { return std::max(a, b); },
+      [](seque<int> const &element) {
         return std::reduce(std::execution::par, element.begin(), element.end(),
-                           size_t(0),
-                           [](size_t a, size_t b) { return std::max(a, b); });
+                           int(0), [](int a, int b) { return std::max(a, b); });
       });
   rel.maxnodenumber = local_max;
 }
@@ -438,30 +353,30 @@ void permutenodes(o2m &rel, const seque<size_t> &newnodefromold) {
 
 // Function to compute the local node index (location) for each node within
 // every element.
-seque<seque<size_t>> getnodelocation(o2m const &nodesfromelement,
-                                     o2m const &elementsfromnode) {
+seque<seque<int>> getlistofnodelocations(o2m const &nodesfromelement,
+                                         o2m const &elementsfromnode) {
   // Allocate nodelocation vector with one entry per node.
-  seque<seque<size_t>> nodelocation(elementsfromnode.size());
+  seque<seque<int>> nodelocation(elementsfromnode.size());
 
 // Parallelize the per-node allocation.
 #pragma omp parallel for
-  for (size_t node = 0; node < elementsfromnode.size(); ++node) {
+  for (int node = 0; node < elementsfromnode.size(); ++node) {
     setsize(nodelocation[node], elementsfromnode.elementsize(node));
   }
 
   // Track the next free position for each node.
-  seque<size_t> nodePositionCounter(elementsfromnode.nelem, 0);
+  seque<int> nodePositionCounter(elementsfromnode.nelem, 0);
 
 // Build the node location lookup table.
 // Because multiple elements may update the same node's counter,
 // we use an atomic capture to safely increment nodePositionCounter[node].
 #pragma omp parallel for
-  for (size_t element = 0; element < nodesfromelement.size(); ++element) {
+  for (int element = 0; element < nodesfromelement.size(); ++element) {
     const auto &nodes = nodesfromelement.lnods[element];
-    size_t ns = getsize(nodes); // Cache number of nodes in this element.
-    for (size_t localPosition = 0; localPosition < ns; ++localPosition) {
-      size_t node = nodes[localPosition];
-      size_t pos;
+    int ns = getsize(nodes); // Cache number of nodes in this element.
+    for (int localPosition = 0; localPosition < ns; ++localPosition) {
+      int node = nodes[localPosition];
+      int pos;
 // Use atomic capture to safely fetch-and-increment.
 #pragma omp atomic capture
       {
@@ -478,48 +393,48 @@ seque<seque<size_t>> getnodelocation(o2m const &nodesfromelement,
 o2m getcliqueaddressing(o2m const &nodesfromelement,
                         o2m const &elementsfromnode) {
   // Compute local node positions.
-  seque<seque<size_t>> nodelocations =
-      getnodelocation(nodesfromelement, elementsfromnode);
+  seque<seque<int>> nodelocations =
+      getlistofnodelocations(nodesfromelement, elementsfromnode);
 
   o2m cliques;
   setnumberofelements(cliques, nodesfromelement.nelem);
 
 // Parallelize allocation of clique matrices for each element.
 #pragma omp parallel for
-  for (size_t element = 0; element < nodesfromelement.nelem; ++element) {
-    size_t ns = getsize(nodesfromelement[element]);
+  for (int element = 0; element < nodesfromelement.nelem; ++element) {
+    int ns = getsize(nodesfromelement[element]);
     // Replace pow() with simple multiplication for efficiency.
     setsize(cliques[element], ns * ns);
   }
 
   // Marker array to track if a node was encountered in the current generation.
-  seque<size_t> marker(elementsfromnode.size(), 0);
+  seque<int> marker(elementsfromnode.size(), 0);
   // Corrected: nodecounter now sized by the number of nodes.
-  seque<size_t> nodecounter(elementsfromnode.size(), 0);
-  size_t generation = 0;
+  seque<int> nodecounter(elementsfromnode.size(), 0);
+  int generation = 0;
 
   // The following nested loops (over nodes, elements, and local nodes)
   // are left sequential due to dependencies on the "generation" and shared
   // arrays.
-  for (size_t node = 0; node < elementsfromnode.size(); ++node) {
-    size_t nnz = 0;
-    for (size_t lelement = 0; lelement < elementsfromnode.elementsize(node);
+  for (int node = 0; node < elementsfromnode.size(); ++node) {
+    int nnz = 0;
+    for (int lelement = 0; lelement < elementsfromnode.elementsize(node);
          ++lelement) {
       generation++; // Increment generation for each element connected to this
                     // node.
-      size_t element = elementsfromnode[node][lelement];
-      size_t nne = nodesfromelement.elementsize(element);
-      size_t localnode = nodelocations[node][lelement];
+      int element = elementsfromnode[node][lelement];
+      int nne = nodesfromelement.elementsize(element);
+      int localnode = nodelocations[node][lelement];
 
       // Fill in the clique addressing for each pair (localnode, other local
       // node).
-      for (size_t lnode = 0; lnode < nne; ++lnode) {
-        size_t othernode = nodesfromelement[element][lnode];
+      for (int lnode = 0; lnode < nne; ++lnode) {
+        int othernode = nodesfromelement[element][lnode];
         if (marker[othernode] != generation) {
-          nnz++;
           nodecounter[othernode] = nnz;
           cliques[element][localnode + lnode * nne] = nnz;
           marker[othernode] = generation;
+          nnz++;
         } else {
           cliques[element][localnode + lnode * nne] = nodecounter[othernode];
         }
