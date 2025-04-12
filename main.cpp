@@ -12,12 +12,14 @@
 #include <iostream>
 #include <omp.h>
 #include <unordered_set>
+
 using namespace std;
 
-int main(int argc, char *argv[]) {
-  // testseque();
-  omp_set_num_threads(16);
-  testm2m();
-  testmm2m();
-  testeo2m();
+int main(int argc, char *argv[])
+{
+    // testseque();
+    omp_set_num_threads(16);
+    testm2m();
+    testmm2m();
+    testeo2m();
 }
