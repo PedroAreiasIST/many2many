@@ -15,7 +15,7 @@ namespace hidden
                            [](int a, int b) { return std::max(a, b); });
     }
 } // namespace hidden
-o2m convertfromlist(const seque<int> &other)
+o2m convertfromsequence(const seque<int> &other)
 {
     o2m ret;
     setsize(ret, getsize(other));
@@ -27,50 +27,69 @@ o2m convertfromlist(const seque<int> &other)
     return ret;
 }
 
-seque<seque<int> > getcliqueaddressing(const o2m &nodesfromelement, const o2m &elementsfromnode)
+#include <omp.h>  // include OpenMP header
+
+seque<seque<int> > getcliqueaddressing(const o2m &nodesfromelement,
+                                       const o2m &elementsfromnode)
 {
     seque<seque<int> > cliques;
+    // Preallocate cliques vector according to the number of elements.
     setsize(cliques, nodesfromelement.size());
+
+    // Compute node positions once.
     seque<seque<int> > nodelocation = getnodepositions(nodesfromelement, elementsfromnode);
+
+    // Preallocate each clique vector with the appropriate size.
     for (int element = 0; element < nodesfromelement.size(); ++element)
     {
         int ns = getsize(nodesfromelement[element]);
         setsize(cliques[element], ns * ns);
     }
 
-    int generation = 1;
-    // Allocate local marker arrays for each node1 iteration.
-    // These have the full size of all nodes.
-    seque<int> local_marker(elementsfromnode.size(), 0);
-    seque<int> local_markerGen(elementsfromnode.size(), -1);
-    // Parallelize over node1. Each iteration gets its own local scratch space.
-    for (int node1 = 0; node1 < elementsfromnode.size(); ++node1)
+    // Parallelize over node1.
+#pragma omp parallel
     {
-        // Initialize per-iteration scratch variables.
-        int nnz(0);
-        // For each occurrence of node1 in the connected elements.
-        for (int lelement = 0; lelement < elementsfromnode.size(node1); ++lelement)
+        // Each thread gets its own scratch arrays.
+        // Their size equals the total number of nodes (elementsfromnode.size()).
+        seque<int> local_marker(elementsfromnode.size(), 0);
+        seque<int> local_markerGen(elementsfromnode.size(), -1);
+
+        // Use a parallel for loop.
+        // schedule(static) is used so that iterations assigned to a thread occur in increasing order,
+        // ensuring that the generation trick (generation = node1 + 1) remains valid.
+#pragma omp for schedule(static)
+        for (int node1 = 0; node1 < elementsfromnode.size(); ++node1)
         {
-            int lnode1 = nodelocation[node1][lelement];
-            int element = elementsfromnode[node1][lelement];
-            int esize = nodesfromelement.size(element);
-            for (int lnode2 = 0; lnode2 < nodesfromelement.size(element); ++lnode2)
+            // Use node1+1 as the generation value (ensuring it is unique for each iteration).
+            int generation = node1 + 1;
+            int nnz = 0;
+
+            // Loop over all occurrences of node1 (elements in which node1 participates).
+            for (int lelement = 0; lelement < elementsfromnode.size(node1); ++lelement)
             {
-                int node2 = nodesfromelement[element][lnode2];
-                if (local_markerGen[node2] != generation)
+                int lnode1 = nodelocation[node1][lelement];
+                int element = elementsfromnode[node1][lelement];
+                int esize = nodesfromelement.size(element);
+
+                // For each local node in the current element.
+                for (int lnode2 = 0; lnode2 < nodesfromelement.size(element); ++lnode2)
                 {
-                    local_markerGen[node2] = generation;
-                    local_marker[node2] = nnz;
-                    cliques[element][lnode2 + lnode1 * esize] = nnz;
-                    nnz++;
-                } else
-                {
-                    cliques[element][lnode2 + lnode1 * esize] = local_marker[node2];
+                    int node2 = nodesfromelement[element][lnode2];
+
+                    // Use the generation trick to avoid an explicit clear of the marker array.
+                    if (local_markerGen[node2] != generation)
+                    {
+                        local_markerGen[node2] = generation;
+                        local_marker[node2] = nnz;
+                        cliques[element][lnode2 + lnode1 * esize] = nnz;
+                        nnz++;
+                    } else
+                    {
+                        cliques[element][lnode2 + lnode1 * esize] = local_marker[node2];
+                    }
                 }
             }
-            // Instead of clearing the marker array, we increment the generation counter.
         }
-        generation++;
     }
     return cliques;
 }
@@ -169,7 +188,7 @@ o2m Tr(const o2m &rel)
     return relt;
 }
 
-o2m multiplication(const o2m &rela, const o2m &relb)
+o2m operator*(const o2m &rela, const o2m &relb)
 {
     o2m relc;
     relc.maxnodenumber = relb.maxnodenumber;
@@ -237,18 +256,14 @@ o2m multiplication(const o2m &rela, const o2m &relb)
     return relc;
 }
 
-o2m operator*(const o2m &rela, const o2m &relb)
-{
-    return multiplication(rela, relb);
-}
-
 o2m operator*(const o2m &rela, const seque<int> &vec)
 {
-    return multiplication(rela, convertfromlist(vec));
+    return rela * convertfromsequence(vec);
 }
 
-void addition(const o2m &rela, const o2m &relb, o2m &relc)
+o2m operator+(const o2m &rela, const o2m &relb)
 {
+    o2m relc;
     int maxElements = std::max(rela.nelem, relb.nelem);
     setsize(relc, maxElements);
     relc.maxnodenumber = std::max(rela.maxnodenumber, relb.maxnodenumber);
@@ -314,31 +329,17 @@ void addition(const o2m &rela, const o2m &relb, o2m &relc)
             local_generation += 2;
         }
     }
-}
-
-o2m operator+(const o2m &rela, const o2m &rel)
-{
-    o2m relc;
-    addition(rela, rel, relc);
     return relc;
 }
 
 o2m operator||(const o2m &a, const o2m &b)
 {
-    o2m c;
-    addition(a, b, c);
-    return c;
+    return a + b;
 }
 
-o2m operator&&(const o2m &a, const o2m &b)
+o2m operator&&(const o2m &rela, const o2m &relb)
 {
-    o2m c;
-    intersection(a, b, c);
-    return c;
-}
-
-void intersection(const o2m &rela, const o2m &relb, o2m &relc)
-{
+    o2m relc;
     const int nElements = std::min(rela.nelem, relb.nelem);
     setsize(relc, nElements);
     relc.maxnodenumber = std::max(rela.maxnodenumber, relb.maxnodenumber);
@@ -351,10 +352,12 @@ void intersection(const o2m &rela, const o2m &relb, o2m &relc)
         setordered(elementA);
         relc.lnods[element] = std::move(getintersection(elementA, elementB));
     }
+    return relc;
 }
 
-void subtraction(const o2m &rela, const o2m &relb, o2m &relc)
+o2m operator-(const o2m &rela, const o2m &relb)
 {
+    o2m relc;
     const int nElements = rela.nelem;
     setsize(relc, nElements);
     relc.maxnodenumber = std::max(rela.maxnodenumber, relb.maxnodenumber);
@@ -373,12 +376,6 @@ void subtraction(const o2m &rela, const o2m &relb, o2m &relc)
             relc.lnods[element] = std::move(rela.lnods[element]);
         }
     }
-}
-
-o2m operator-(const o2m &rela, const o2m &relb)
-{
-    o2m relc;
-    subtraction(rela, relb, relc);
     return relc;
 }
 

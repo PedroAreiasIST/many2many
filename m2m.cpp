@@ -57,7 +57,7 @@ void addition(const m2m &rela, bool transposea, const m2m &relb,
 {
     const o2m *a = select_o2m(rela, transposea);
     const o2m *b = select_o2m(relb, transposeb);
-    addition(*a, *b, relc.nodesfromelement);
+    relc.nodesfromelement = (*a) + (*b);
     relc.isupdated = false;
 }
 
@@ -66,7 +66,7 @@ void intersection(const m2m &rela, bool transposea, const m2m &relb,
 {
     const o2m *a = select_o2m(rela, transposea);
     const o2m *b = select_o2m(relb, transposeb);
-    intersection(*a, *b, relc.nodesfromelement);
+    relc.nodesfromelement = ((*a) && (*b));
     relc.isupdated = false;
 }
 
@@ -75,7 +75,7 @@ void subtraction(const m2m &rela, bool transposea, const m2m &relb,
 {
     const o2m *a = select_o2m(rela, transposea);
     const o2m *b = select_o2m(relb, transposeb);
-    subtraction(*a, *b, relc.nodesfromelement);
+    relc.nodesfromelement = (*a) - (*b);
     relc.isupdated = false;
 }
 

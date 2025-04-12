@@ -40,25 +40,15 @@ int appendelement(o2m &rel, const seque<int> &nodes);
 
 o2m Tr(const o2m &rel);
 
-void multiplication(const o2m &rela, const o2m &relb, o2m &relc);
-
 o2m operator*(const o2m &rela, const o2m &relb);
 
 o2m operator*(const o2m &rela, const seque<int> &vec);
 
-o2m multiplication(const o2m &rela, const o2m &relb);
-
-void addition(const o2m &rela, const o2m &relb, o2m &relc);
-
 o2m operator+(const o2m &rela, const o2m &rel);
-
-void intersection(const o2m &a, const o2m &b, o2m &c);
 
 o2m operator||(const o2m &a, const o2m &b);
 
 o2m operator&&(const o2m &a, const o2m &b);
-
-void subtraction(const o2m &rela, const o2m &relb, o2m &relc);
 
 o2m operator-(const o2m &rela, const o2m &relb);
 
@@ -79,7 +69,7 @@ seque<seque<int> > getnodepositions(o2m const &nodesfromelement,
 seque<seque<int> > getelementpositions(o2m const &nodesfromelement,
                                        o2m const &elementsfromnode);
 
-o2m convertfromlist(const seque<int> &other);
+o2m convertfromsequence(const seque<int> &other);
 
 seque<seque<int> > getcliqueaddressing(const o2m &nodesfromelement, const o2m &elementsfromnode);
 
