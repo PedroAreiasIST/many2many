@@ -25,14 +25,13 @@ void testm2m()
     cout << "Cliques" << endl;
     cout << "nodefromelem" << mm1.nodesfromelement.lnods << endl;
     cout << "elementfromnode" << mm1.elementsfromnode.lnods << endl;
-    //   auto cliques =
-    //            getcliqueaddressing(mm1.nodesfromelement, mm1.elementsfromnode);
-    auto locations = getelementpositions(mm1.nodesfromelement, mm1.elementsfromnode);
-    auto locations2 = getelementpositions(mm1.elementsfromnode, mm1.nodesfromelement);
+    auto locations = getnodepositions(mm1.nodesfromelement, mm1.elementsfromnode);
+    auto locations2 = getelementpositions(mm1.nodesfromelement, mm1.elementsfromnode);
+    auto cliques = getcliqueaddressing(mm1.nodesfromelement, mm1.elementsfromnode);
     cout << "locations" << locations << endl;
     cout << "locations2" << locations2 << endl;
     cout << "cliques" << endl;
-    //  cout << cliques.lnods << endl;
+    cout << cliques << endl;
     cout << "Basics mm part 1" << endl;
     cout << "mm1=" << mm1 << endl;
     cout << "How about maxnodenumber" << mm1.nodesfromelement.maxnodenumber
@@ -52,9 +51,9 @@ void testm2m()
     cout << "neighbours of node 3=" << getnodeneighbours(mm1, 3) << endl;
     cout << "lexicographical order of mm1="
             << mm1.nodesfromelement.lnods(lexiorder(mm1)) << endl;
-    getelementstoelements(mm1, nn1);
+    getelementstoelements(mm1, ee1);
+    getnodestonodes(mm1, nn1);
     cout << "nodestonodes=" << nn1.nodesfromelement.lnods << endl;
-    getnodestonodes(mm1, ee1);
     cout << "elementstoelements=" << ee1.nodesfromelement.lnods << endl;
 
     cout << "Basics mm part 2" << endl;
@@ -66,9 +65,9 @@ void testm2m()
     cout << "mm1+mm2=" << mm3.nodesfromelement.lnods << endl;
     addition(mm2, false, mm1, false, mm3);
     cout << "mm2+mm1=" << mm3.nodesfromelement.lnods << endl;
-    multiplication(mm1, false, mm2, false, mm3);
+    mm3.nodesfromelement = mm1.nodesfromelement * mm2.nodesfromelement;
     cout << "mm1*mm2=" << mm3.nodesfromelement.lnods << endl;
-    multiplication(mm2, false, mm1, false, mm3);
+    mm3.nodesfromelement = mm2.nodesfromelement * mm1.nodesfromelement;
     cout << "mm2*mm1=" << mm3.nodesfromelement.lnods << endl;
     subtraction(mm1, false, mm2, false, mm3);
     cout << "mm1-mm2=" << mm3.nodesfromelement.lnods << endl;

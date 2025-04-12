@@ -23,7 +23,7 @@ struct m2m
     bool isupdated{false};
 };
 PFR_FUNCTIONS_FOR(m2m)
-void setnumberofelements(m2m &rel, int nelem);
+void setsize(m2m &rel, int nelem);
 void setnodesforelement(m2m &rel, int element, seque<int> const &nodes);
 int appendelement(m2m &rel, seque<int> const &nodes);
 void multiplication(const m2m &rela, bool transposea, const m2m &relb, bool transposeb, m2m &relc);

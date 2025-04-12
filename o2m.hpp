@@ -28,7 +28,9 @@ struct o2m
 
 PFR_FUNCTIONS_FOR(o2m)
 
-void setnumberofelements(o2m &rel, int nelem);
+void setsize(o2m &rel, int nelem);
+
+void setsizes(o2m &rel, seque<int> const &sizes);
 
 void setnodesforelement(o2m &rel, int element, seque<int> &&nodes);
 
@@ -36,15 +38,15 @@ void setnodesforelement(o2m &rel, int element, seque<int> const &nodes);
 
 int appendelement(o2m &rel, const seque<int> &nodes);
 
-o2m transpose(const o2m &rel);
+o2m Tr(const o2m &rel);
 
 void multiplication(const o2m &rela, const o2m &relb, o2m &relc);
-
-void multiplication(const o2m &rela, const seque<int> &relb, o2m &relc);
 
 o2m operator*(const o2m &rela, const o2m &relb);
 
 o2m operator*(const o2m &rela, const seque<int> &vec);
+
+o2m multiplication(const o2m &rela, const o2m &relb);
 
 void addition(const o2m &rela, const o2m &relb, o2m &relc);
 
@@ -77,8 +79,9 @@ seque<seque<int> > getnodepositions(o2m const &nodesfromelement,
 seque<seque<int> > getelementpositions(o2m const &nodesfromelement,
                                        o2m const &elementsfromnode);
 
-o2m getcliqueaddressing(o2m const &nodesfromelement,
-                        o2m const &elementsfromnode);
-
 o2m convertfromlist(const seque<int> &other);
+
+seque<seque<int> > getcliqueaddressing(const o2m &nodesfromelement, const o2m &elementsfromnode);
+
+
 #endif

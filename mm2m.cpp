@@ -185,7 +185,7 @@ void compress(mm2m &m) {
 }
 seque<int> typetoporder(mm2m const &m) {
   o2m typedeps;
-  setnumberofelements(typedeps, m.ntypes);
+  setsize(typedeps, m.ntypes);
   for (int elementtype = 0; elementtype < m.ntypes; ++elementtype) {
     for (int nodetype = 0; nodetype < m.ntypes; ++nodetype) {
       if (nodetype != elementtype) {
