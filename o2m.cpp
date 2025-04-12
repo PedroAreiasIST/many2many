@@ -32,54 +32,45 @@ seque<seque<int> > getcliqueaddressing(const o2m &nodesfromelement, const o2m &e
     seque<seque<int> > cliques;
     setsize(cliques, nodesfromelement.size());
     seque<seque<int> > nodelocation = getnodepositions(nodesfromelement, elementsfromnode);
-
-    // Resize each clique array to accommodate a square matrix of node connections.
     for (int element = 0; element < nodesfromelement.size(); ++element)
     {
         int ns = getsize(nodesfromelement[element]);
         setsize(cliques[element], ns * ns);
     }
 
+    int generation = 1;
+    // Allocate local marker arrays for each node1 iteration.
+    // These have the full size of all nodes.
+    seque<int> local_marker(elementsfromnode.size(), 0);
+    seque<int> local_markerGen(elementsfromnode.size(), -1);
     // Parallelize over node1. Each iteration gets its own local scratch space.
-#pragma omp parallel for schedule(static)
     for (int node1 = 0; node1 < elementsfromnode.size(); ++node1)
     {
-        // Allocate local marker arrays for each node1 iteration.
-        // These have the full size of all nodes.
-        seque<int> local_marker(elementsfromnode.size(), 0);
-        seque<int> local_markerGen(elementsfromnode.size(), -1);
-
         // Initialize per-iteration scratch variables.
-        int nnz = 0;
-        int generation = 0;
-
+        int nnz(0);
         // For each occurrence of node1 in the connected elements.
-        for (int lelement1 = 0; lelement1 < elementsfromnode.size(node1); ++lelement1)
+        for (int lelement = 0; lelement < elementsfromnode.size(node1); ++lelement)
         {
-            int lnode1 = nodelocation[node1][lelement1];
-            int element1 = elementsfromnode[node1][lelement1];
-            int e1size = nodesfromelement.size(element1);
-
-            // For every local node in the current element.
-            for (int lnode2 = 0; lnode2 < nodesfromelement.size(element1); ++lnode2)
+            int lnode1 = nodelocation[node1][lelement];
+            int element = elementsfromnode[node1][lelement];
+            int esize = nodesfromelement.size(element);
+            for (int lnode2 = 0; lnode2 < nodesfromelement.size(element); ++lnode2)
             {
-                int node2 = nodesfromelement[element1][lnode2];
-                // Check if node2 has been marked in the current generation.
+                int node2 = nodesfromelement[element][lnode2];
                 if (local_markerGen[node2] != generation)
                 {
                     local_markerGen[node2] = generation;
                     local_marker[node2] = nnz;
-                    // Write the calculated unique marker.
-                    cliques[element1][lnode2 + lnode1 * e1size] = nnz;
+                    cliques[element][lnode2 + lnode1 * esize] = nnz;
                     nnz++;
                 } else
                 {
-                    cliques[element1][lnode2 + lnode1 * e1size] = local_marker[node2];
+                    cliques[element][lnode2 + lnode1 * esize] = local_marker[node2];
                 }
             }
             // Instead of clearing the marker array, we increment the generation counter.
-            generation++;
         }
+        generation++;
     }
     return cliques;
 }
