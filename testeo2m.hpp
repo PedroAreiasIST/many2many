@@ -48,7 +48,7 @@ inline void testeo2m()
         switch (ntype)
         {
             case 6:
-                nel = 100;
+                nel = 400;
                 nmax = pow(nel, 3);
                 setsize(els, nmax);
                 std::cout << "Started" << std::endl;
@@ -98,12 +98,12 @@ inline void testeo2m()
                 break;
         }
 
-        // o2m one = mm.nodesfromelement;
+        // o2m one = mm.e2n;
         // std::cout << "e=" << e << std::endl;
         // std::cout << "Finished inserting stuff" << std::endl;
-        // std::cout << "How many ?" << mm.nodesfromelement.nelem << std::endl;
+        // std::cout << "How many ?" << mm.e2n.nelem << std::endl;
         // setallpointers(mm);
-        o2m &om1 = mm.nodesfromelement;
+        o2m &om1 = mm.e2n;
         // std::cout << "Finished setting the pointers" << std::endl;
         m2m result;
         auto start_time = std::chrono::high_resolution_clock::now();
@@ -123,13 +123,13 @@ inline void testeo2m()
         //  std::cout << "Transposed" << std::endl;
         //  auto resultado = two * seque<int>({1, 2, 3, 4});
         //  o2m three = one * two;
-        std::cout << result.nodesfromelement[0] << std::endl;
+        std::cout << result.e2n[0] << std::endl;
         auto end_time = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
             end_time - start_time);
         std::cout << "Duration: " << duration.count() << " milliseconds"
                 << std::endl;
-        std::cout << result.nodesfromelement.lnods[0] << std::endl;
+        std::cout << result.e2n.lnods[0] << std::endl;
     }
 }
 #endif // TESTEO2M_HPP

@@ -1,12 +1,7 @@
 #ifndef RELATIONONETOMANY_HPP
 #define RELATIONONETOMANY_HPP
-
-#include "basics.hpp"
-#include <cassert>
-#include <cstddef>
-#include <queue>
-
 #include "seque.hpp"
+#include "basics.hpp"
 
 namespace hidden
 {
@@ -17,7 +12,7 @@ struct o2m
 {
     seque<seque<int> > lnods{{}};
     int nelem{0};
-    int maxnodenumber{0};
+    int maxnode{0};
     // Access operators
     seque<int> &operator[](int element) { return lnods[element]; }
     seque<int> const &operator[](int element) const { return lnods[element]; }
@@ -56,18 +51,24 @@ seque<int> toporder(const o2m &rel);
 
 seque<int> lexiorder(const o2m &rel);
 
-void indicesfromorder(const o2m &rel, const seque<int> &elemOrder,
-                      seque<int> &oldFromNew, seque<int> &newFromOld);
+namespace hidden
+{
+    void indicesfromorder(const o2m &rel, const seque<int> &elemOrder,
+                          seque<int> &oldFromNew, seque<int> &newFromOld);
 
-void compresselements(o2m &rel, const seque<int> &oldelementfromnew);
+    void compresselements(o2m &rel, const seque<int> &oldelementfromnew);
 
-void permutenodes(o2m &rel, const seque<int> &newnodefromold);
+    void permutenodes(o2m &rel, const seque<int> &newnodefromold);
+}
 
-seque<seque<int> > getnodepositions(o2m const &nodesfromelement,
-                                    o2m const &elementsfromnode);
+namespace hidden
+{
+    seque<seque<int> > getnodepositions(o2m const &nodesfromelement,
+                                        o2m const &elementsfromnode);
 
-seque<seque<int> > getelementpositions(o2m const &nodesfromelement,
-                                       o2m const &elementsfromnode);
+    seque<seque<int> > getelementpositions(o2m const &nodesfromelement,
+                                           o2m const &elementsfromnode);
+}
 
 o2m convertfromsequence(const seque<int> &other);
 
