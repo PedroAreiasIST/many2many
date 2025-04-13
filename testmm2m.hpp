@@ -138,15 +138,15 @@ void testmm2m()
     insertathing(rm, elementgroups[0]);
 
     /*  std::cout << "tet " << rm.operator()(tet.type,
-      node.type).e2n.lnods << std::endl; std::cout << "hex " <<
-      rm.operator()(hex.type, node.type).e2n.lnods << std::endl;
+      node.type).nfrome.lnods << std::endl; std::cout << "hex " <<
+      rm.operator()(hex.type, node.type).nfrome.lnods << std::endl;
       closeeverything(rm);
       std::cout << "type order" << typetoporder(rm) << std::endl;
-      std::cout << " rm" << rm(tet.type, node.type).n2e << std::endl;
-      std::cout << "rm nodelocation" << rm(tet.type, node.type).nodelocation <<
+      std::cout << " rm" << rm(tet.type, node.type).efromn << std::endl;
+      std::cout << "rm nodeloc" << rm(tet.type, node.type).nodeloc <<
       std::endl; std::cout << "wedge" << rm(wedge.type,
-      node.type).e2n.lnods << std::endl; std::cout << "hex2 " <<
-      rm.operator()(hex.type, node.type).e2n.lnods << std::endl;
+      node.type).nfrome.lnods << std::endl; std::cout << "hex2 " <<
+      rm.operator()(hex.type, node.type).nfrome.lnods << std::endl;
       */
 }
 #endif // TESTMMM_HPP

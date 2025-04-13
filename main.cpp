@@ -9,7 +9,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
     // testseque();
-    omp_set_num_threads(32);
+    omp_set_num_threads(16);
     o2m oom;
     testm2m();
     testmm2m();

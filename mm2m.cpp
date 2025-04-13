@@ -6,13 +6,13 @@
 int mm2m::nnodes(int elementtype, int element, int nodetype)
 {
     return getsize(operator()(elementtype, nodetype)
-        .e2n.lnods[element]);
+        .nfrome.lnods[element]);
 }
 
 int mm2m::nelems(int nodetype, int node, int elementtype)
 {
     return getsize(operator()(elementtype, nodetype)
-        .n2e.lnods[node]);
+        .efromn.lnods[node]);
 }
 
 void resetmarked(mm2m &m) { erase(m.listofmarked); }
@@ -44,7 +44,7 @@ seque<std::pair<int, int> > getallelements(mm2m &m,
         {
             ret[nret++] = std::make_pair(
                 elementtype, m(elementtype, nodetype)
-                .n2e.lnods[nodenumber][localelement]);
+                .efromn.lnods[nodenumber][localelement]);
         }
     }
     setorderedandunique(ret);
@@ -72,7 +72,7 @@ seque<std::pair<int, int> > getallnodes(mm2m &m,
         {
             ret[nret++] = std::make_pair(
                 nodetype, m(elementtype, nodetype)
-                .e2n.lnods[elementnumber][localnode]);
+                .nfrome.lnods[elementnumber][localnode]);
         }
     }
     setorderedandunique(ret);
@@ -137,7 +137,7 @@ int appendelement(mm2m &m, int elementype, int nodetype,
 
 int appendelement(mm2m &m, int elementype)
 {
-    auto newn = getsize(m(elementype, elementype).e2n.lnods);
+    auto newn = getsize(m(elementype, elementype).nfrome.lnods);
     return appendelement(m(elementype, elementype), {newn});
 }
 
@@ -196,8 +196,8 @@ void compress(mm2m &m)
         int maxn = 0;
         for (int elementtypes = 0; elementtypes < m.ntypes; ++elementtypes)
         {
-            maxn = std::max(maxn, m(type, elementtypes).e2n.nelem);
-            maxn = std::max(maxn, m(elementtypes, type).n2e.nelem);
+            maxn = std::max(maxn, m(type, elementtypes).nfrome.nelem);
+            maxn = std::max(maxn, m(elementtypes, type).efromn.nelem);
         }
         seque<bool> ismarked(maxn, false);
         for (int pos = 0; pos < getsize(nodes[type]); ++pos)
@@ -230,7 +230,7 @@ seque<int> typetoporder(mm2m const &m)
         {
             if (nodetype != elementtype)
             {
-                if (m(nodetype, elementtype).e2n.nelem != 0)
+                if (m(nodetype, elementtype).nfrome.nelem != 0)
                 {
                     append(typedeps.lnods[elementtype], nodetype);
                 }
@@ -245,7 +245,7 @@ void closeeverything(mm2m &m)
     for (int elementtype = 0; elementtype < m.ntypes; ++elementtype)
         for (int nodetype = 0; nodetype < m.ntypes; ++nodetype)
         {
-            setallpointers(m(elementtype, nodetype));
+            syncronize(m(elementtype, nodetype));
         }
 }
 

@@ -37,8 +37,8 @@ inline o2m convertfromsequence(const seque<int> &other)
 }
 
 
-seque<seque<int> > getcliqueaddressing(const o2m &nodesfromelement,
-                                       const o2m &elementsfromnode)
+seque<seque<int> > getcliques(const o2m &nodesfromelement,
+                              const o2m &elementsfromnode)
 {
     seque<seque<int> > cliques;
     // Preallocate cliques vector according to the number of elements.
@@ -211,64 +211,126 @@ o2m operator*(const o2m &rela, const o2m &relb)
     setsize(relc, rela.size());
 
     std::vector<int> row_sizes(rela.size(), 0);
-
-    // Step 1: Compute sizes in parallel, no call to setsize here.
-#pragma omp parallel
+    if (rela.maxnode <= camax)
     {
-        seque<int> marker(relc.maxnode + 1, 0);
-        int generation = 0;
+        // Step 1: Compute sizes in parallel, no call to setsize here.
+#pragma omp parallel
+        {
+            seque<int> marker(relc.maxnode + 1, 0);
+            int generation = 0;
 
 #pragma omp for schedule(dynamic)
-        for (int ra = 0; ra < rela.size(); ++ra)
-        {
-            generation++;
-            int len = 0;
-            for (int ka = 0; ka < rela.size(ra); ++ka)
+            for (int ra = 0; ra < rela.size(); ++ra)
             {
-                int ca = rela[ra][ka];
-                if (ca > camax)
-                    continue;
-                for (int kb = 0; kb < relb.size(ca); ++kb)
+                generation++;
+                int len = 0;
+                for (int ka = 0; ka < rela.size(ra); ++ka)
                 {
-                    int cb = relb[ca][kb];
-                    if (marker[cb] != generation)
+                    int ca = rela[ra][ka];
+                    for (int kb = 0; kb < relb.size(ca); ++kb)
                     {
-                        marker[cb] = generation;
-                        len++;
+                        int cb = relb[ca][kb];
+                        if (marker[cb] != generation)
+                        {
+                            marker[cb] = generation;
+                            len++;
+                        }
+                    }
+                }
+                row_sizes[ra] = len; // thread-safe assignment
+            }
+        }
+
+        // Step 2: Sequentially call setsize safely.
+        for (int ra = 0; ra < rela.size(); ++ra)
+            setsize(relc.lnods[ra], row_sizes[ra]);
+
+        // Step 3: Parallel filling of relc data (no setsize calls).
+#pragma omp parallel
+        {
+            seque<int> marker(relc.maxnode + 1, 0);
+            int generation = 0;
+
+#pragma omp for schedule(dynamic)
+            for (int ra = 0; ra < rela.size(); ++ra)
+            {
+                generation++;
+                int len = 0;
+                for (int ka = 0; ka < rela.size(ra); ++ka)
+                {
+                    int ca = rela[ra][ka];
+                    for (int kb = 0; kb < relb.size(ca); ++kb)
+                    {
+                        int cb = relb[ca][kb];
+                        if (marker[cb] != generation)
+                        {
+                            marker[cb] = generation;
+                            relc[ra][len++] = cb;
+                        }
                     }
                 }
             }
-            row_sizes[ra] = len; // thread-safe assignment
         }
-    }
-
-    // Step 2: Sequentially call setsize safely.
-    for (int ra = 0; ra < rela.size(); ++ra)
-        setsize(relc.lnods[ra], row_sizes[ra]);
-
-    // Step 3: Parallel filling of relc data (no setsize calls).
-#pragma omp parallel
+    } else
     {
-        seque<int> marker(relc.maxnode + 1, 0);
-        int generation = 0;
+        // Step 1: Compute sizes in parallel, no call to setsize here.
+#pragma omp parallel
+        {
+            seque<int> marker(relc.maxnode + 1, 0);
+            int generation = 0;
 
 #pragma omp for schedule(dynamic)
-        for (int ra = 0; ra < rela.size(); ++ra)
-        {
-            generation++;
-            int len = 0;
-            for (int ka = 0; ka < rela.size(ra); ++ka)
+            for (int ra = 0; ra < rela.size(); ++ra)
             {
-                int ca = rela[ra][ka];
-                if (ca > camax)
-                    continue;
-                for (int kb = 0; kb < relb.size(ca); ++kb)
+                generation++;
+                int len = 0;
+                for (int ka = 0; ka < rela.size(ra); ++ka)
                 {
-                    int cb = relb[ca][kb];
-                    if (marker[cb] != generation)
+                    int ca = rela[ra][ka];
+                    if (ca > camax)
+                        continue;
+                    for (int kb = 0; kb < relb.size(ca); ++kb)
                     {
-                        marker[cb] = generation;
-                        relc[ra][len++] = cb;
+                        int cb = relb[ca][kb];
+                        if (marker[cb] != generation)
+                        {
+                            marker[cb] = generation;
+                            len++;
+                        }
+                    }
+                }
+                row_sizes[ra] = len; // thread-safe assignment
+            }
+        }
+
+        // Step 2: Sequentially call setsize safely.
+        for (int ra = 0; ra < rela.size(); ++ra)
+            setsize(relc.lnods[ra], row_sizes[ra]);
+
+        // Step 3: Parallel filling of relc data (no setsize calls).
+#pragma omp parallel
+        {
+            seque<int> marker(relc.maxnode + 1, 0);
+            int generation = 0;
+
+#pragma omp for schedule(dynamic)
+            for (int ra = 0; ra < rela.size(); ++ra)
+            {
+                generation++;
+                int len = 0;
+                for (int ka = 0; ka < rela.size(ra); ++ka)
+                {
+                    int ca = rela[ra][ka];
+                    if (ca > camax)
+                        continue;
+                    for (int kb = 0; kb < relb.size(ca); ++kb)
+                    {
+                        int cb = relb[ca][kb];
+                        if (marker[cb] != generation)
+                        {
+                            marker[cb] = generation;
+                            relc[ra][len++] = cb;
+                        }
                     }
                 }
             }

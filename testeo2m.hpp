@@ -41,6 +41,7 @@ inline void testeo2m()
     int nel, nmax;
     seque<int> els;
     m2m mm;
+    o2m om;
     if constexpr (2 == 2)
     {
         constexpr int ntype = 6;
@@ -52,7 +53,7 @@ inline void testeo2m()
                 nmax = pow(nel, 3);
                 setsize(els, nmax);
                 std::cout << "Started" << std::endl;
-                setsize(mm, nmax);
+                setsize(om, nmax);
 
                 for (int iex = 0; iex < nel; ++iex)
                     for (int iey = 0; iey < nel; ++iey)
@@ -72,7 +73,7 @@ inline void testeo2m()
                             nodes[7] =
                                     iex + (iey + 1) * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
                             // appendelement(mm, nodes);
-                            setnodesforelement(mm, e++, nodes);
+                            setnodesforelement(om, e++, nodes);
                         }
                 break;
             case 4:
@@ -80,9 +81,8 @@ inline void testeo2m()
                 nmax = pow(nel, 2);
                 setsize(els, nmax);
                 std::cout << "Started" << std::endl;
-                setsize(mm, nmax);
+                setsize(om, nmax);
                 std::cout << "Started" << std::endl;
-                setsize(mm, nmax);
                 for (int iex = 0; iex < nel; ++iex)
                     for (int iey = 0; iey < nel; ++iey)
                     {
@@ -91,19 +91,20 @@ inline void testeo2m()
                         nodes[1] = (iex + 1) + iey * (nel + 1);
                         nodes[2] = (iex + 1) + (iey + 1) * (nel + 1);
                         nodes[3] = iex + (iey + 1) * (nel + 1);
-                        setnodesforelement(mm, e++, nodes);
+                        setnodesforelement(om, e++, nodes);
                     }
                 break;
             default:
                 break;
         }
 
-        // o2m one = mm.e2n;
+        mm.nfrome = om;
+        // o2m one = mm.nfrome;
         // std::cout << "e=" << e << std::endl;
         // std::cout << "Finished inserting stuff" << std::endl;
-        // std::cout << "How many ?" << mm.e2n.nelem << std::endl;
-        // setallpointers(mm);
-        o2m &om1 = mm.e2n;
+        // std::cout << "How many ?" << mm.nfrome.nelem << std::endl;
+        // syncronize(mm);
+        o2m &om1 = mm.nfrome;
         // std::cout << "Finished setting the pointers" << std::endl;
         m2m result;
         auto start_time = std::chrono::high_resolution_clock::now();
@@ -119,17 +120,17 @@ inline void testeo2m()
         //   std::cout << "Finished the Tr stuff" << std::endl;
         //   auto start_time = std::chrono::high_resolution_clock::now();
         // o2m two = Tr(one);
-        //  o2m cad = getcliqueaddressing(one, two);
+        //  o2m cad = getcliques(one, two);
         //  std::cout << "Transposed" << std::endl;
         //  auto resultado = two * seque<int>({1, 2, 3, 4});
         //  o2m three = one * two;
-        std::cout << result.e2n[0] << std::endl;
+        std::cout << result.nfrome[0] << std::endl;
         auto end_time = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
             end_time - start_time);
         std::cout << "Duration: " << duration.count() << " milliseconds"
                 << std::endl;
-        std::cout << result.e2n.lnods[0] << std::endl;
+        std::cout << result.nfrome.lnods[0] << std::endl;
     }
 }
 #endif // TESTEO2M_HPP

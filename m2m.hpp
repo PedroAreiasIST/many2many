@@ -10,10 +10,10 @@
 
 struct m2m
 {
-    o2m e2n;
-    o2m n2e;
-    seque<seque<int> > nodelocation;
-    seque<seque<int> > elementlocation;
+    o2m nfrome;
+    o2m efromn;
+    seque<seque<int> > nodeloc;
+    seque<seque<int> > elementloc;
 
     bool isupdated{false};
 };
@@ -26,7 +26,7 @@ void setnodesforelement(m2m &rel, int element, seque<int> const &nodes);
 
 int appendelement(m2m &rel, seque<int> const &nodes);
 
-void setallpointers(m2m &rel);
+void syncronize(m2m &rel);
 
 seque<int> getelementswithnodes(m2m const &rel, seque<int> const &nodes);
 
@@ -47,5 +47,7 @@ void permutenodes(m2m &rel, seque<int> const &newnodefromold);
 void getelementstoelements(m2m const &rel, m2m &elementstoelements);
 
 void getnodestonodes(m2m const &rel, m2m &nodestonodes);
+
+seque<seque<int> > gecliques(m2m const &rel);
 
 #endif

@@ -69,7 +69,7 @@ namespace hidden
 
 o2m convertfromsequence(const seque<int> &other);
 
-seque<seque<int> > getcliqueaddressing(const o2m &nodesfromelement, const o2m &elementsfromnode);
+seque<seque<int> > getcliques(const o2m &nodesfromelement, const o2m &elementsfromnode);
 
 
 #endif
