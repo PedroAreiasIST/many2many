@@ -15,14 +15,6 @@ struct m2m
     seque<seque<int> > nodelocation;
     seque<seque<int> > elementlocation;
 
-    int nnodes() const;
-
-    int nelems() const;
-
-    int nnodes(int element) const;
-
-    int nelems(int node) const;
-
     bool isupdated{false};
 };
 
@@ -47,9 +39,6 @@ seque<int> getnodeneighbours(m2m const &rel, int node);
 seque<int> lexiorder(m2m const &rel);
 
 seque<int> toporder(m2m const &rel);
-
-void indicesfromorder(m2m const &rel, const seque<int> &elementorder, seque<int> &oldfromnew,
-                      seque<int> &newfromold);
 
 void compresselements(m2m &rel, seque<int> const &oldelementfromnew);
 

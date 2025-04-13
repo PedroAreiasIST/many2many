@@ -155,7 +155,6 @@ void indicesfromorder(mm2m &m, int elementtype, int nodetype,
                       seque<int> const &order, seque<int> &oldfromnew,
                       seque<int> &newfromold)
 {
-    indicesfromorder(m(elementtype, nodetype), order, oldfromnew, newfromold);
 }
 
 void compress(mm2m &m, int elementtype, seque<int> const &oldelementfromnew,

@@ -53,9 +53,6 @@ seque<int> lexiorder(const o2m &rel);
 
 namespace hidden
 {
-    void indicesfromorder(const o2m &rel, const seque<int> &elemOrder,
-                          seque<int> &oldFromNew, seque<int> &newFromOld);
-
     void compresselements(o2m &rel, const seque<int> &oldelementfromnew);
 
     void permutenodes(o2m &rel, const seque<int> &newnodefromold);

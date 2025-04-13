@@ -5,26 +5,6 @@
 #include <omp.h>
 #endif
 
-int m2m::nnodes() const
-{
-    return n2e.size();
-}
-
-int m2m::nelems() const
-{
-    return e2n.size();
-}
-
-int m2m::nnodes(int element) const
-{
-    return getsize(e2n[element]);
-}
-
-int m2m::nelems(int node) const
-{
-    return getsize(n2e[node]);
-}
-
 void setsize(m2m &rel, int nelem)
 {
     setsize(rel.e2n, nelem);
@@ -117,12 +97,6 @@ seque<int> getnodeneighbours(m2m const &rel, int node)
     }
     setorderedandunique(neighbours);
     return neighbours;
-}
-
-void indicesfromorder(m2m const &rel, const seque<int> &elementorder,
-                      seque<int> &oldfromnew, seque<int> &newfromold)
-{
-    hidden::indicesfromorder(rel.e2n, elementorder, oldfromnew, newfromold);
 }
 
 void compresselements(m2m &rel, seque<int> const &oldelementfromnew)
