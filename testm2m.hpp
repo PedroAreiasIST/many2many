@@ -16,12 +16,12 @@ void testm2m()
         cout << nomestodos[i] << endl;
     // conectivities
     m2m mm1, mm, nn1, ee1;
-    appendelement(mm1, {4, 2, 6, 0});
-    appendelement(mm1, {3, 0});
-    appendelement(mm1, {3, 1});
-    appendelement(mm1, {6, 3, 5, 1, 2, 4});
+    appendelement(mm1.nfrome, {4, 2, 6, 0});
+    appendelement(mm1.nfrome, {3, 0});
+    appendelement(mm1.nfrome, {3, 1});
+    appendelement(mm1.nfrome, {6, 3, 5, 1, 2, 4});
     cout << "Appended above" << endl;
-    syncronize(mm1);
+    setsyncronized(mm1);
     cout << "Cliques" << endl;
     cout << "nodefromelem" << mm1.nfrome.lnods << endl;
     cout << "elementfromnode" << mm1.efromn.lnods << endl;
@@ -46,7 +46,7 @@ void testm2m()
     cout << "neighbours of element 1=" << getelementneighbours(mm1, 1) << endl;
     cout << "neighbours of node 3=" << getnodeneighbours(mm1, 3) << endl;
     cout << "lexicographical order of mm1="
-            << mm1.nfrome.lnods(lexiorder(mm1)) << endl;
+            << mm1.nfrome.lnods(getlexiorder(mm1)) << endl;
     getelementstoelements(mm1, ee1);
     getnodestonodes(mm1, nn1);
     cout << "nodestonodes=" << nn1.nfrome.lnods << endl;
@@ -54,10 +54,10 @@ void testm2m()
 
     cout << "Basics mm part 2" << endl;
     m2m mm2, mm3;
-    appendelement(mm2, {4, 9, 8, 0, 1});
-    appendelement(mm2, {3, 2, 0, 5});
-    appendelement(mm2, {3, 1, 4});
-    appendelement(mm2, {5, 6, 1, 3});
+    appendelement(mm2.nfrome, {4, 9, 8, 0, 1});
+    appendelement(mm2.nfrome, {3, 2, 0, 5});
+    appendelement(mm2.nfrome, {3, 1, 4});
+    appendelement(mm2.nfrome, {5, 6, 1, 3});
     mm3.nfrome = mm1.nfrome + mm2.nfrome;
     cout << "mm1+mm2=" << mm3.nfrome.lnods << endl;
     mm3.nfrome = Tr(mm2.nfrome) * mm1.nfrome;

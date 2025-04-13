@@ -5,17 +5,6 @@
 #include <omp.h>
 #endif
 
-void setsize(m2m &rel, int nelem)
-{
-    setsize(rel.nfrome, nelem);
-}
-
-void setnodesforelement(m2m &rel, int element, seque<int> const &nodes)
-{
-    setnodesforelement(rel.nfrome, element, nodes);
-    rel.isupdated = false;
-}
-
 int appendelement(m2m &rel, seque<int> const &nodes)
 {
     int newel = appendelement(rel.nfrome, nodes);
@@ -23,7 +12,7 @@ int appendelement(m2m &rel, seque<int> const &nodes)
     return newel;
 }
 
-void syncronize(m2m &rel)
+void setsyncronized(m2m &rel)
 {
     if (!rel.isupdated)
     {
@@ -102,13 +91,13 @@ seque<int> getnodeneighbours(m2m const &rel, int node)
 void compresselements(m2m &rel, seque<int> const &oldelementfromnew)
 {
     hidden::compresselements(rel.nfrome, oldelementfromnew);
-    syncronize(rel);
+    setsyncronized(rel);
 }
 
 void permutenodes(m2m &rel, seque<int> const &newnodefromold)
 {
     hidden::permutenodes(rel.nfrome, newnodefromold);
-    syncronize(rel);
+    setsyncronized(rel);
 }
 
 void getelementstoelements(m2m const &rel, m2m &elementstoelements)
@@ -125,13 +114,13 @@ void getnodestonodes(m2m const &rel, m2m &nodestonodes)
     nodestonodes.isupdated = false;
 }
 
-seque<seque<int> > gecliques(m2m const &rel)
+seque<seque<int> > getcliques(m2m const &rel)
 {
     assert(rel.isupdated);
     return getcliques(rel.nfrome, rel.efromn);
 }
 
 
-seque<int> lexiorder(m2m const &rel) { return lexiorder(rel.nfrome); }
+seque<int> getlexiorder(m2m const &rel) { return getlexiorder(rel.nfrome); }
 
-seque<int> toporder(m2m const &rel) { return toporder(rel.nfrome); }
+seque<int> gettoporder(m2m const &rel) { return gettoporder(rel.nfrome); }

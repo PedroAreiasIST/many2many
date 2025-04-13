@@ -2,16 +2,14 @@
 #define SYMMETRIES_HPP
 
 #include <algorithm>
-#include <limits>
 #include <stdexcept>
-#include <vector>
 #include "seque.hpp"
 
 namespace hidden
 {
     using Permutation = seque<int>;
     using Group = seque<Permutation>;
-    static const int UNSET = (std::numeric_limits<int>::max)();
+    static const int UNSET = -1;
 
     inline bool isvalidfullpermutation(const seque<int> &position, const Group &G)
     {
@@ -94,7 +92,6 @@ namespace hidden
         }
         return false;
     }
-
 } // namespace hidden
 
 inline seque<int> getcanonicalform(const seque<int> &labels, const hidden::Group &G)

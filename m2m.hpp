@@ -20,13 +20,9 @@ struct m2m
 
 PFR_FUNCTIONS_FOR(m2m)
 
-void setsize(m2m &rel, int nelem);
-
-void setnodesforelement(m2m &rel, int element, seque<int> const &nodes);
-
 int appendelement(m2m &rel, seque<int> const &nodes);
 
-void syncronize(m2m &rel);
+void setsyncronized(m2m &rel);
 
 seque<int> getelementswithnodes(m2m const &rel, seque<int> const &nodes);
 
@@ -36,9 +32,9 @@ seque<int> getelementneighbours(m2m const &rel, int element);
 
 seque<int> getnodeneighbours(m2m const &rel, int node);
 
-seque<int> lexiorder(m2m const &rel);
+seque<int> getlexiorder(m2m const &rel);
 
-seque<int> toporder(m2m const &rel);
+seque<int> gettoporder(m2m const &rel);
 
 void compresselements(m2m &rel, seque<int> const &oldelementfromnew);
 
@@ -48,6 +44,6 @@ void getelementstoelements(m2m const &rel, m2m &elementstoelements);
 
 void getnodestonodes(m2m const &rel, m2m &nodestonodes);
 
-seque<seque<int> > gecliques(m2m const &rel);
+seque<seque<int> > getcliques(m2m const &rel);
 
 #endif

@@ -1,5 +1,6 @@
 #include "thing.hpp"
 void settypenumber(thing &e, int type) { e.type = type; }
+
 void settypenumber(seque<thing> &es, int type)
 {
     for (auto e: es)
@@ -7,12 +8,13 @@ void settypenumber(seque<thing> &es, int type)
         settypenumber(e, type);
     }
 }
+
 void appendnodesofonetype(thing &e, int nodetype, seque<int> const &nodes)
 {
     append(e.typeandnodes, std::make_pair(nodetype, nodes));
 }
 
-void appendbuilder(thing &eparent, thing &echildren, seque<std::pair<int, seque<int>>> const &typeandlocalnodes)
+void appendbuilder(thing &eparent, thing &echildren, seque<std::pair<int, seque<int> > > const &typeandlocalnodes)
 {
     for (int localnodetype = 0; localnodetype < getsize(typeandlocalnodes); ++localnodetype)
     {
@@ -27,7 +29,8 @@ void appendbuilder(thing &eparent, thing &echildren, seque<std::pair<int, seque<
         }
     }
 }
-void insertathing(mm2m &m, thing const &e)
+
+void uploadathing(mm2m &m, thing const &e)
 {
     for (int localtype = 0; localtype < getsize(e.typeandnodes); ++localtype)
     {

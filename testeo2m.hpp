@@ -103,7 +103,7 @@ inline void testeo2m()
         // std::cout << "e=" << e << std::endl;
         // std::cout << "Finished inserting stuff" << std::endl;
         // std::cout << "How many ?" << mm.nfrome.nelem << std::endl;
-        // syncronize(mm);
+        // setsyncronized(mm);
         o2m &om1 = mm.nfrome;
         // std::cout << "Finished setting the pointers" << std::endl;
         m2m result;

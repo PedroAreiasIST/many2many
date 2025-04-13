@@ -47,9 +47,9 @@ o2m operator&&(const o2m &a, const o2m &b);
 
 o2m operator-(const o2m &rela, const o2m &relb);
 
-seque<int> toporder(const o2m &rel);
+seque<int> gettoporder(const o2m &rel);
 
-seque<int> lexiorder(const o2m &rel);
+seque<int> getlexiorder(const o2m &rel);
 
 namespace hidden
 {
@@ -67,7 +67,7 @@ namespace hidden
                                            o2m const &elementsfromnode);
 }
 
-o2m convertfromsequence(const seque<int> &other);
+o2m setfromsequence(const seque<int> &other);
 
 seque<seque<int> > getcliques(const o2m &nodesfromelement, const o2m &elementsfromnode);
 

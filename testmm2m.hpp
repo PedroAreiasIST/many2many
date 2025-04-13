@@ -98,6 +98,7 @@ void testmm2m()
     setsymmetrygroup(rm, wedge, node, wedge6);
     setsymmetrygroup(rm, wedge, isanelement, {{0}});
     setsymmetrygroup(rm, elementgroup, isanelement, {{}});
+
     // specialization of things
     appendnodesofonetype(isanelements[0], isanelement, {0});
     appendnodesofonetype(isanelements[1], isanelement, {1});
@@ -126,22 +127,22 @@ void testmm2m()
     appendnodesofonetype(elementgroups[0], isanelement, {0});
     appendnodesofonetype(elementgroups[1], isanelement, {1});
 
-    insertathing(rm, isanelements[0]);
-    insertathing(rm, nodes[0]);
-    insertathing(rm, points[0]);
-    insertathing(rm, edges[0]);
-    insertathing(rm, tris[0]);
-    insertathing(rm, quads[0]);
-    insertathing(rm, tets[0]);
-    insertathing(rm, hexs[0]);
-    insertathing(rm, wedges[0]);
-    insertathing(rm, elementgroups[0]);
+    uploadathing(rm, isanelements[0]);
+    uploadathing(rm, nodes[0]);
+    uploadathing(rm, points[0]);
+    uploadathing(rm, edges[0]);
+    uploadathing(rm, tris[0]);
+    uploadathing(rm, quads[0]);
+    uploadathing(rm, tets[0]);
+    uploadathing(rm, hexs[0]);
+    uploadathing(rm, wedges[0]);
+    uploadathing(rm, elementgroups[0]);
 
     /*  std::cout << "tet " << rm.operator()(tet.type,
       node.type).nfrome.lnods << std::endl; std::cout << "hex " <<
       rm.operator()(hex.type, node.type).nfrome.lnods << std::endl;
       closeeverything(rm);
-      std::cout << "type order" << typetoporder(rm) << std::endl;
+      std::cout << "type order" << typegettoporder(rm) << std::endl;
       std::cout << " rm" << rm(tet.type, node.type).efromn << std::endl;
       std::cout << "rm nodeloc" << rm(tet.type, node.type).nodeloc <<
       std::endl; std::cout << "wedge" << rm(wedge.type,

@@ -220,7 +220,7 @@ void compress(mm2m &m)
     }
 }
 
-seque<int> typetoporder(mm2m const &m)
+seque<int> typegettoporder(mm2m const &m)
 {
     o2m typedeps;
     setsize(typedeps, m.ntypes);
@@ -237,7 +237,7 @@ seque<int> typetoporder(mm2m const &m)
             }
         }
     }
-    return toporder(typedeps);
+    return gettoporder(typedeps);
 }
 
 void closeeverything(mm2m &m)
@@ -245,7 +245,7 @@ void closeeverything(mm2m &m)
     for (int elementtype = 0; elementtype < m.ntypes; ++elementtype)
         for (int nodetype = 0; nodetype < m.ntypes; ++nodetype)
         {
-            syncronize(m(elementtype, nodetype));
+            setsyncronized(m(elementtype, nodetype));
         }
 }
 

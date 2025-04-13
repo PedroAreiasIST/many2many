@@ -25,7 +25,7 @@ namespace hidden
         return current_max;
     }
 } // namespace hidden
-inline o2m convertfromsequence(const seque<int> &other)
+inline o2m setfromsequence(const seque<int> &other)
 {
     o2m ret;
     setsize(ret, getsize(other));
@@ -342,7 +342,7 @@ o2m operator*(const o2m &rela, const o2m &relb)
 
 o2m operator*(const o2m &rela, const seque<int> &vec)
 {
-    o2m temp = convertfromsequence(vec);
+    o2m temp = setfromsequence(vec);
     return rela * temp;
 }
 
@@ -465,7 +465,7 @@ o2m operator-(const o2m &rela, const o2m &relb)
     return relc;
 }
 
-seque<int> toporder(const o2m &rel)
+seque<int> gettoporder(const o2m &rel)
 {
     seque<int> order;
     setsize(order, 0);
@@ -505,7 +505,7 @@ seque<int> toporder(const o2m &rel)
     return order;
 }
 
-seque<int> lexiorder(const o2m &rel)
+seque<int> getlexiorder(const o2m &rel)
 {
     return getorder(rel.lnods);
 }
