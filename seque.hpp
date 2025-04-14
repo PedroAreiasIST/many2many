@@ -639,6 +639,39 @@ void setorderedandunique(seque<V, S, P> &container) {
   setunique(container);
 }
 
+// Function that returns indices to remove based on duplicates in the sorted
+// order.
+template <typename V, int S, auto P>
+seque<int> getDuplicatePositionsToRemove(const seque<V, S, P> &array,
+                                         const seque<int> &order) {
+  seque<int> to_remove;
+
+  // If the order list is empty, return an empty vector.
+  if (getsize(order) == 0) {
+    return to_remove;
+  }
+
+  // Use the first index from order as the starting value.
+  auto lastVal = array[order[0]];
+
+  // Iterate over the order list starting from the second element.
+  for (int i = 1; i < getsize(order); ++i) {
+    int idx = order[i];
+    auto currentVal = array[idx];
+
+    // If the current value is the same as the last seen value, it's a
+    // duplicate.
+    if (currentVal == lastVal) {
+      append(to_remove, idx);
+    } else {
+      // Update lastVal when a new unique value is encountered.
+      lastVal = currentVal;
+    }
+  }
+
+  return to_remove;
+}
+
 template <typename V, int S, auto P>
 void indicesfromorder(seque<V, S, P> const &sourceContainer,
                       seque<int, S, P> const &sortedIndices,

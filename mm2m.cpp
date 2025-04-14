@@ -52,7 +52,6 @@ seque<std::pair<int, int>> getallnodes(mm2m &m,
       });
   setsize(ret, nret);
   nret = 0;
-
   // Second pass: collect (node type, node number) pairs.
   for (int nodetype = 0; nodetype < m.ntypes; ++nodetype) {
     const int numberofnodes = m.nnodes(elementtype, elementnumber, nodetype);
@@ -108,20 +107,9 @@ int appendelement(mm2m &m, int elementype) {
   return appendelement(m(elementype, elementype), {newn});
 }
 
-void setmany2many(mm2m &m, int elementype, int nodetype, m2m const &relation) {
-  m(elementype, nodetype) = relation;
-}
-
-m2m &getmany2many(mm2m &m, int elementype, int nodetype) {
-  return m(elementype, nodetype);
-}
-
-void indicesfromorder(mm2m &m, int elementtype, int nodetype,
-                      seque<int> const &order, seque<int> &oldfromnew,
-                      seque<int> &newfromold) {}
-
-void compress(mm2m &m, int elementtype, seque<int> const &oldelementfromnew,
-              seque<int> const &newelementfromold) {
+void hidden::compress(mm2m &m, int elementtype,
+                      seque<int> const &oldelementfromnew,
+                      seque<int> const &newelementfromold) {
   for (int nodetype = 0; nodetype < m.ntypes; ++nodetype) {
     compresselements(m(elementtype, nodetype), oldelementfromnew);
   }
@@ -134,14 +122,12 @@ void compress(mm2m &m, int elementtype, seque<int> const &oldelementfromnew,
 }
 
 void compress(mm2m &m) {
-  setordered(m.listofmarked);
   setorderedandunique(m.listofmarked);
   for (int counter = 0; counter < getsize(m.listofmarked); ++counter) {
     append(m.listofmarked,
            depthfirstsearchfromanode(m, m.listofmarked[counter]));
   }
-  setordered(m.listofmarked);
-  setunique(m.listofmarked);
+  setorderedandunique(m.listofmarked);
   seque<seque<int>> nodes(m.ntypes);
   seque<int> marker(m.ntypes, 0);
   for (int counter = 0; counter < getsize(m.listofmarked); ++counter) {
@@ -167,7 +153,7 @@ void compress(mm2m &m) {
         newfromold[i] = k;
         k++;
       }
-      compress(m, type, oldfromnew, newfromold);
+      hidden::compress(m, type, oldfromnew, newfromold);
     }
   }
 }

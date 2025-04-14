@@ -46,14 +46,6 @@ int appendelement(mm2m &m, int elementype, int nodetype,
 
 int appendelement(mm2m &m, int elementype);
 
-void setmany2many(mm2m &m, int elementype, int nodetype, m2m const &relation);
-
-m2m &getmany2many(mm2m &m, int elementype, int nodetype);
-
-void indicesfromorder(mm2m &m, int elementtype, int nodetype,
-                      seque<int> const &order, seque<int> &oldfromnew,
-                      seque<int> &newfromold);
-
 void closeeverything(mm2m &m);
 
 seque<int> getselementsfromnodes(mm2m &matrix, int elementtype, int nodestype,
