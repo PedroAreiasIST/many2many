@@ -366,9 +366,9 @@ o2m operator+(const o2m &rela, const o2m &relb) {
   return relc;
 }
 
-o2m operator&&(const o2m &rela, const o2m &relb) { return rela + relb; }
+o2m operator||(const o2m &rela, const o2m &relb) { return rela + relb; }
 
-o2m operator||(const o2m &rela, const o2m &relb) {
+o2m operator&&(const o2m &rela, const o2m &relb) {
   o2m relc;
   const int nElements = std::min(rela.nelem, relb.nelem);
   setsize(relc, nElements);

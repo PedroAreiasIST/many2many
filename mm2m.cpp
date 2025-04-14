@@ -156,6 +156,7 @@ void compress(mm2m &m) {
       hidden::compress(m, type, oldfromnew, newfromold);
     }
   }
+  resetmarked(m);
 }
 
 seque<int> typegettoporder(mm2m const &m) {
