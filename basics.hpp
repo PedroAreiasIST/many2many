@@ -206,9 +206,3 @@ std::istream &operator>>(std::istream &in, std::pair<T1, T2> &p) {
  * @param nomestodos The vector to store the names.
  */
 #define PFRALLNAMES(sname, nomestodos) pfrgetallnames<sname>::item<>(nomestodos)
-
-/**
- *
- *
- *
- */

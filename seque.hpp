@@ -642,8 +642,8 @@ void setorderedandunique(seque<V, S, P> &container) {
 // Function that returns indices to remove based on duplicates in the sorted
 // order.
 template <typename V, int S, auto P>
-seque<int> getDuplicatePositionsToRemove(const seque<V, S, P> &array,
-                                         const seque<int> &order) {
+seque<int> getindicesofduplicates(const seque<V, S, P> &array,
+                                  const seque<int> &order) {
   seque<int> to_remove;
 
   // If the order list is empty, return an empty vector.

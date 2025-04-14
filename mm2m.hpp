@@ -28,7 +28,15 @@ PFR_FUNCTIONS_FOR(mm2m)
 
 void resetmarked(mm2m &m);
 
-void marktoerase(mm2m &m, std::pair<int, int> const &node);
+void marktoerase(mm2m &m, int nodetype, int node);
+
+inline void marktoeraserepeated(mm2m &m, int elementtype, int nodetype) {
+  auto mm = m(elementtype, nodetype);
+  auto order = getlexiorder(mm);
+  auto dupindices = getindicesofduplicates(mm.nfrome.lnods, order);
+  for (int i = 0; i < getsize(dupindices); ++i)
+    marktoerase(m, elementtype, dupindices[i]);
+}
 
 seque<std::pair<int, int>> getallelements(mm2m &m,
                                           std::pair<int, int> const &node);
@@ -36,8 +44,10 @@ seque<std::pair<int, int>> getallelements(mm2m &m,
 seque<std::pair<int, int>> getallnodes(mm2m &m,
                                        std::pair<int, int> const &element);
 
+namespace hidden {
 seque<std::pair<int, int>>
 depthfirstsearchfromanode(mm2m &m, std::pair<int, int> const &node);
+}
 
 void setnumberoftypes(mm2m &m, int ntypes);
 

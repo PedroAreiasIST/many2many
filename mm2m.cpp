@@ -13,8 +13,8 @@ int mm2m::nelems(int nodetype, int node, int elementtype) {
 
 void resetmarked(mm2m &m) { erase(m.listofmarked); }
 
-void marktoerase(mm2m &m, std::pair<int, int> const &node) {
-  append(m.listofmarked, node);
+void marktoerase(mm2m &m, int nodetype, int node) {
+  append(m.listofmarked, std::make_pair(nodetype, node));
 }
 
 seque<std::pair<int, int>> getallelements(mm2m &m,
@@ -66,7 +66,7 @@ seque<std::pair<int, int>> getallnodes(mm2m &m,
 }
 
 seque<std::pair<int, int>>
-depthfirstsearchfromanode(mm2m &m, std::pair<int, int> const &node) {
+hidden::depthfirstsearchfromanode(mm2m &m, std::pair<int, int> const &node) {
   using P = std::pair<int, int>;
   seque<P> ret;
   std::set<P> visited;
@@ -125,7 +125,7 @@ void compress(mm2m &m) {
   setorderedandunique(m.listofmarked);
   for (int counter = 0; counter < getsize(m.listofmarked); ++counter) {
     append(m.listofmarked,
-           depthfirstsearchfromanode(m, m.listofmarked[counter]));
+           hidden::depthfirstsearchfromanode(m, m.listofmarked[counter]));
   }
   setorderedandunique(m.listofmarked);
   seque<seque<int>> nodes(m.ntypes);
