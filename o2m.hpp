@@ -1,24 +1,22 @@
 #ifndef RELATIONONETOMANY_HPP
 #define RELATIONONETOMANY_HPP
-#include "seque.hpp"
 #include "basics.hpp"
+#include "seque.hpp"
 
-namespace hidden
-{
-    using lst = seque<int>;
+namespace hidden {
+using lst = seque<int>;
 }
 
-struct o2m
-{
-    seque<seque<int> > lnods{{}};
-    int nelem{0};
-    int maxnode{0};
-    // Access operators
-    seque<int> &operator[](int element) { return lnods[element]; }
-    seque<int> const &operator[](int element) const { return lnods[element]; }
-    // Utility methods
-    int size() const { return nelem; }
-    int size(int element) const { return lnods[element].size; }
+struct o2m {
+  seque<seque<int>> lnods{{}};
+  int nelem{0};
+  int maxnode{0};
+  // Access operators
+  seque<int> &operator[](int element) { return lnods[element]; }
+  seque<int> const &operator[](int element) const { return lnods[element]; }
+  // Utility methods
+  int size() const { return nelem; }
+  int size(int element) const { return lnods[element].size; }
 };
 
 PFR_FUNCTIONS_FOR(o2m)
@@ -49,27 +47,23 @@ o2m operator-(const o2m &rela, const o2m &relb);
 
 seque<int> gettoporder(const o2m &rel);
 
-seque<int> getlexiorder(const o2m &rel);
+seque<int> getorder(const o2m &rel);
 
-namespace hidden
-{
-    void compresselements(o2m &rel, const seque<int> &oldelementfromnew);
+namespace hidden {
+void compresselements(o2m &rel, const seque<int> &oldelementfromnew);
 
-    void permutenodes(o2m &rel, const seque<int> &newnodefromold);
-}
+void permutenodes(o2m &rel, const seque<int> &newnodefromold);
 
-namespace hidden
-{
-    seque<seque<int> > getnodepositions(o2m const &nodesfromelement,
-                                        o2m const &elementsfromnode);
+seque<seque<int>> getnodepositions(o2m const &nodesfromelement,
+                                   o2m const &elementsfromnode);
 
-    seque<seque<int> > getelementpositions(o2m const &nodesfromelement,
-                                           o2m const &elementsfromnode);
-}
+seque<seque<int>> getelementpositions(o2m const &nodesfromelement,
+                                      o2m const &elementsfromnode);
+} // namespace hidden
 
-o2m setfromsequence(const seque<int> &other);
+o2m geto2mfromsequence(const seque<int> &other);
 
-seque<seque<int> > getcliques(const o2m &nodesfromelement, const o2m &elementsfromnode);
-
+seque<seque<int>> getcliques(const o2m &nodesfromelement,
+                             const o2m &elementsfromnode);
 
 #endif

@@ -29,7 +29,7 @@ seque<int> getelementneighbours(m2m const &rel, int element);
 
 seque<int> getnodeneighbours(m2m const &rel, int node);
 
-seque<int> getlexiorder(m2m const &rel);
+seque<int> getorder(m2m const &rel);
 
 seque<int> gettoporder(m2m const &rel);
 

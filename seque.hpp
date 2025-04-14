@@ -195,7 +195,7 @@ struct seque {
 
 public:
   void _explodeinvalidindex(int index) const {
-    if (index >= size) {
+    if (index < 0 || index >= size) {
       throw std::out_of_range("sek: index " + std::to_string(index) +
                               " out of range [0, " + std::to_string(size) +
                               ").");
@@ -206,10 +206,9 @@ public:
     heapsize = newCapacity;
     arraycreate(heapdata, newCapacity);
     if constexpr (std::is_trivially_copyable_v<V>) {
-      std::memcpy(heapdata, stackdata,
-                  std::min(stacksize, newCapacity) * sizeof(V));
+      std::memcpy(heapdata, stackdata, size * sizeof(V));
     } else {
-      for (int i = 0; i < std::min(stacksize, newCapacity); i++) {
+      for (int i = 0; i < size; i++) {
         heapdata[i] = stackdata[i];
       }
     }
@@ -261,7 +260,7 @@ void setsize(seque<V, S, P> &container, int newSize) {
     return;
   if (container.actual == container.stackdata) {
     if (newSize > container.stacksize) {
-      container._switchfromstacktoheap((int)growthFactor * newSize);
+      container._switchfromstacktoheap((int)(growthFactor * newSize));
     }
   } else {
     if (newSize == 0) {
@@ -306,13 +305,6 @@ void erase(seque<V, S, P> &container, int eraseIndex) {
     container.actual[eraseIndex] = container.actual[container.size - 1];
     container.actual[container.size - 1] = V();
     setsize(container, container.size - 1);
-  }
-}
-
-template <typename V, int S, auto P>
-void erase(seque<V, S, P> &container, seque<int, S, P> const &indexContainer) {
-  for (int pos = 0; pos < indexContainer.size; ++pos) {
-    erase(container, indexContainer[pos]);
   }
 }
 
@@ -644,28 +636,35 @@ void setorderedandunique(seque<V, S, P> &container) {
 template <typename V, int S, auto P>
 seque<int> getindicesofduplicates(const seque<V, S, P> &array,
                                   const seque<int> &order) {
-  seque<int> to_remove;
-
-  // If the order list is empty, return an empty vector.
-  if (getsize(order) == 0) {
-    return to_remove;
+  // First pass: Count duplicates
+  int duplicateCount = 0;
+  if (getsize(order) > 0) {
+    auto lastVal = array[order[0]];
+    for (int i = 1; i < getsize(order); ++i) {
+      auto currentVal = array[order[i]];
+      if (currentVal == lastVal) {
+        ++duplicateCount;
+      } else {
+        lastVal = currentVal;
+      }
+    }
   }
 
-  // Use the first index from order as the starting value.
-  auto lastVal = array[order[0]];
+  // Allocate space for duplicates
+  seque<int> to_remove(duplicateCount);
 
-  // Iterate over the order list starting from the second element.
-  for (int i = 1; i < getsize(order); ++i) {
-    int idx = order[i];
-    auto currentVal = array[idx];
-
-    // If the current value is the same as the last seen value, it's a
-    // duplicate.
-    if (currentVal == lastVal) {
-      append(to_remove, idx);
-    } else {
-      // Update lastVal when a new unique value is encountered.
-      lastVal = currentVal;
+  // Second pass: Collect duplicate indices
+  if (duplicateCount > 0) {
+    int index = 0;
+    auto lastVal = array[order[0]];
+    for (int i = 1; i < getsize(order); ++i) {
+      int idx = order[i];
+      auto currentVal = array[idx];
+      if (currentVal == lastVal) {
+        to_remove[index++] = idx;
+      } else {
+        lastVal = currentVal;
+      }
     }
   }
 

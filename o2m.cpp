@@ -22,7 +22,7 @@ inline int update_max_for_nodes(seque<seque<int>> const &lnods) {
   return current_max;
 }
 } // namespace hidden
-inline o2m setfromsequence(const seque<int> &other) {
+inline o2m geto2mfromsequence(const seque<int> &other) {
   o2m ret;
   setsize(ret, getsize(other));
   for (int element = 0; element < getsize(other); ++element) {
@@ -130,7 +130,6 @@ int appendelement(o2m &rel, seque<int> const &nodes) {
     throw std::runtime_error("Repeated nodes detected in the input.");
   }
   rel.nelem++;
-  std::cout << "nelem=" << rel.nelem << std::endl;
   setsize(rel.lnods, rel.nelem);
   assert(getsize(rel.lnods) == rel.nelem);
   rel.lnods[rel.nelem - 1] = nodes;
@@ -140,6 +139,9 @@ int appendelement(o2m &rel, seque<int> const &nodes) {
 
 o2m Tr(const o2m &rel) {
   o2m relt;
+  relt.nelem = 0;
+  relt.maxnode = 0;
+  relt.lnods = {{}};
   // Return immediately for empty relation.
   if (rel.nelem == 0) {
     return relt;
@@ -303,7 +305,7 @@ o2m operator*(const o2m &rela, const o2m &relb) {
 }
 
 o2m operator*(const o2m &rela, const seque<int> &vec) {
-  o2m temp = setfromsequence(vec);
+  o2m temp = geto2mfromsequence(vec);
   return rela * temp;
 }
 
@@ -364,9 +366,9 @@ o2m operator+(const o2m &rela, const o2m &relb) {
   return relc;
 }
 
-o2m operator||(const o2m &a, const o2m &b) { return a + b; }
+o2m operator&&(const o2m &rela, const o2m &relb) { return rela + relb; }
 
-o2m operator&&(const o2m &rela, const o2m &relb) {
+o2m operator||(const o2m &rela, const o2m &relb) {
   o2m relc;
   const int nElements = std::min(rela.nelem, relb.nelem);
   setsize(relc, nElements);
@@ -437,7 +439,7 @@ seque<int> gettoporder(const o2m &rel) {
   return order;
 }
 
-seque<int> getlexiorder(const o2m &rel) { return getorder(rel.lnods); }
+seque<int> getorder(const o2m &rel) { return getorder(rel.lnods); }
 
 void hidden::compresselements(o2m &rel, const seque<int> &oldelementfromnew) {
   rel.lnods = rel.lnods(oldelementfromnew);

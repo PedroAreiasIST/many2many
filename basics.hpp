@@ -1,5 +1,4 @@
 #pragma once
-
 #include "pfr_non_boost-master/include/pfr.hpp"
 #include <algorithm>
 #include <boost/core/demangle.hpp>
@@ -13,7 +12,6 @@
 #include <typeinfo>
 #include <utility>
 #include <vector>
-
 /**
  * @brief Reads values from standard input.
  *
@@ -23,7 +21,6 @@
 template <typename... T> inline void screenread(T &...args) {
   ((std::cin >> args), ...);
 }
-
 /**
  * @brief Writes values to standard output, separated by a space.
  *
@@ -34,7 +31,6 @@ template <typename... T> inline void screenwrite(T &&...args) {
   ((std::cout << args << " "), ...);
   std::cout << std::endl; // Optionally add newline at the end.
 }
-
 /**
  * @brief Safely deletes a dynamically allocated pointer.
  *
@@ -48,7 +44,6 @@ template <typename T> inline void pointerdestroy(T *&p) noexcept {
     p = nullptr;
   }
 }
-
 /**
  * @brief Returns the demangled name of a type.
  *
@@ -59,7 +54,6 @@ template <typename T> inline std::string typetoname() {
   const char *name = typeid(T).name();
   return boost::core::demangle(name);
 }
-
 /**
  * @brief Returns the demangled name of the type of an object.
  *
@@ -71,7 +65,6 @@ template <typename T> inline std::string typetoname(const T &type) {
   const char *name = typeid(type).name();
   return boost::core::demangle(name);
 }
-
 /**
  * @brief Applies a function to each element of a tuple.
  *
@@ -86,7 +79,6 @@ inline void tupleforcycle(TupleT &&tp, Fn &&fn) {
       [&fn](auto &&...args) { (fn(std::forward<decltype(args)>(args)), ...); },
       std::forward<TupleT>(tp));
 }
-
 /**
  * @brief Checks if a file exists.
  *
@@ -97,7 +89,6 @@ inline bool fileifexists(const std::string &filename) {
   std::ifstream infile(filename);
   return infile.good();
 }
-
 /**
  * @brief Opens an output file stream for ASCII files.
  *
@@ -107,7 +98,6 @@ inline bool fileifexists(const std::string &filename) {
 inline void fileopenoutput(std::ofstream &stream, const char *filename) {
   stream.open(filename, std::ios::out);
 }
-
 /**
  * @brief Opens an input file stream for ASCII files.
  *
@@ -117,7 +107,6 @@ inline void fileopenoutput(std::ofstream &stream, const char *filename) {
 inline void fileopeninput(std::ifstream &stream, const char *filename) {
   stream.open(filename, std::ios::in);
 }
-
 /**
  * @brief Converts a value to a std::string.
  *
@@ -139,7 +128,6 @@ template <typename T> inline std::string stringfromvalue(const T &value) {
 inline int commandinvoke(const std::string &command) {
   return system(command.c_str());
 }
-
 /**
  * @brief Retrieves command-line arguments as a vector of strings.
  *
@@ -151,7 +139,6 @@ inline int commandinvoke(const std::string &command) {
 inline std::vector<std::string> commandargget(int argc, char *argv[]) {
   return std::vector<std::string>(argv, argv + argc);
 }
-
 /**
  * @brief A helper structure to obtain all member names from a structure using
  * PFR.
@@ -162,7 +149,6 @@ template <typename StructType> struct pfrgetallnames {
   // Note: The static member 'names' is declared here for potential caching
   // purposes.
   static std::vector<std::string> names;
-
   /**
    * @brief Recursively retrieves member names.
    *
@@ -176,18 +162,15 @@ template <typename StructType> struct pfrgetallnames {
     }
   }
 };
-
 // Define the static member variable outside the struct.
 template <typename StructType>
 std::vector<std::string> pfrgetallnames<StructType>::names;
-
 // Overload stream operators for std::pair
 template <typename T1, typename T2>
 std::ostream &operator<<(std::ostream &out, const std::pair<T1, T2> &p) {
   out << '(' << p.first << ", " << p.second << ')';
   return out;
 }
-
 template <typename T1, typename T2>
 std::istream &operator>>(std::istream &in, std::pair<T1, T2> &p) {
   char ch1, ch2, ch3;
@@ -198,7 +181,6 @@ std::istream &operator>>(std::istream &in, std::pair<T1, T2> &p) {
   }
   return in;
 }
-
 /**
  * @brief Macro to retrieve all member names from a structure.
  *
