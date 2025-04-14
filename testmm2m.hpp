@@ -126,10 +126,12 @@ void testmm2m() {
   appendnodesofonetype(things[28], node, {14, 11, 17, 9, 7, 12});
   appendnodesofonetype(things[28], isanelement, {0});
   mm2m matrix;
+  setnumberoftypes(matrix, 9);
   mm2m accessories;
+  setnumberoftypes(accessories, 9);
   uploadallstuff(matrix, accessories, things, models);
   // cout << matrix << endl;
-  // cout << accessories << endl;
+  cout << things[25].typesandnodes << endl;
 }
 
 #endif // TESTMMM_HPP

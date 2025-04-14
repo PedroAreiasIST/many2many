@@ -15,7 +15,8 @@ void settypenumberofathing(thing &e, int elementnumber) {
 }
 void appendnodesofonetype(thing &e, int nodetype, seque<int> const &nodes) {
   assert(e.typenumber >= 0);
-  append(e.typesandnodes[nodetype], nodes);
+  append(e.typesandnodes(nodetype), nodes);
+  // e.typesandnodes(nodetype) = nodes;
 }
 seque<thing> getchildrenfromathing(thing const &element,
                                    seque<thingmodel> const &models) {
@@ -33,8 +34,8 @@ seque<thing> getchildrenfromathing(thing const &element,
             model.childrenbuilders[childtype][nodetype]);
         appendnodesofonetype(anewthing, nodetype, nodes);
       }
+      append(result, anewthing);
     }
-    append(result, anewthing);
   }
   return result;
 }
@@ -45,7 +46,7 @@ seque<thing> getallchildren(thing const &element,
   if (getsize(outer) == 0)
     return result;
   //  seque<thing> intermediate = outer;
-  for (;;) {
+  for (int ggg = 0; ggg < 1; ++ggg) {
     seque<thing> intermediate;
     for (int i = 0; i < getsize(outer); ++i) {
       append(intermediate, getchildrenfromathing(outer[i], models));
@@ -59,10 +60,11 @@ seque<thing> getallchildren(thing const &element,
   return result;
 }
 void uploadathing(mm2m &m, thing const &e, seque<thingmodel> const &models) {
-  for (int i = 0; i < getsize(e.typesandnodes); ++i)
-    appendelement(m, e.typenumber, i,
-                  getcanonicalform(e.typesandnodes[i],
-                                   models[e.typenumber].symmetrygroups[i]));
+  for (int i = 0; i < getsize(e.typesandnodes); ++i) {
+    auto canon = getcanonicalform(e.typesandnodes[i],
+                                  models[e.typenumber].symmetrygroups[i]);
+    appendelement(m, e.typenumber, i, canon);
+  }
 }
 void uploadchildren(mm2m &mchildren, thing const &e,
                     seque<thingmodel> const &models) {
@@ -74,6 +76,6 @@ void uploadallstuff(mm2m &m, mm2m &mchildren, seque<thing> const &things,
                     seque<thingmodel> const &models) {
   for (int i = 0; i < getsize(things); ++i) {
     uploadathing(m, things[i], models);
-    uploadchildren(mchildren, things[i], models);
+    //  uploadchildren(mchildren, things[i], models);
   }
 }

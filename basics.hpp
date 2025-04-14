@@ -1,5 +1,6 @@
 #pragma once
 
+#include "pfr_non_boost-master/include/pfr.hpp"
 #include <algorithm>
 #include <boost/core/demangle.hpp>
 #include <cstddef>
@@ -12,8 +13,6 @@
 #include <typeinfo>
 #include <utility>
 #include <vector>
-#include "pfr_non_boost-master/include/pfr.hpp"
-
 
 /**
  * @brief Reads values from standard input.
@@ -21,10 +20,8 @@
  * @tparam T Types of arguments.
  * @param args Variables to store the input.
  */
-template<typename... T>
-inline void screenread(T &...args)
-{
-    ((std::cin >> args), ...);
+template <typename... T> inline void screenread(T &...args) {
+  ((std::cin >> args), ...);
 }
 
 /**
@@ -33,11 +30,9 @@ inline void screenread(T &...args)
  * @tparam T Types of arguments.
  * @param args Values to write.
  */
-template<typename... T>
-inline void screenwrite(T &&...args)
-{
-    ((std::cout << args << " "), ...);
-    std::cout << std::endl; // Optionally add newline at the end.
+template <typename... T> inline void screenwrite(T &&...args) {
+  ((std::cout << args << " "), ...);
+  std::cout << std::endl; // Optionally add newline at the end.
 }
 
 /**
@@ -46,14 +41,12 @@ inline void screenwrite(T &&...args)
  * @tparam T Pointer type.
  * @param p Pointer to delete. After deletion, p is set to nullptr.
  */
-template<typename T>
-inline void pointerdestroy(T *&p) noexcept
-{
-    if (p) // Though delete on nullptr is safe, this check improves clarity.
-    {
-        delete p;
-        p = nullptr;
-    }
+template <typename T> inline void pointerdestroy(T *&p) noexcept {
+  if (p) // Though delete on nullptr is safe, this check improves clarity.
+  {
+    delete p;
+    p = nullptr;
+  }
 }
 
 /**
@@ -62,11 +55,9 @@ inline void pointerdestroy(T *&p) noexcept
  * @tparam T The type to inspect.
  * @return std::string The demangled type name.
  */
-template<typename T>
-inline std::string typetoname()
-{
-    const char *name = typeid(T).name();
-    return boost::core::demangle(name);
+template <typename T> inline std::string typetoname() {
+  const char *name = typeid(T).name();
+  return boost::core::demangle(name);
 }
 
 /**
@@ -76,11 +67,9 @@ inline std::string typetoname()
  * @param type The object to inspect.
  * @return std::string The demangled type name.
  */
-template<typename T>
-inline std::string typetoname(const T &type)
-{
-    const char *name = typeid(type).name();
-    return boost::core::demangle(name);
+template <typename T> inline std::string typetoname(const T &type) {
+  const char *name = typeid(type).name();
+  return boost::core::demangle(name);
 }
 
 /**
@@ -91,10 +80,11 @@ inline std::string typetoname(const T &type)
  * @param tp The tuple.
  * @param fn The function to apply.
  */
-template<typename TupleT, typename Fn>
-inline void tupleforcycle(TupleT &&tp, Fn &&fn)
-{
-    std::apply([&fn](auto &&...args) { (fn(std::forward<decltype(args)>(args)), ...); }, std::forward<TupleT>(tp));
+template <typename TupleT, typename Fn>
+inline void tupleforcycle(TupleT &&tp, Fn &&fn) {
+  std::apply(
+      [&fn](auto &&...args) { (fn(std::forward<decltype(args)>(args)), ...); },
+      std::forward<TupleT>(tp));
 }
 
 /**
@@ -103,10 +93,9 @@ inline void tupleforcycle(TupleT &&tp, Fn &&fn)
  * @param filename The name of the file.
  * @return true if the file exists, false otherwise.
  */
-inline bool fileifexists(const std::string &filename)
-{
-    std::ifstream infile(filename);
-    return infile.good();
+inline bool fileifexists(const std::string &filename) {
+  std::ifstream infile(filename);
+  return infile.good();
 }
 
 /**
@@ -115,7 +104,9 @@ inline bool fileifexists(const std::string &filename)
  * @param stream The output file stream.
  * @param filename The file name to open.
  */
-inline void fileopenoutput(std::ofstream &stream, const char *filename) { stream.open(filename, std::ios::out); }
+inline void fileopenoutput(std::ofstream &stream, const char *filename) {
+  stream.open(filename, std::ios::out);
+}
 
 /**
  * @brief Opens an input file stream for ASCII files.
@@ -123,7 +114,9 @@ inline void fileopenoutput(std::ofstream &stream, const char *filename) { stream
  * @param stream The input file stream.
  * @param filename The file name to open.
  */
-inline void fileopeninput(std::ifstream &stream, const char *filename) { stream.open(filename, std::ios::in); }
+inline void fileopeninput(std::ifstream &stream, const char *filename) {
+  stream.open(filename, std::ios::in);
+}
 
 /**
  * @brief Converts a value to a std::string.
@@ -132,12 +125,10 @@ inline void fileopeninput(std::ifstream &stream, const char *filename) { stream.
  * @param value The value to convert.
  * @return std::string The string representation of the value.
  */
-template<typename T>
-inline std::string stringfromvalue(const T &value)
-{
-    std::ostringstream oss;
-    oss << value;
-    return oss.str();
+template <typename T> inline std::string stringfromvalue(const T &value) {
+  std::ostringstream oss;
+  oss << value;
+  return oss.str();
 }
 /**
  * @brief Executes a system command.
@@ -145,51 +136,68 @@ inline std::string stringfromvalue(const T &value)
  * @param command The command to be executed.
  * @return int The return value of the executed command.
  */
-inline int commandinvoke(const std::string &command) { return system(command.c_str()); }
+inline int commandinvoke(const std::string &command) {
+  return system(command.c_str());
+}
 
 /**
  * @brief Retrieves command-line arguments as a vector of strings.
  *
  * @param argc The number of command-line arguments.
  * @param argv Array of command-line argument strings.
- * @return std::vector<std::string> A vector containing the command-line arguments.
+ * @return std::vector<std::string> A vector containing the command-line
+ * arguments.
  */
-inline std::vector<std::string> commandargget(int argc, char *argv[])
-{
-    return std::vector<std::string>(argv, argv + argc);
+inline std::vector<std::string> commandargget(int argc, char *argv[]) {
+  return std::vector<std::string>(argv, argv + argc);
 }
 
 /**
- * @brief A helper structure to obtain all member names from a structure using PFR.
+ * @brief A helper structure to obtain all member names from a structure using
+ * PFR.
  *
  * @tparam StructType The structure type.
  */
-template<typename StructType>
-struct pfrgetallnames
-{
-    // Note: The static member 'names' is declared here for potential caching purposes.
-    static std::vector<std::string> names;
+template <typename StructType> struct pfrgetallnames {
+  // Note: The static member 'names' is declared here for potential caching
+  // purposes.
+  static std::vector<std::string> names;
 
-    /**
-     * @brief Recursively retrieves member names.
-     *
-     * @tparam I The current index.
-     * @param seque<int>  The list to store member names.
-     */
-    template<int I = 0>
-    static void item(std::vector<std::string> &lst )
-    {
-        lst.push_back(std::string(pfr::get_name<I, StructType>()));
-        if constexpr (I + 1 < pfr::tuple_size<StructType>::value)
-        {
-            item<I + 1>(lst);
-        }
+  /**
+   * @brief Recursively retrieves member names.
+   *
+   * @tparam I The current index.
+   * @param seque<int>  The list to store member names.
+   */
+  template <int I = 0> static void item(std::vector<std::string> &lst) {
+    lst.push_back(std::string(pfr::get_name<I, StructType>()));
+    if constexpr (I + 1 < pfr::tuple_size<StructType>::value) {
+      item<I + 1>(lst);
     }
+  }
 };
 
 // Define the static member variable outside the struct.
-template<typename StructType>
+template <typename StructType>
 std::vector<std::string> pfrgetallnames<StructType>::names;
+
+// Overload stream operators for std::pair
+template <typename T1, typename T2>
+std::ostream &operator<<(std::ostream &out, const std::pair<T1, T2> &p) {
+  out << '(' << p.first << ", " << p.second << ')';
+  return out;
+}
+
+template <typename T1, typename T2>
+std::istream &operator>>(std::istream &in, std::pair<T1, T2> &p) {
+  char ch1, ch2, ch3;
+  in >> ch1 >> p.first >> ch2 >> p.second >> ch3;
+  if (ch1 != '(' || ch2 != ',' || ch3 != ')') {
+    in.setstate(
+        std::ios::failbit); // set the failbit if the format is incorrect
+  }
+  return in;
+}
 
 /**
  * @brief Macro to retrieve all member names from a structure.
