@@ -45,9 +45,8 @@ void testmm2m()
     };
     // thing skeletons
     thing isanelements[2];
-    thing nodes[11], points[1], edges[1], tris[2], quads[1], tets[1], hexs[1],
+    thing nodes[19], points[1], edges[1], tris[1], quads[2], tets[1], hexs[1],
             wedges[1];
-    thing elementgroups[2];
     // assigntype numbers
     enum typenumbers : int
     {
@@ -58,29 +57,26 @@ void testmm2m()
         tri,
         quad,
         tet,
-        hex,
         wedge,
-        elementgroup
+        hex
     };
     settypenumber(isanelements[0], 0);
     settypenumber(isanelements[1], 1);
     for (thing &anode: nodes)
     {
-        settypenumber(anode, 4);
+        settypenumber(anode, 2);
     }
-    settypenumber(points[0], 5);
-    settypenumber(edges[0], 6);
-    settypenumber(tris[0], 7);
-    settypenumber(tris[1], 7);
-    settypenumber(quads[0], 8);
-    settypenumber(tets[0], 9);
-    settypenumber(hexs[0], 10);
-    settypenumber(wedges[0], 11);
-    settypenumber(elementgroups[0], 12);
-    settypenumber(elementgroups[1], 12);
+    settypenumber(points[0], 3);
+    settypenumber(edges[0], 4);
+    settypenumber(tris[0], 5);
+    settypenumber(quads[0], 6);
+    settypenumber(quads[1], 6);
+    settypenumber(tets[0], 7);
+    settypenumber(wedges[0], 8);
+    settypenumber(hexs[0], 9);
     // symmetry groups
     mm2m rm;
-    setnumberoftypes(rm, 13);
+    setnumberoftypes(rm, 10);
     setsymmetrygroup(rm, node, node, {{0}});
     setsymmetrygroup(rm, isanelement, isanelement, {{0}});
     setsymmetrygroup(rm, point, node, {{0}});
@@ -93,61 +89,73 @@ void testmm2m()
     setsymmetrygroup(rm, quad, isanelement, {{0}});
     setsymmetrygroup(rm, tet, node, tet4sym);
     setsymmetrygroup(rm, tet, isanelement, {{0}});
-    setsymmetrygroup(rm, hex, node, h8symm);
-    setsymmetrygroup(rm, hex, isanelement, {{0}});
     setsymmetrygroup(rm, wedge, node, wedge6);
     setsymmetrygroup(rm, wedge, isanelement, {{0}});
-    setsymmetrygroup(rm, elementgroup, isanelement, {{}});
+    setsymmetrygroup(rm, hex, node, h8symm);
+    setsymmetrygroup(rm, hex, isanelement, {{0}});
+    cout << "Symmetry groups=" << endl;
+    cout << rm.groups << endl;
 
     // specialization of things
     appendnodesofonetype(isanelements[0], isanelement, {0});
     appendnodesofonetype(isanelements[1], isanelement, {1});
-    for (auto anode: nodes)
+    for (int i=0;i<19;++i)
     {
-        appendnodesofonetype(anode, node, {0});
+        appendnodesofonetype(nodes[i], node, {i});
     }
-    appendnodesofonetype(points[0], node, {2});
-    appendnodesofonetype(points[0], isanelement, {0});
-    appendnodesofonetype(edges[0], node, {0, 1});
-    appendnodesofonetype(edges[0], isanelement, {0});
-    appendnodesofonetype(tris[0], node, {7, 5, 6});
-    appendnodesofonetype(tris[1], node, {0, 9, 10});
-    appendnodesofonetype(tris[0], isanelement, {0});
-    appendnodesofonetype(tris[1], isanelement, {0});
+    appendnodesofonetype(points[0], node, {0});
+    appendnodesofonetype(points[0], isanelement, {1});
+    appendnodesofonetype(edges[0], node, {7, 6});
+    appendnodesofonetype(edges[0], isanelement, {1});
+    appendnodesofonetype(tris[0], node, {5, 2, 4});
+    appendnodesofonetype(tris[0], isanelement, {1});
 
-    appendnodesofonetype(quads[0], node, {9, 7, 6, 10});
-    appendnodesofonetype(quads[0], isanelement, {0});
+    appendnodesofonetype(quads[0], node, {8, 5, 4, 7});
+    appendnodesofonetype(quads[0], isanelement, {1});
+    appendnodesofonetype(quads[1], node, {2, 1, 3, 4});
+    appendnodesofonetype(quads[1], isanelement, {1});
 
-    appendnodesofonetype(tets[0], node, {0, 9, 8, 10});
-    appendnodesofonetype(tets[0], isanelement, {1});
-    appendnodesofonetype(hexs[0], node, {1, 2, 3, 4, 9, 7, 5, 8});
-    appendnodesofonetype(hexs[0], isanelement, {1});
-    appendnodesofonetype(wedges[0], node, {5, 4, 3, 2, 1, 0});
-    appendnodesofonetype(wedges[0], isanelement, {1});
-    appendnodesofonetype(elementgroups[0], isanelement, {0});
-    appendnodesofonetype(elementgroups[1], isanelement, {1});
+    appendnodesofonetype(tets[0], node, {0, 16, 15, 18});
+    appendnodesofonetype(tets[0], isanelement, {0});
+    appendnodesofonetype(hexs[0], node, {13, 8, 10, 15, 11, 7, 9, 14});
+    appendnodesofonetype(hexs[0], isanelement, {0});
+    appendnodesofonetype(wedges[0], node, {14, 11, 17, 9, 7, 12});
+    appendnodesofonetype(wedges[0], isanelement, {0});
 
-    uploadathing(rm, isanelements[0]);
-    uploadathing(rm, nodes[0]);
+    for (int i = 0; i < 2; ++i)
+        uploadathing(rm, isanelements[i]);
+
+    for (int i = 0; i < 19; ++i)
+        uploadathing(rm, nodes[i]);
     uploadathing(rm, points[0]);
     uploadathing(rm, edges[0]);
     uploadathing(rm, tris[0]);
     uploadathing(rm, quads[0]);
+    uploadathing(rm, quads[1]);
     uploadathing(rm, tets[0]);
     uploadathing(rm, hexs[0]);
     uploadathing(rm, wedges[0]);
-    uploadathing(rm, elementgroups[0]);
-
-    /*  std::cout << "tet " << rm.operator()(tet.type,
-      node.type).nfrome.lnods << std::endl; std::cout << "hex " <<
-      rm.operator()(hex.type, node.type).nfrome.lnods << std::endl;
-      closeeverything(rm);
-      std::cout << "type order" << typegettoporder(rm) << std::endl;
-      std::cout << " rm" << rm(tet.type, node.type).efromn << std::endl;
-      std::cout << "rm nodeloc" << rm(tet.type, node.type).nodeloc <<
-      std::endl; std::cout << "wedge" << rm(wedge.type,
-      node.type).nfrome.lnods << std::endl; std::cout << "hex2 " <<
-      rm.operator()(hex.type, node.type).nfrome.lnods << std::endl;
-      */
+    // now creates stuff
+    seque<thing> triangles;
+    append(triangles, getthingfrombuilder(tets[0], tri, {std::make_pair<int, seque<int> >(node, {0, 1, 2})}));
+    append(triangles, getthingfrombuilder(tets[0], tri, {std::make_pair<int, seque<int> >(node, {1, 2, 3})}));
+    append(triangles, getthingfrombuilder(tets[0], tri, {std::make_pair<int, seque<int> >(node, {2, 0, 3})}));
+    append(triangles, getthingfrombuilder(tets[0], tri, {std::make_pair<int, seque<int> >(node, {0, 1, 3})}));
+    append(triangles, getthingfrombuilder(wedges[0], tri, {std::make_pair<int, seque<int> >(node, {0, 1, 2})}));
+    append(triangles, getthingfrombuilder(wedges[0], tri, {std::make_pair<int, seque<int> >(node, {3, 4, 5})}));
+    seque<thing> quadrilaterals;
+    append(quadrilaterals, getthingfrombuilder(hexs[0], quad, {std::make_pair<int, seque<int> >(node, {0, 1, 2, 3})}));
+    append(quadrilaterals, getthingfrombuilder(hexs[0], quad, {std::make_pair<int, seque<int> >(node, {7, 4, 5, 6})}));
+    append(quadrilaterals, getthingfrombuilder(hexs[0], quad, {std::make_pair<int, seque<int> >(node, {0, 3, 6, 7})}));
+    append(quadrilaterals, getthingfrombuilder(hexs[0], quad, {std::make_pair<int, seque<int> >(node, {1, 4, 6, 2})}));
+    append(quadrilaterals, getthingfrombuilder(hexs[0], quad, {std::make_pair<int, seque<int> >(node, {3, 2, 5, 6})}));
+    append(quadrilaterals, getthingfrombuilder(hexs[0], quad, {std::make_pair<int, seque<int> >(node, {0, 1, 4, 7})}));
+    append(quadrilaterals, getthingfrombuilder(wedges[0], quad, {std::make_pair<int, seque<int> >(node, {1, 4, 5, 2})}));
+    append(quadrilaterals, getthingfrombuilder(wedges[0], quad, {std::make_pair<int, seque<int> >(node, {0, 1, 4, 3})}));
+    append(quadrilaterals, getthingfrombuilder(wedges[0], quad, {std::make_pair<int, seque<int> >(node, {0, 2, 5, 3})}));
+    mm2m acessories;
+    uploadthings(acessories, triangles);
+    uploadthings(acessories, quadrilaterals);
+    auto qqq = acessories(quad, node);
 }
 #endif // TESTMMM_HPP

@@ -1,9 +1,6 @@
 #include "m2m.hpp"
 #include "o2m.hpp"
 #include <cassert>
-#ifdef _OPENMP
-#include <omp.h>
-#endif
 
 int appendelement(m2m &rel, seque<int> const &nodes)
 {

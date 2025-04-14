@@ -14,20 +14,23 @@ void appendnodesofonetype(thing &e, int nodetype, seque<int> const &nodes)
     append(e.typeandnodes, std::make_pair(nodetype, nodes));
 }
 
-void appendbuilder(thing &eparent, thing &echildren, seque<std::pair<int, seque<int> > > const &typeandlocalnodes)
+thing getthingfrombuilder(thing &eparent, int childtype, seque<std::pair<int, seque<int> > > const &typeandlocalnodesinparent)
 {
-    for (int localnodetype = 0; localnodetype < getsize(typeandlocalnodes); ++localnodetype)
+    thing result;
+    settypenumber(result, childtype);
+    for (int localnodetype = 0; localnodetype < getsize(typeandlocalnodesinparent); ++localnodetype)
     {
-        int type = typeandlocalnodes[localnodetype].first;
+        int nodetype = typeandlocalnodesinparent[localnodetype].first;
+        seque<int> localnodes = typeandlocalnodesinparent[localnodetype].second;
         for (int localtype = 0; localtype < getsize(eparent.typeandnodes); ++localtype)
         {
-            if (eparent.typeandnodes[localtype].first == type)
+            if (eparent.typeandnodes[localtype].first == nodetype)
             {
-                appendnodesofonetype(echildren, type,
-                                     eparent.typeandnodes[localtype].second(typeandlocalnodes[localnodetype].second));
+                appendnodesofonetype(result, nodetype, eparent.typeandnodes[localtype].second(localnodes));
             }
         }
     }
+    return result;
 }
 
 void uploadathing(mm2m &m, thing const &e)
@@ -35,5 +38,13 @@ void uploadathing(mm2m &m, thing const &e)
     for (int localtype = 0; localtype < getsize(e.typeandnodes); ++localtype)
     {
         appendelement(m, e.type, e.typeandnodes[localtype].first, e.typeandnodes[localtype].second);
+    }
+}
+
+void uploadthings(mm2m &m, seque<thing> const &es)
+{
+    for (auto e: es)
+    {
+        uploadathing(m, e);
     }
 }

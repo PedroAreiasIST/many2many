@@ -4,10 +4,11 @@
 #include "seque.hpp"
 #include "symmetries.hpp"
 
-struct thing
-{
-    int type;
-    seque<std::pair<int, seque<int> > > typeandnodes;
+struct
+
+    struct thing {
+  int type;
+  seque<std::pair<int, seque<int>>> typeandnodes;
 };
 
 PFR_FUNCTIONS_FOR(thing)
@@ -18,8 +19,12 @@ void settypenumber(seque<thing> &es, int type);
 
 void appendnodesofonetype(thing &e, int nodetype, seque<int> const &nodes);
 
-void appendbuilder(thing &eparent, thing &echildren, seque<std::pair<int, seque<int> > > const &typeandlocalnodes);
+thing getthingfrombuilder(
+    thing &eparent, int childtype,
+    seque<std::pair<int, seque<int>>> const &typeandlocalnodesinparent);
 
 void uploadathing(mm2m &m, thing const &e);
+
+void uploadthings(mm2m &m, seque<thing> const &es);
 
 #endif // RELATIONMANAGER_HPP

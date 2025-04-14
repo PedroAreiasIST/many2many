@@ -36,7 +36,6 @@ inline o2m setfromsequence(const seque<int> &other)
     return ret;
 }
 
-
 seque<seque<int> > getcliques(const o2m &nodesfromelement,
                               const o2m &elementsfromnode)
 {
