@@ -7,7 +7,8 @@
 struct thingmodel {
   seque<seque<seque<int>>>
       symmetrygroups; // [nodetype][combinationnumber][localnode]
-  seque<seque<seque<int>>> childrenbuilders; // [childtype][nodetype][localnode]
+  seque<seque<seque<seque<int>>>>
+      childrenbuilders; // [childtype][nodetype][localnode]
 };
 PFR_FUNCTIONS_FOR(thingmodel)
 

@@ -130,8 +130,7 @@ void testmm2m() {
   mm2m accessories;
   setnumberoftypes(accessories, 9);
   uploadallstuff(matrix, accessories, things, models);
-  // cout << matrix << endl;
-  cout << things[25].typesandnodes << endl;
+  cout << matrix << endl;
 }
 
 #endif // TESTMMM_HPP
