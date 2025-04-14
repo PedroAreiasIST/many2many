@@ -4,27 +4,41 @@
 #include "seque.hpp"
 #include "symmetries.hpp"
 
-struct
-
-    struct thing {
-  int type;
-  seque<std::pair<int, seque<int>>> typeandnodes;
+struct thingmodel {
+  seque<seque<seque<int>>>
+      symmetrygroups; // [nodetype][combinationnumber][localnode]
+  seque<seque<seque<int>>> childrenbuilders; // [childtype][nodetype][localnode]
 };
+PFR_FUNCTIONS_FOR(thingmodel)
 
+struct thing {
+  int typenumber{-1};
+  seque<seque<int>> typesandnodes; // [nodetype][localnode]->nodenumber
+};
 PFR_FUNCTIONS_FOR(thing)
+// thing model
+void appendsymmetrygroup(seque<thingmodel> &em, int elementtype, int nodetype,
+                         seque<seque<int>> const &group);
 
-void settypenumber(thing &e, int type);
+void appendchildrenbuilder(seque<thingmodel> &em, int elementtype,
+                           int childtype, int nodetype,
+                           seque<int> const &localnodesinem);
 
-void settypenumber(seque<thing> &es, int type);
+// thing
+void settypenumberofathing(thing &e, int elementnumber);
 
 void appendnodesofonetype(thing &e, int nodetype, seque<int> const &nodes);
 
-thing getthingfrombuilder(
-    thing &eparent, int childtype,
-    seque<std::pair<int, seque<int>>> const &typeandlocalnodesinparent);
+seque<thing> getchildrenfromathing(thing const &element,
+                                   seque<thingmodel> const &models);
 
-void uploadathing(mm2m &m, thing const &e);
+seque<thing> getallchildren(thing const &element,
+                            seque<thingmodel> const &models);
+void uploadathing(mm2m &m, thing const &e, seque<thingmodel> const &models);
 
-void uploadthings(mm2m &m, seque<thing> const &es);
+void uploadchildren(mm2m &mchildren, thing const &e,
+                    seque<thingmodel> const &models);
+void uploadallstuff(mm2m &m, mm2m &mchildren, seque<thing> const &things,
+                    seque<thingmodel> const &models);
 
 #endif // RELATIONMANAGER_HPP
