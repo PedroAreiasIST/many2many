@@ -104,10 +104,10 @@ void testmm2m() {
   settypenumberofathing(things[27], wedge);
   settypenumberofathing(things[28], hex);
 
-  appendnodesofonetype(things[0], isanelement, {0});
-  appendnodesofonetype(things[1], isanelement, {1});
-  for (int i = 0; i < 19; ++i)
-    appendnodesofonetype(things[i + 2], node, {i});
+  //  appendnodesofonetype(things[0], isanelement, {0});
+  //  appendnodesofonetype(things[1], isanelement, {1});
+  // for (int i = 0; i < 19; ++i)
+  //   appendnodesofonetype(things[i + 2], node, {i});
 
   appendnodesofonetype(things[21], node, {0});
   appendnodesofonetype(things[21], isanelement, {1});
@@ -121,16 +121,34 @@ void testmm2m() {
   appendnodesofonetype(things[25], isanelement, {1});
   appendnodesofonetype(things[26], node, {0, 16, 15, 18});
   appendnodesofonetype(things[26], isanelement, {0});
-  appendnodesofonetype(things[27], node, {13, 8, 10, 15, 11, 7, 9, 14});
+  appendnodesofonetype(things[27], node, {14, 11, 17, 9, 7, 12});
   appendnodesofonetype(things[27], isanelement, {0});
-  appendnodesofonetype(things[28], node, {14, 11, 17, 9, 7, 12});
+  appendnodesofonetype(things[28], node, {13, 8, 10, 15, 11, 7, 9, 14});
   appendnodesofonetype(things[28], isanelement, {0});
   mm2m matrix;
   setnumberoftypes(matrix, 9);
   mm2m accessories;
   setnumberoftypes(accessories, 9);
   uploadallstuff(matrix, accessories, things, models);
-  cout << matrix << endl;
+  std::ofstream ofs;
+  fileopenoutput(ofs, "matrix.txt");
+  compress(matrix);
+  ofs << "hexahedra\n";
+  ofs << "hex,node" << matrix(hex, node).nfrome << "\n";
+  ofs << "node,hex" << matrix(hex, node).efromn << "\n";
+  ofs << "hex,isanelement" << matrix(hex, isanelement).nfrome << "\n";
+  ofs << "isanelement,quad" << matrix(isanelement, quad).nfrome << "\n";
+  ofs << "isanalement hex--- efromn" << matrix(hex, isanelement).efromn
+      << std::endl;
+  ofs << "isanalement quad--- efromn" << matrix(quad, isanelement).efromn
+      << std::endl;
+  ofs << "Full matrix" << matrix << endl;
+  ofs << "All the nodes of a wedge\n";
+  ofs << getallnodes(matrix, make_pair(wedge, 0)) << "\n";
+  ofs << "all relations to isanelement 0:"
+      << getallelements(matrix, make_pair(isanelement, 0)) << "\n";
+  ofs << "all relations to isanelement 1:"
+      << getallelements(matrix, make_pair(isanelement, 1)) << "\n";
 }
 
 #endif // TESTMMM_HPP

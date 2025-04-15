@@ -175,10 +175,20 @@ struct seque {
   V const *end() const { return actual + size; }
 
   seque operator()(seque<int, S, P> const &indexContainer) const {
-    seque result(indexContainer.size);
-    std::transform(std::execution::par, indexContainer.actual,
-                   indexContainer.actual + indexContainer.size, result.actual,
-                   [&](int idx) { return actual[idx]; });
+    seque result;
+    if (size > 0) {
+      setsize(result, indexContainer.size);
+      std::transform(std::execution::par, indexContainer.actual,
+                     indexContainer.actual + indexContainer.size, result.actual,
+                     [&](int idx) {
+                       if (idx > size)
+                         throw std::out_of_range("sek: index " +
+                                                 std::to_string(idx) +
+                                                 " out of range [0, " +
+                                                 std::to_string(size) + ").)");
+                       return actual[idx];
+                     });
+    }
     return result;
   }
 
@@ -206,9 +216,10 @@ public:
     heapsize = newCapacity;
     arraycreate(heapdata, newCapacity);
     if constexpr (std::is_trivially_copyable_v<V>) {
-      std::memcpy(heapdata, stackdata, size * sizeof(V));
+      std::memcpy(heapdata, stackdata,
+                  std::min(heapsize, stacksize) * sizeof(V));
     } else {
-      for (int i = 0; i < size; i++) {
+      for (int i = 0; i < std::min(heapsize, stacksize); i++) {
         heapdata[i] = stackdata[i];
       }
     }

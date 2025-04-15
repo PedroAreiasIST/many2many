@@ -444,7 +444,6 @@ seque<int> getorder(const o2m &rel) { return getorder(rel.lnods); }
 void hidden::compresselements(o2m &rel, const seque<int> &oldelementfromnew) {
   rel.lnods = rel.lnods(oldelementfromnew);
   rel.nelem = getsize(oldelementfromnew);
-  rel.maxnode = 0;
   rel.maxnode = hidden::update_max_for_nodes(rel.lnods);
 }
 

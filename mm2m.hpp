@@ -30,13 +30,7 @@ void resetmarked(mm2m &m);
 
 void marktoerase(mm2m &m, int nodetype, int node);
 
-inline void marktoeraserepeated(mm2m &m, int elementtype, int nodetype) {
-  auto mm = m(elementtype, nodetype);
-  auto order = getorder(mm);
-  auto dupindices = getindicesofduplicates(mm.nfrome.lnods, order);
-  for (int i = 0; i < getsize(dupindices); ++i)
-    marktoerase(m, elementtype, dupindices[i]);
-}
+void marktoeraserepeated(mm2m &m, int elementtype, int nodetype);
 
 seque<std::pair<int, int>> getallelements(mm2m &m,
                                           std::pair<int, int> const &node);
@@ -55,8 +49,6 @@ int appendelement(mm2m &m, int elementype, int nodetype,
                   seque<int> const &nodes);
 
 int appendelement(mm2m &m, int elementype);
-
-void closeeverything(mm2m &m);
 
 seque<int> getselementsfromnodes(mm2m &matrix, int elementtype, int nodestype,
                                  seque<int> const &nodes);

@@ -75,8 +75,10 @@ seque<int> getnodeneighbours(m2m const &rel, int node) {
 }
 
 void compresselements(m2m &rel, seque<int> const &oldelementfromnew) {
-  hidden::compresselements(rel.nfrome, oldelementfromnew);
-  setsyncronized(rel);
+  if (rel.nfrome.nelem > 0) {
+    hidden::compresselements(rel.nfrome, oldelementfromnew);
+    setsyncronized(rel);
+  }
 }
 
 void permutenodes(m2m &rel, seque<int> const &newnodefromold) {
