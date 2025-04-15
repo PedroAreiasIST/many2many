@@ -35,8 +35,8 @@ void appendnodesofonetype(thing &e, int nodetype, seque<int> const &nodes) {
 // Builds children from a given thing using the provided models.
 // For each child type and each node type under that child type, new children
 // are generated based on the specified children builder information.
-seque<thing> getchildrenfromathing(thing const &element,
-                                   seque<thingmodel> const &models) {
+seque<thing> getallchildren(thing const &element,
+                            seque<thingmodel> const &models) {
   assert(element.typenumber >= 0);
   seque<thing> result;
   thingmodel model = models(element.typenumber);
@@ -67,15 +67,6 @@ seque<thing> getchildrenfromathing(thing const &element,
       }
     }
   }
-  return result;
-}
-
-// Returns all children of a thing.
-// Currently, this is equivalent to getchildrenfromathing.
-seque<thing> getallchildren(thing const &element,
-                            seque<thingmodel> const &models) {
-  seque<thing> outer = getchildrenfromathing(element, models);
-  seque<thing> result = outer;
   return result;
 }
 

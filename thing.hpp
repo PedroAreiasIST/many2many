@@ -30,9 +30,6 @@ void settypenumberofathing(thing &e, int elementnumber);
 
 void appendnodesofonetype(thing &e, int nodetype, seque<int> const &nodes);
 
-seque<thing> getchildrenfromathing(thing const &element,
-                                   seque<thingmodel> const &models);
-
 seque<thing> getallchildren(thing const &element,
                             seque<thingmodel> const &models);
 void uploadathing(mm2m &m, thing const &e, seque<thingmodel> const &models);
