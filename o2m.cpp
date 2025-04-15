@@ -137,6 +137,11 @@ int appendelement(o2m &rel, seque<int> const &nodes) {
   return rel.nelem - 1;
 }
 
+o2m &operator<<(o2m &rel, const seque<int> &nodes) {
+  appendelement(rel, nodes);
+  return rel;
+}
+
 o2m Tr(const o2m &rel) {
   o2m relt;
   relt.nelem = 0;

@@ -35,11 +35,11 @@ void testm2m() {
   cout << "mm1=" << mm1 << endl;
   cout << "How about maxnode" << mm1.nfrome.maxnode << endl;
   cout << "elements defined by the 3 1 nodes"
-       << getelementsfromnodes(mm1, {3, 1}) << endl;
+       << getelementsdefinedbythesenodes(mm1, {3, 1}) << endl;
   cout << "elements defined by the 3 0 nodes"
-       << getelementsfromnodes(mm1, {3, 0}) << endl;
+       << getelementsdefinedbythesenodes(mm1, {3, 0}) << endl;
   cout << "elements containing the 2 6 nodes"
-       << getelementswithnodes(mm1, {2, 6}) << endl;
+       << getelementscontainingnodes(mm1, {2, 6}) << endl;
   cout << "neighbours of element 0=" << getelementneighbours(mm1, 0) << endl;
   cout << "neighbours of element 1=" << getelementneighbours(mm1, 1) << endl;
   cout << "neighbours of node 3=" << getnodeneighbours(mm1, 3) << endl;
@@ -59,11 +59,9 @@ void testm2m() {
   mm3.nfrome = mm1.nfrome + mm2.nfrome;
   cout << "mm1+mm2=" << mm3.nfrome.lnods << endl;
   mm3.nfrome = Tr(mm2.nfrome) * mm1.nfrome;
-  //  mm3.nfrome = mm2.nfrome * mm1.nfrome;
   cout << "mm2*mm1=" << mm3.nfrome.lnods << endl;
   mm3.nfrome = mm1.nfrome - mm2.nfrome;
   cout << "mm1-mm2=" << mm3.nfrome.lnods << endl;
-
   mm3.nfrome = mm1.nfrome && mm2.nfrome;
   cout << "mm1&mm2=" << mm3.nfrome.lnods << endl;
   seque<int> se{0, 1, 3};

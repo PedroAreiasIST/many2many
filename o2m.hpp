@@ -31,6 +31,8 @@ void setnodesforelement(o2m &rel, int element, seque<int> const &nodes);
 
 int appendelement(o2m &rel, const seque<int> &nodes);
 
+o2m &operator<<(o2m &rel, const seque<int> &nodes);
+
 o2m Tr(const o2m &rel);
 
 o2m operator*(const o2m &rela, const o2m &relb);

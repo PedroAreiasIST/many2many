@@ -1,4 +1,6 @@
 #include "mm2m.hpp"
+
+#include "godoftypes.hpp"
 #include "o2m.hpp"
 #include <algorithm>
 #include <cassert>
@@ -12,7 +14,7 @@
 
 // Returns the number of nodes in a given element (of type elementType)
 // for the specified node type (nodeType).
-int mm2m::nnodes(int elementType, int element, int nodeType) {
+int mm2m::nnodes(int elementType, int element, int nodeType) const {
   // Basic index checks (assumes getsize() returns the number of elements)
   assert(elementType >= 0 && elementType < ntypes);
   assert(nodeType >= 0 && nodeType < ntypes);
@@ -23,7 +25,7 @@ int mm2m::nnodes(int elementType, int element, int nodeType) {
 
 // Returns the number of elements (of the given element type)
 // that are incident to a node (of type nodeType).
-int mm2m::nelems(int nodeType, int node, int elementType) {
+int mm2m::nelems(int nodeType, int node, int elementType) const {
   assert(nodeType >= 0 && nodeType < ntypes);
   assert(elementType >= 0 && elementType < ntypes);
   if (node < 0 ||
@@ -54,7 +56,7 @@ void marktoeraserepeated(mm2m &m, int elementtype, int nodetype) {
 
 // Collects all (elementType, element) pairs that are incident to a given node.
 // The node is identified by its type and index.
-seque<std::pair<int, int>> getallelements(mm2m &m,
+seque<std::pair<int, int>> getallelements(mm2m const &m,
                                           std::pair<int, int> const &node) {
   seque<std::pair<int, int>> ret;
   auto [nodeType, nodeNumber] = node;
@@ -80,7 +82,7 @@ seque<std::pair<int, int>> getallelements(mm2m &m,
 
 // Collects all (nodeType, node) pairs associated with a given element.
 // The element is specified by (elementType, element number).
-seque<std::pair<int, int>> getallnodes(mm2m &m,
+seque<std::pair<int, int>> getallnodes(mm2m const &m,
                                        std::pair<int, int> const &element) {
   seque<std::pair<int, int>> ret;
   auto [elementType, elementNumber] = element;
@@ -112,7 +114,8 @@ seque<std::pair<int, int>> getallnodes(mm2m &m,
 // pair) and returns all reachable (elementType, element) pairs. This helper is
 // defined inside the hidden namespace.
 seque<std::pair<int, int>>
-hidden::depthfirstsearchfromanode(mm2m &m, std::pair<int, int> const &node) {
+hidden::depthfirstsearchfromanode(mm2m const &m,
+                                  std::pair<int, int> const &node) {
   using P = std::pair<int, int>;
   seque<P> ret;
   std::set<P> visited;
@@ -152,7 +155,8 @@ void setnumberoftypes(mm2m &m, int ntypes) {
 // (This uses the o2m appendelement function defined elsewhere.)
 int appendelement(mm2m &m, int elementType, int nodeType,
                   seque<int> const &nodes) {
-  return appendelement(m(elementType, nodeType), nodes);
+  int newelement = appendelement(m(elementType, nodeType), nodes);
+  return newelement;
 }
 
 // Append a new element for the provided elementType.
@@ -222,13 +226,22 @@ void compress(mm2m &m) {
                            .efromn.nelem); // gives number of nodes of type type
       nnmax = std::max(nnmax, m(otherType, type).nfrome.maxnode + 1);
     }
+
     seque<bool> isMarked(nnmax, false);
     for (int pos = 0; pos < getsize(nodes[type]); ++pos) {
       int node = nodes[type][pos];
       if (node >= 0 && node < nnmax)
         isMarked[node] = true;
     }
-
+    setsize(m(type, type).nfrome, nnmax);
+    setsize(m(type, type).efromn, nnmax);
+    seque<int> sizes(nnmax, 1);
+    setsizes(m(type, type).nfrome, sizes);
+    setsizes(m(type, type).efromn, sizes);
+    for (int i = 0; i < nnmax; ++i) {
+      m(type, type).nfrome.lnods[i][0] = i;
+      m(type, type).efromn.lnods[i][0] = i;
+    }
     seque<int> oldFromNew(nnmax, -1);
     seque<int> newFromOld(nnmax, -1);
     int k = 0;
@@ -271,5 +284,5 @@ seque<int> typegettoporder(mm2m const &m) {
 // Retrieves elements from nodes for a particular pair of types.
 seque<int> getselementsfromnodes(mm2m &matrix, int elementType, int nodeType,
                                  seque<int> const &nodes) {
-  return getelementsfromnodes(matrix(elementType, nodeType), nodes);
+  return getelementsdefinedbythesenodes(matrix(elementType, nodeType), nodes);
 }

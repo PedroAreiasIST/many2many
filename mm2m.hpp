@@ -19,9 +19,9 @@ struct mm2m {
     return m[elementtype][nodetype];
   }
 
-  int nnodes(int elementtype, int element, int nodetype);
+  int nnodes(int elementtype, int element, int nodetype) const;
 
-  int nelems(int nodetype, int node, int elementtype);
+  int nelems(int nodetype, int node, int elementtype) const;
 };
 
 PFR_FUNCTIONS_FOR(mm2m)
@@ -32,15 +32,15 @@ void marktoerase(mm2m &m, int nodetype, int node);
 
 void marktoeraserepeated(mm2m &m, int elementtype, int nodetype);
 
-seque<std::pair<int, int>> getallelements(mm2m &m,
+seque<std::pair<int, int>> getallelements(mm2m const &m,
                                           std::pair<int, int> const &node);
 
-seque<std::pair<int, int>> getallnodes(mm2m &m,
+seque<std::pair<int, int>> getallnodes(mm2m const &m,
                                        std::pair<int, int> const &element);
 
 namespace hidden {
 seque<std::pair<int, int>>
-depthfirstsearchfromanode(mm2m &m, std::pair<int, int> const &node);
+depthfirstsearchfromanode(mm2m const &m, std::pair<int, int> const &node);
 }
 
 void setnumberoftypes(mm2m &m, int ntypes);

@@ -104,10 +104,10 @@ void testmm2m() {
   settypenumberofathing(things[27], wedge);
   settypenumberofathing(things[28], hex);
 
-  //  appendnodesofonetype(things[0], isanelement, {0});
-  //  appendnodesofonetype(things[1], isanelement, {1});
-  // for (int i = 0; i < 19; ++i)
-  //   appendnodesofonetype(things[i + 2], node, {i});
+  appendnodesofonetype(things[0], isanelement, {0});
+  appendnodesofonetype(things[1], isanelement, {1});
+  for (int i = 0; i < 19; ++i)
+    appendnodesofonetype(things[i + 2], node, {i});
 
   appendnodesofonetype(things[21], node, {0});
   appendnodesofonetype(things[21], isanelement, {1});

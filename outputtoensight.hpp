@@ -4,6 +4,7 @@
 
 #ifndef OUTPUTTOENSIGHT_HPP
 #define OUTPUTTOENSIGHT_HPP
+#include "mm2m.hpp"
 #include <array>
 #include <cstdlib>
 #include <fstream>
@@ -12,7 +13,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
 // This function writes simulation output in Ensight Gold format.
 // Note: For simplicity the nodal coordinate array 'x' is assumed to be a vector
 //       of std::array<double,3> (one per node); similarly, the connectivity and
@@ -162,4 +162,52 @@ void ensightoutput(
   }
 }
 
+void ensightfromdb(mm2m const &m) {
+  std::vector<std::array<double, 3>> coordinates;
+  coordinates.reserve(19);
+  coordinates.push_back({3.7, 4, 0.7});
+  coordinates.push_back({3, 4, 0});
+  coordinates.push_back({2.7, 4, 1.7});
+  coordinates.push_back({2, 4, 1});
+  coordinates.push_back({2, 4, 0});
+  coordinates.push_back({2, 4, 2});
+  coordinates.push_back({1, 3, 1});
+  coordinates.push_back({1, 3, 0});
+  coordinates.push_back({0, 3, 1});
+  coordinates.push_back({0, 3, 0});
+  coordinates.push_back({1, 1, 1});
+  coordinates.push_back({0, 3, 2});
+  coordinates.push_back({1, 1, 0});
+  coordinates.push_back({0, 1, 1});
+  coordinates.push_back({0, 1, 0});
+  coordinates.push_back({1, 0, 0});
+  coordinates.push_back({0, 1, 2});
+  coordinates.push_back({0, 0, 1});
+  coordinates.push_back({0, 0, 0});
+  enum typenumbers : int {
+    isanelement = 0,
+    node,
+    point,
+    edge,
+    tri,
+    quad,
+    tet,
+    wedge,
+    hex
+  };
+  int number = 0;
+  std::string filename = "output";
+  int nnoe = 19;
+
+  /*ensightoutput(
+      number,      // Number of time steps (should be <= 9999)
+      filename,    // Base filename for output files
+      nnoe,        // Number of nodes
+      coordinates, // Node coordinates: one std::array<double,3> per node
+      int nele,    // Number of elements
+      const std::vector<std::string> &names, const std::vector<int> &nelpr,
+      const std::vector<int> &ncnos, const std::vector<int> &el_ni,
+      const std::vector<int> &el_no)
+      */
+}
 #endif // OUTPUTTOENSIGHT_HPP
