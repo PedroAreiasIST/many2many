@@ -149,6 +149,7 @@ void testmm2m() {
       << getallelements(matrix, make_pair(isanelement, 0)) << "\n";
   ofs << "all relations to isanelement 1:"
       << getallelements(matrix, make_pair(isanelement, 1)) << "\n";
+  ensightfromdb(matrix);
 }
 
 #endif // TESTMMM_HPP

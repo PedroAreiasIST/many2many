@@ -32,11 +32,15 @@ void marktoerase(mm2m &m, int nodetype, int node);
 
 void marktoeraserepeated(mm2m &m, int elementtype, int nodetype);
 
+seque<std::pair<int, int>> getallelements(mm2m const &m, int nodetype);
+
 seque<std::pair<int, int>> getallelements(mm2m const &m,
                                           std::pair<int, int> const &node);
 
 seque<std::pair<int, int>> getallnodes(mm2m const &m,
                                        std::pair<int, int> const &element);
+
+seque<std::pair<int, int>> getallnodes(mm2m const &m, int elementtype);
 
 namespace hidden {
 seque<std::pair<int, int>>

@@ -16,7 +16,6 @@ int main(int argc, char *argv[]) {
   cout << db2 << endl;
   //   ensightoutput(0, "teste",100,vector<array<double,3>>(),20,0,0,0,)
 
-  // testm2m();
+  testm2m();
   testmm2m();
-  //  testeo2m();
 }

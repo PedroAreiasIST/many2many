@@ -31,7 +31,7 @@ void setnodesforelement(o2m &rel, int element, seque<int> const &nodes);
 
 int appendelement(o2m &rel, const seque<int> &nodes);
 
-o2m &operator<<(o2m &rel, const seque<int> &nodes);
+o2m &operator<<(o2m &rel, std::initializer_list<int> nodes);
 
 o2m Tr(const o2m &rel);
 

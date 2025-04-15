@@ -63,18 +63,29 @@ seque<std::pair<int, int>> getallelements(mm2m const &m,
   int totalElements = 0;
   // Compute total number of elements incident to the node.
   for (int elementType = 0; elementType < m.ntypes; ++elementType) {
-    totalElements += m.nelems(nodeType, nodeNumber, elementType);
+    if (elementType != nodeType)
+      totalElements += m.nelems(nodeType, nodeNumber, elementType);
   }
   setsize(ret, totalElements);
   int pos = 0;
   // Second pass: fill ret with pairs (elementType, element number)
   for (int elementType = 0; elementType < m.ntypes; ++elementType) {
-    int numElems = m.nelems(nodeType, nodeNumber, elementType);
-    for (int localelem = 0; localelem < numElems; ++localelem) {
-      ret[pos++] = std::make_pair(
-          elementType,
-          m(elementType, nodeType).efromn.lnods[nodeNumber][localelem]);
+    if (elementType != nodeType) {
+      int numElems = m.nelems(nodeType, nodeNumber, elementType);
+      for (int localelem = 0; localelem < numElems; ++localelem) {
+        ret[pos++] = std::make_pair(
+            elementType,
+            m(elementType, nodeType).efromn.lnods[nodeNumber][localelem]);
+      }
     }
+  }
+  setorderedandunique(ret);
+  return ret;
+}
+seque<std::pair<int, int>> getallelements(mm2m const &m, int nodetype) {
+  seque<std::pair<int, int>> ret;
+  for (int node = 0; node < m(nodetype, nodetype).nfrome.nelem; ++node) {
+    ret = getunion(ret, getallelements(m, std::make_pair(nodetype, node)));
   }
   setorderedandunique(ret);
   return ret;
@@ -101,6 +112,15 @@ seque<std::pair<int, int>> getallnodes(mm2m const &m,
           nodeType,
           m(elementType, nodeType).nfrome.lnods[elementNumber][localnode]);
     }
+  }
+  setorderedandunique(ret);
+  return ret;
+}
+seque<std::pair<int, int>> getallnodes(mm2m const &m, int elementtype) {
+  seque<std::pair<int, int>> ret;
+  for (int element = 0; element < m(elementtype, element).nfrome.nelem;
+       ++element) {
+    ret = getunion(ret, getallnodes(m, std::make_pair(elementtype, element)));
   }
   setorderedandunique(ret);
   return ret;

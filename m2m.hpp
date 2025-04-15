@@ -1,11 +1,10 @@
 #ifndef RELMANYTOMANY_HPP
 #define RELMANYTOMANY_HPP
 
-#include <cstddef>
-
 #include "godoftypes.hpp"
 #include "o2m.hpp"
 #include "seque.hpp"
+#include <cstddef>
 
 struct m2m {
   o2m nfrome;
