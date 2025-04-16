@@ -103,27 +103,21 @@ void testmm2m() {
   settypenumberofathing(things[26], tet);
   settypenumberofathing(things[27], wedge);
   settypenumberofathing(things[28], hex);
-
-  appendnodesofonetype(things[0], isanelement, {0});
-  appendnodesofonetype(things[1], isanelement, {1});
-  for (int i = 0; i < 19; ++i)
-    appendnodesofonetype(things[i + 2], node, {i});
-
-  appendnodesofonetype(things[21], node, {0});
+  appendnodesofonetype(things[21], node, {5});
   appendnodesofonetype(things[21], isanelement, {1});
-  appendnodesofonetype(things[22], node, {7, 6});
+  appendnodesofonetype(things[22], node, {6, 5});
   appendnodesofonetype(things[22], isanelement, {1});
-  appendnodesofonetype(things[23], node, {5, 2, 4});
+  appendnodesofonetype(things[23], node, {4, 3, 1});
   appendnodesofonetype(things[23], isanelement, {1});
-  appendnodesofonetype(things[24], node, {8, 5, 4, 7});
+  appendnodesofonetype(things[24], node, {7, 4, 3, 6});
   appendnodesofonetype(things[24], isanelement, {1});
-  appendnodesofonetype(things[25], node, {2, 1, 3, 4});
+  appendnodesofonetype(things[25], node, {3, 2, 0, 1});
   appendnodesofonetype(things[25], isanelement, {1});
-  appendnodesofonetype(things[26], node, {0, 16, 15, 18});
+  appendnodesofonetype(things[26], node, {14, 18, 15, 17});
   appendnodesofonetype(things[26], isanelement, {0});
-  appendnodesofonetype(things[27], node, {14, 11, 17, 9, 7, 12});
+  appendnodesofonetype(things[27], node, {13, 16, 10, 8, 11, 6});
   appendnodesofonetype(things[27], isanelement, {0});
-  appendnodesofonetype(things[28], node, {13, 8, 10, 15, 11, 7, 9, 14});
+  appendnodesofonetype(things[28], node, {7, 9, 14, 12, 6, 8, 13, 10});
   appendnodesofonetype(things[28], isanelement, {0});
   mm2m matrix;
   setnumberoftypes(matrix, 9);

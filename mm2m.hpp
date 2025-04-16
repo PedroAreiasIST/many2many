@@ -52,8 +52,6 @@ void setnumberoftypes(mm2m &m, int ntypes);
 int appendelement(mm2m &m, int elementype, int nodetype,
                   seque<int> const &nodes);
 
-int appendelement(mm2m &m, int elementype);
-
 seque<int> getselementsfromnodes(mm2m &matrix, int elementtype, int nodestype,
                                  seque<int> const &nodes);
 

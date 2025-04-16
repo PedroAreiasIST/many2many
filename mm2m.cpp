@@ -42,6 +42,7 @@ void resetmarked(mm2m &m) { erase(m.listofmarked); }
 void marktoerase(mm2m &m, int nodeType, int node) {
   append(m.listofmarked, std::make_pair(nodeType, node));
 }
+
 void marktoeraserepeated(mm2m &m, int elementtype, int nodetype) {
   auto mm = m(elementtype, nodetype);
   auto order = getorder(mm);
@@ -82,6 +83,7 @@ seque<std::pair<int, int>> getallelements(mm2m const &m,
   setorderedandunique(ret);
   return ret;
 }
+
 seque<std::pair<int, int>> getallelements(mm2m const &m, int nodetype) {
   seque<std::pair<int, int>> ret;
   for (int node = 0; node < m(nodetype, nodetype).nfrome.nelem; ++node) {
@@ -116,6 +118,7 @@ seque<std::pair<int, int>> getallnodes(mm2m const &m,
   setorderedandunique(ret);
   return ret;
 }
+
 seque<std::pair<int, int>> getallnodes(mm2m const &m, int elementtype) {
   seque<std::pair<int, int>> ret;
   for (int element = 0; element < m(elementtype, element).nfrome.nelem;
@@ -177,13 +180,6 @@ int appendelement(mm2m &m, int elementType, int nodeType,
                   seque<int> const &nodes) {
   int newelement = appendelement(m(elementType, nodeType), nodes);
   return newelement;
-}
-
-// Append a new element for the provided elementType.
-// This version appends a default (self-referential) element.
-int appendelement(mm2m &m, int elementType) {
-  auto newn = getsize(m(elementType, elementType).nfrome.lnods);
-  return appendelement(m(elementType, elementType), {newn});
 }
 
 // -----------------------------------------------------------------------------
