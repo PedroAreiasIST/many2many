@@ -203,7 +203,7 @@ constexpr bool is_initializable(int) noexcept {
     return false;
 }
 
-///////////////////// Helpers for range size detection
+///////////////////// Helpers for range nchildren detection
 template <std::size_t Begin, std::size_t Last>
 using is_one_element_range = std::integral_constant<bool, Begin == Last>;
 
@@ -332,7 +332,7 @@ constexpr std::size_t fields_count_lower_bound_unbounded(int, size_t_<0>) noexce
     return detail::fields_count_lower_bound_unbounded<T, last + 1>(1L, size_t_<result_maybe>{});
 }
 
-///////////////////// Choosing between array size, unbounded binary search, and linear search followed by unbounded binary search.
+///////////////////// Choosing between array nchildren, unbounded binary search, and linear search followed by unbounded binary search.
 template <class T>
 constexpr auto fields_count_dispatch(long, long, std::false_type /*are_preconditions_met*/) noexcept {
     return 0;

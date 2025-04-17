@@ -185,57 +185,94 @@ void printmesh(mm2m &m, int number,
   std::cout << aaa << std::endl;
   std::vector<int> nelpr(getsize(aaa));
   std::vector<int> elni(1000, 0), elno(1000, 0);
+  nele = 0;
   for (int i = 0; i < getsize(aaa); ++i) {
     int etype = aaa[i].first;
     int e = aaa[i].second;
+    m2m temp;
     switch (etype) {
     case point:
-      nelpr[i] = 1;
-      elni[i + 1] = elni[i] + 1;
-      for (int j = 0; j < 1; ++j) {
-        elno[elni[i] + j] = m(point, node).nfrome[e][j] + 1;
+      temp = m(etype, node);
+      if (temp.nfrome[e].size > 0) {
+        nelpr[nele] = 1;
+        int ss = temp.nfrome[e].size;
+        elni[nele + 1] = elni[nele] + ss;
+        for (int j = 0; j < ss; ++j) {
+          elno[elni[nele] + j] = temp.nfrome[e][j] + 1;
+        }
+        nele++;
       }
       break;
     case edge:
-      nelpr[i] = 2;
-      elni[i + 1] = elni[i] + 2;
-      for (int j = 0; j < 2; ++j) {
-        elno[elni[i] + j] = m(edge, node).nfrome[e][j] + 1;
+      temp = m(edge, node);
+      if (temp.nfrome[e].size > 0) {
+        nelpr[nele] = 2;
+        int ss = temp.nfrome[e].size;
+        elni[nele + 1] = elni[nele] + ss;
+        for (int j = 0; j < ss; ++j) {
+          elno[elni[nele] + j] = temp.nfrome[e][j] + 1;
+        }
+        nele++;
       }
       break;
     case tri:
-      nelpr[i] = 3;
-      elni[i + 1] = elni[i] + 3;
-      for (int j = 0; j < 3; ++j) {
-        elno[elni[i] + j] = m(tri, node).nfrome[e][j] + 1;
+      temp = m(tri, node);
+      if (temp.nfrome[e].size > 0) {
+        nelpr[nele] = 3;
+        int ss = temp.nfrome[e].size;
+        elni[nele + 1] = elni[nele] + ss;
+        for (int j = 0; j < ss; ++j) {
+          elno[elni[nele] + j] = temp.nfrome[e][j] + 1;
+        }
+        nele++;
       }
       break;
     case quad:
-      nelpr[i] = 4;
-      elni[i + 1] = elni[i] + 4;
-      for (int j = 0; j < 4; ++j) {
-        elno[elni[i] + j] = m(quad, node).nfrome[e][j] + 1;
+      temp = m(quad, node);
+      if (temp.nfrome[e].size > 0) {
+        nelpr[nele] = 4;
+        int ss = temp.nfrome[e].size;
+        elni[nele + 1] = elni[nele] + ss;
+        for (int j = 0; j < ss; ++j) {
+          elno[elni[nele] + j] = temp.nfrome[e][j] + 1;
+        }
+        nele++;
       }
       break;
     case tet:
-      nelpr[i] = 5;
-      elni[i + 1] = elni[i] + 4;
-      for (int j = 0; j < 4; ++j) {
-        elno[elni[i] + j] = m(tet, node).nfrome[e][j] + 1;
+      temp = m(tet, node);
+      if (temp.nfrome[e].size > 0) {
+        nelpr[nele] = 5;
+        int ss = temp.nfrome[e].size;
+        elni[nele + 1] = elni[nele] + ss;
+        for (int j = 0; j < ss; ++j) {
+          elno[elni[nele] + j] = temp.nfrome[e][j] + 1;
+        }
+        nele++;
       }
       break;
     case wedge:
-      nelpr[i] = 7;
-      elni[i + 1] = elni[i] + 6;
-      for (int j = 0; j < 6; ++j) {
-        elno[elni[i] + j] = m(wedge, node).nfrome[e][j] + 1;
+      temp = m(wedge, node);
+      if (temp.nfrome[e].size > 0) {
+        nelpr[nele] = 7;
+        int ss = temp.nfrome[e].size;
+        elni[nele + 1] = elni[nele] + ss;
+        for (int j = 0; j < ss; ++j) {
+          elno[elni[nele] + j] = temp.nfrome[e][j] + 1;
+        }
+        nele++;
       }
       break;
     case hex:
-      nelpr[i] = 6;
-      elni[i + 1] = elni[i] + 8;
-      for (int j = 0; j < 8; ++j) {
-        elno[elni[i] + j] = m(hex, node).nfrome[e][j] + 1;
+      temp = m(hex, node);
+      if (temp.nfrome[e].size > 0) {
+        nelpr[nele] = 6;
+        int ss = temp.nfrome[e].size;
+        elni[nele + 1] = elni[nele] + ss;
+        for (int j = 0; j < ss; ++j) {
+          elno[elni[nele] + j] = temp.nfrome[e][j] + 1;
+        }
+        nele++;
       }
       break;
     default:

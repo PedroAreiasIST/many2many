@@ -117,13 +117,13 @@ struct seque {
 
   void swap(seque &other) noexcept {
     using std::swap;
-    // Swap the size and heapsize
+    // Swap the nchildren and heapsize
     swap(size, other.size);
     swap(heapsize, other.heapsize);
     // Swap the heapdata pointers.
     swap(heapdata, other.heapdata);
-    // The internal fixed-size buffers cannot be swapped overall,
-    // but we swap the elements in the buffer up to the minimum size.
+    // The internal fixed-nchildren buffers cannot be swapped overall,
+    // but we swap the elements in the buffer up to the minimum nchildren.
     int minStack = (S < other.stacksize ? S : other.stacksize);
     for (int i = 0; i < minStack; ++i) {
       swap(stackdata[i], other.stackdata[i]);

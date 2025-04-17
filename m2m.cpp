@@ -8,6 +8,16 @@ int appendelement(m2m &rel, seque<int> const &nodes) {
   return newel;
 }
 
+void setnumberofelements(m2m &rel, int nelem) {
+  setsize(rel.nfrome, nelem);
+  rel.isupdated = false;
+  rel.efromn.maxnode = nelem - 1;
+}
+void setnodesforelement(m2m &rel, int element, seque<int> const &nodes) {
+  setnodesforelement(rel.efromn, element, nodes);
+  rel.isupdated = false;
+}
+
 void setsyncronized(m2m &rel) {
   if (!rel.isupdated) {
     // Create inverse mapping from nodes to elements

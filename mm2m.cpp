@@ -8,12 +8,6 @@
 #include <stack>
 #include <utility>
 
-// -----------------------------------------------------------------------------
-// mm2m member functions and related helper routines
-// -----------------------------------------------------------------------------
-
-// Returns the number of nodes in a given element (of type elementType)
-// for the specified node type (nodeType).
 int mm2m::nnodes(int elementType, int element, int nodeType) const {
   // Basic index checks (assumes getsize() returns the number of elements)
   assert(elementType >= 0 && elementType < ntypes);
@@ -35,9 +29,6 @@ int mm2m::nelems(int nodeType, int node, int elementType) const {
     return getsize(operator()(elementType, nodeType).efromn.lnods[node]);
 }
 
-// Resets the global list of marked nodes.
-void resetmarked(mm2m &m) { erase(m.listofmarked); }
-
 // Marks a node (identified by nodeType and its index) for erasure.
 void marktoerase(mm2m &m, int nodeType, int node) {
   append(m.listofmarked, std::make_pair(nodeType, node));
@@ -51,12 +42,6 @@ void marktoeraserepeated(mm2m &m, int elementtype, int nodetype) {
     marktoerase(m, elementtype, dupindices[i]);
 }
 
-// -----------------------------------------------------------------------------
-// Element–Node mapping routines
-// -----------------------------------------------------------------------------
-
-// Collects all (elementType, element) pairs that are incident to a given node.
-// The node is identified by its type and index.
 seque<std::pair<int, int>> getallelements(mm2m const &m,
                                           std::pair<int, int> const &node) {
   seque<std::pair<int, int>> ret;
@@ -129,13 +114,6 @@ seque<std::pair<int, int>> getallnodes(mm2m const &m, int elementtype) {
   return ret;
 }
 
-// -----------------------------------------------------------------------------
-// Depth-First Search and Related Operations
-// -----------------------------------------------------------------------------
-
-// Performs a depth-first search starting from a specified node (given as a
-// pair) and returns all reachable (elementType, element) pairs. This helper is
-// defined inside the hidden namespace.
 seque<std::pair<int, int>>
 hidden::depthfirstsearchfromanode(mm2m const &m,
                                   std::pair<int, int> const &node) {
@@ -186,21 +164,6 @@ int appendelement(mm2m &m, int elementType, int nodeType,
 // Compression and Remapping Routines
 // -----------------------------------------------------------------------------
 
-// Hidden compression function: For a given elementType, remap node indices
-// according to the provided mapping arrays.
-void hidden::compress(mm2m &m, int elementType,
-                      seque<int> const &oldElementFromNew,
-                      seque<int> const &newElementFromOld) {
-  for (int nodeType = 0; nodeType < m.ntypes; ++nodeType) {
-    compresselements(m(elementType, nodeType), oldElementFromNew);
-  }
-  // For each other elementType, update node indices accordingly.
-  for (int otherElementType = 0; otherElementType < m.ntypes;
-       ++otherElementType) {
-    permutenodes(m(otherElementType, elementType), newElementFromOld);
-  }
-}
-
 // Compresses (renumbers) the entire mm2m structure based on marked nodes.
 // This involves (1) expanding the marked set via DFS, (2) building per-type
 // node sets, (3) computing new mapping arrays, and (4) applying compression.
@@ -225,54 +188,31 @@ void compress(mm2m &m) {
     int node = pair.second;
     append(nodes[type], node);
   }
-
-  // For each type, compute the maximum node index across relevant matrices,
-  // build new mapping arrays, and compress.
   for (int type = 0; type < m.ntypes; ++type) {
     int nnmax = 0;
-
     for (int otherType = 0; otherType < m.ntypes; ++otherType) {
-      nnmax = std::max(
-          nnmax, m(type, otherType)
-                     .nfrome.nelem); // gives number of elements of type type
-      nnmax = std::max(nnmax, m(type, otherType).efromn.maxnode +
-                                  1); // gives number of elements of type type
-      nnmax = std::max(nnmax,
-                       m(otherType, type)
-                           .efromn.nelem); // gives number of nodes of type type
+      nnmax = std::max(nnmax, m(type, otherType).nfrome.nchildren());
+      nnmax = std::max(nnmax, m(type, otherType).efromn.maxnode + 1);
+      nnmax = std::max(nnmax, m(otherType, type).efromn.nchildren());
       nnmax = std::max(nnmax, m(otherType, type).nfrome.maxnode + 1);
     }
-
-    seque<bool> isMarked(nnmax, false);
-    for (int pos = 0; pos < getsize(nodes[type]); ++pos) {
-      int node = nodes[type][pos];
-      if (node >= 0 && node < nnmax)
-        isMarked[node] = true;
-    }
-    setsize(m(type, type).nfrome, nnmax);
-    setsize(m(type, type).efromn, nnmax);
-    seque<int> sizes(nnmax, 1);
-    setsizes(m(type, type).nfrome, sizes);
-    setsizes(m(type, type).efromn, sizes);
+    // ensure that all are set
+    setnumberofelements(m(type, type), nnmax);
     for (int i = 0; i < nnmax; ++i) {
-      m(type, type).nfrome.lnods[i][0] = i;
-      m(type, type).efromn.lnods[i][0] = i;
+      appendelement(m(type, type), {i});
     }
-    seque<int> oldFromNew(nnmax, -1);
-    seque<int> newFromOld(nnmax, -1);
-    int k = 0;
-    for (int i = 0; i < nnmax; ++i) {
-      if (!isMarked[i]) {
-        oldFromNew[k] = i;
-        newFromOld[i] = k;
-        k++;
+  }
+  for (int type = 0; type < m.ntypes; ++type) {
+    for (int lelement = 0; lelement < getsize(nodes[type]); ++lelement) {
+      auto element = nodes[type][lelement];
+      for (int otype = 0; otype < m.ntypes; ++otype) {
+        erase(m(type, type).nfrome[element]);
       }
     }
-    setsize(oldFromNew, k);
-    // Apply compression for the current type once the mapping is complete.
-    hidden::compress(m, type, oldFromNew, newFromOld);
+    for (int otype = 0; otype < m.ntypes; ++otype) {
+      setsyncronized(m(type, otype));
+    }
   }
-  resetmarked(m);
 }
 
 // -----------------------------------------------------------------------------

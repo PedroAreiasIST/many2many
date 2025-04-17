@@ -187,7 +187,7 @@ consteval auto name_of_field() noexcept {
     return detail::name_of_field_impl<MsvcWorkaround, ptr>();
 }
 
-// Storing part of a string literal into an array minimizes the binary size.
+// Storing part of a string literal into an array minimizes the binary nchildren.
 //
 // Without passing 'T' into 'name_of_field' different fields from different structures might have the same name!
 // See https://developercommunity.visualstudio.com/t/__FUNCSIG__-outputs-wrong-value-with-C/10458554 for details

@@ -26,7 +26,6 @@ inline o2m geto2mfromsequence(const seque<int> &other) {
   o2m ret;
   setsize(ret, getsize(other));
   for (int element = 0; element < getsize(other); ++element) {
-    setnodesforelement(ret, element, {other[element]});
   }
   return ret;
 }
@@ -35,14 +34,14 @@ seque<seque<int>> getcliques(const o2m &nodesfromelement,
                              const o2m &elementsfromnode) {
   seque<seque<int>> cliques;
   // Preallocate cliques vector according to the number of elements.
-  setsize(cliques, nodesfromelement.size());
+  setsize(cliques, nodesfromelement.nchildren());
 
   // Compute node positions once.
   seque<seque<int>> nodelocation =
       hidden::getnodepositions(nodesfromelement, elementsfromnode);
 
-  // Preallocate each clique vector with the appropriate size.
-  for (int element = 0; element < nodesfromelement.size(); ++element) {
+  // Preallocate each clique vector with the appropriate nchildren.
+  for (int element = 0; element < nodesfromelement.nchildren(); ++element) {
     int ns = getsize(nodesfromelement[element]);
     setsize(cliques[element], ns * ns);
   }
@@ -51,16 +50,17 @@ seque<seque<int>> getcliques(const o2m &nodesfromelement,
 #pragma omp parallel
   {
     // Each thread gets its own scratch arrays.
-    // Their size equals the total number of nodes (elementsfromnode.size()).
-    seque<int> local_marker(elementsfromnode.size(), 0);
-    seque<int> local_markerGen(elementsfromnode.size(), -1);
+    // Their nchildren equals the total number of nodes
+    // (elementsfromnode.nchildren()).
+    seque<int> local_marker(elementsfromnode.nchildren(), 0);
+    seque<int> local_markerGen(elementsfromnode.nchildren(), -1);
 
     // Use a parallel for loop.
     // schedule(static) is used so that iterations assigned to a thread occur in
     // increasing order, ensuring that the generation trick (generation = node1
     // + 1) remains valid.
 #pragma omp for schedule(static)
-    for (int node1 = 0; node1 < elementsfromnode.size(); ++node1) {
+    for (int node1 = 0; node1 < elementsfromnode.nchildren(); ++node1) {
       // Use node1+1 as the generation value (ensuring it is unique for each
       // iteration).
       int generation = node1 + 1;
@@ -68,14 +68,14 @@ seque<seque<int>> getcliques(const o2m &nodesfromelement,
 
       // Loop over all occurrences of node1 (elements in which node1
       // participates).
-      for (int lelement = 0; lelement < elementsfromnode.size(node1);
+      for (int lelement = 0; lelement < elementsfromnode.nparents(node1);
            ++lelement) {
         int lnode1 = nodelocation[node1][lelement];
         int element = elementsfromnode[node1][lelement];
-        int esize = nodesfromelement.size(element);
+        int esize = nodesfromelement.nparents(element);
 
         // For each local node in the current element.
-        for (int lnode2 = 0; lnode2 < nodesfromelement.size(element);
+        for (int lnode2 = 0; lnode2 < nodesfromelement.nparents(element);
              ++lnode2) {
           int node2 = nodesfromelement[element][lnode2];
 
@@ -101,24 +101,14 @@ void setsize(o2m &rel, int nelem) {
   setsize(rel.lnods, nelem);
 }
 
-void setsizes(o2m &rel, seque<int> const &sizes) {
-  int sm = std::min(getsize(sizes), rel.size());
-  for (int element = 0; element < sm; ++element) {
-    setsize(rel[element], sizes[element]);
-  }
-}
-
 void setnodesforelement(o2m &rel, int element, seque<int> const &nodes) {
+  if (element >= rel.nchildren())
+    throw std::runtime_error("Element index out of bounds");
   if (getsize(rel.lnods[element]) != getsize(nodes)) {
     rel.lnods[element] = nodes;
   } else
     std::copy(std::execution::par, nodes.begin(), nodes.end(),
               rel.lnods[element].begin());
-  rel.maxnode = hidden::update_max_for_nodes(nodes, rel.maxnode);
-}
-
-void setnodesforelement(o2m &rel, int element, seque<int> &&nodes) {
-  rel.lnods[element] = nodes;
   rel.maxnode = hidden::update_max_for_nodes(nodes, rel.maxnode);
 }
 
@@ -197,11 +187,11 @@ o2m Tr(const o2m &rel) {
 
 o2m operator*(const o2m &rela, const o2m &relb) {
   o2m relc;
-  const int camax = relb.size() - 1;
+  const int camax = relb.nchildren() - 1;
   relc.maxnode = relb.maxnode;
-  setsize(relc, rela.size());
+  setsize(relc, rela.nchildren());
 
-  std::vector<int> row_sizes(rela.size(), 0);
+  std::vector<int> row_sizes(rela.nchildren(), 0);
   if (rela.maxnode <= camax) {
     // Step 1: Compute sizes in parallel, no call to setsize here.
 #pragma omp parallel
@@ -210,12 +200,12 @@ o2m operator*(const o2m &rela, const o2m &relb) {
       int generation = 0;
 
 #pragma omp for schedule(dynamic)
-      for (int ra = 0; ra < rela.size(); ++ra) {
+      for (int ra = 0; ra < rela.nchildren(); ++ra) {
         generation++;
         int len = 0;
-        for (int ka = 0; ka < rela.size(ra); ++ka) {
+        for (int ka = 0; ka < rela.nparents(ra); ++ka) {
           int ca = rela[ra][ka];
-          for (int kb = 0; kb < relb.size(ca); ++kb) {
+          for (int kb = 0; kb < relb.nparents(ca); ++kb) {
             int cb = relb[ca][kb];
             if (marker[cb] != generation) {
               marker[cb] = generation;
@@ -228,7 +218,7 @@ o2m operator*(const o2m &rela, const o2m &relb) {
     }
 
     // Step 2: Sequentially call setsize safely.
-    for (int ra = 0; ra < rela.size(); ++ra)
+    for (int ra = 0; ra < rela.nchildren(); ++ra)
       setsize(relc.lnods[ra], row_sizes[ra]);
 
     // Step 3: Parallel filling of relc data (no setsize calls).
@@ -238,12 +228,12 @@ o2m operator*(const o2m &rela, const o2m &relb) {
       int generation = 0;
 
 #pragma omp for schedule(dynamic)
-      for (int ra = 0; ra < rela.size(); ++ra) {
+      for (int ra = 0; ra < rela.nchildren(); ++ra) {
         generation++;
         int len = 0;
-        for (int ka = 0; ka < rela.size(ra); ++ka) {
+        for (int ka = 0; ka < rela.nparents(ra); ++ka) {
           int ca = rela[ra][ka];
-          for (int kb = 0; kb < relb.size(ca); ++kb) {
+          for (int kb = 0; kb < relb.nparents(ca); ++kb) {
             int cb = relb[ca][kb];
             if (marker[cb] != generation) {
               marker[cb] = generation;
@@ -261,14 +251,14 @@ o2m operator*(const o2m &rela, const o2m &relb) {
       int generation = 0;
 
 #pragma omp for schedule(dynamic)
-      for (int ra = 0; ra < rela.size(); ++ra) {
+      for (int ra = 0; ra < rela.nchildren(); ++ra) {
         generation++;
         int len = 0;
-        for (int ka = 0; ka < rela.size(ra); ++ka) {
+        for (int ka = 0; ka < rela.nparents(ra); ++ka) {
           int ca = rela[ra][ka];
           if (ca > camax)
             continue;
-          for (int kb = 0; kb < relb.size(ca); ++kb) {
+          for (int kb = 0; kb < relb.nparents(ca); ++kb) {
             int cb = relb[ca][kb];
             if (marker[cb] != generation) {
               marker[cb] = generation;
@@ -281,7 +271,7 @@ o2m operator*(const o2m &rela, const o2m &relb) {
     }
 
     // Step 2: Sequentially call setsize safely.
-    for (int ra = 0; ra < rela.size(); ++ra)
+    for (int ra = 0; ra < rela.nchildren(); ++ra)
       setsize(relc.lnods[ra], row_sizes[ra]);
 
     // Step 3: Parallel filling of relc data (no setsize calls).
@@ -291,14 +281,14 @@ o2m operator*(const o2m &rela, const o2m &relb) {
       int generation = 0;
 
 #pragma omp for schedule(dynamic)
-      for (int ra = 0; ra < rela.size(); ++ra) {
+      for (int ra = 0; ra < rela.nchildren(); ++ra) {
         generation++;
         int len = 0;
-        for (int ka = 0; ka < rela.size(ra); ++ka) {
+        for (int ka = 0; ka < rela.nparents(ra); ++ka) {
           int ca = rela[ra][ka];
           if (ca > camax)
             continue;
-          for (int kb = 0; kb < relb.size(ca); ++kb) {
+          for (int kb = 0; kb < relb.nparents(ca); ++kb) {
             int cb = relb[ca][kb];
             if (marker[cb] != generation) {
               marker[cb] = generation;
@@ -469,24 +459,24 @@ void hidden::permutenodes(o2m &rel, const seque<int> &newnodefromold) {
 seque<seque<int>> hidden::getnodepositions(o2m const &nodesfromelement,
                                            o2m const &elementsfromnode) {
   // Create a lookup table: for each global node, store the local positions
-  // at which it appears in various elements. The size of the outer sequence is
-  // the number of nodes in the global context.
-  seque<seque<int>> nodepositions(elementsfromnode.size());
+  // at which it appears in various elements. The nchildren of the outer
+  // sequence is the number of nodes in the global context.
+  seque<seque<int>> nodepositions(elementsfromnode.nchildren());
 
   // Parallel allocation: For each node, allocate storage based on how many
   // elements the node is part of.
 #pragma omp parallel for schedule(static)
-  for (int node = 0; node < elementsfromnode.size(); ++node) {
-    setsize(nodepositions[node], elementsfromnode.size(node));
+  for (int node = 0; node < elementsfromnode.nchildren(); ++node) {
+    setsize(nodepositions[node], elementsfromnode.nparents(node));
   }
 
   // Prepare a counter for each node to track where the next insertion should
   // occur. Initialized to 0 for each node.
-  seque<int> nodePositionCounter(elementsfromnode.size(), 0);
+  seque<int> nodePositionCounter(elementsfromnode.nchildren(), 0);
 
   // Parallelize the outer loop over elements.
 #pragma omp parallel for schedule(dynamic)
-  for (int element = 0; element < nodesfromelement.size(); ++element) {
+  for (int element = 0; element < nodesfromelement.nchildren(); ++element) {
     // Retrieve the current element's node list.
     const auto &nodes = nodesfromelement.lnods[element];
     int ns = getsize(nodes); // Cache number of nodes for this element.
@@ -516,19 +506,19 @@ seque<seque<int>> hidden::getelementpositions(o2m const &nodesfromelement,
   // Allocate the output lookup table:
   // For each element, we create a vector with one entry per node in that
   // element.
-  seque<seque<int>> elementpositions(nodesfromelement.size());
+  seque<seque<int>> elementpositions(nodesfromelement.nchildren());
 
   // Parallelize allocation: Each element's position vector is allocated
   // independently.
 #pragma omp parallel for schedule(static)
-  for (int element = 0; element < nodesfromelement.size(); ++element) {
-    int count = nodesfromelement.size(element);
+  for (int element = 0; element < nodesfromelement.nchildren(); ++element) {
+    int count = nodesfromelement.nparents(element);
     setsize(elementpositions[element], count);
   }
 
   // Parallelize over all global nodes.
 #pragma omp parallel for schedule(dynamic)
-  for (int node = 0; node < elementsfromnode.size(); ++node) {
+  for (int node = 0; node < elementsfromnode.nchildren(); ++node) {
     const auto &elemList = elementsfromnode.lnods[node];
     int numElems = getsize(elemList);
     // For each element that contains this node...

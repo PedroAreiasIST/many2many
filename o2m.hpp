@@ -15,17 +15,13 @@ struct o2m {
   seque<int> &operator[](int element) { return lnods[element]; }
   seque<int> const &operator[](int element) const { return lnods[element]; }
   // Utility methods
-  int size() const { return nelem; }
-  int size(int element) const { return lnods[element].size; }
+  int nchildren() const { return nelem; }
+  int nparents(int element) const { return lnods[element].size; }
 };
 
 PFR_FUNCTIONS_FOR(o2m)
 
 void setsize(o2m &rel, int nelem);
-
-void setsizes(o2m &rel, seque<int> const &sizes);
-
-void setnodesforelement(o2m &rel, int element, seque<int> &&nodes);
 
 void setnodesforelement(o2m &rel, int element, seque<int> const &nodes);
 

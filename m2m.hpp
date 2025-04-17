@@ -18,6 +18,10 @@ PFR_FUNCTIONS_FOR(m2m)
 
 int appendelement(m2m &rel, seque<int> const &nodes);
 
+void setnumberofelements(m2m &rel, int nelem);
+
+void setnodesforelement(m2m &rel, int element, seque<int> const &nodes);
+
 void setsyncronized(m2m &rel);
 
 seque<int> getelementscontainingnodes(m2m const &rel, seque<int> const &nodes);
