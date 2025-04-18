@@ -8,6 +8,12 @@
 #include <stack>
 #include <utility>
 
+m2m const &mm2m::operator()(int elementtype, int nodetype) const {
+  return m[elementtype][nodetype];
+}
+m2m &mm2m::operator()(int elementtype, int nodetype) {
+  return m[elementtype][nodetype];
+}
 int mm2m::nnodes(int elementType, int element, int nodeType) const {
   // Basic index checks (assumes getsize() returns the number of elements)
   assert(elementType >= 0 && elementType < ntypes);
@@ -28,6 +34,18 @@ int mm2m::nelems(int nodeType, int node, int elementType) const {
   } else
     return getsize(operator()(elementType, nodeType).efromn.lnods[node]);
 }
+int mm2m::nelems(int elementtype) {
+  return m[elementtype][elementtype].nfrome.nchildren();
+}
+int mm2m::nactiveelements(int elementtype) {
+  int nactive = 0;
+  for (int element = 0;
+       element < m[elementtype][elementtype].nfrome.nchildren(); ++element) {
+    if (getsize(m[elementtype][elementtype].nfrome[element]) != 0)
+      nactive++;
+  }
+  return nactive;
+}
 
 // Marks a node (identified by nodeType and its index) for erasure.
 void marktoerase(mm2m &m, int nodeType, int node) {
@@ -42,26 +60,25 @@ void marktoeraserepeated(mm2m &m, int elementtype, int nodetype) {
     marktoerase(m, elementtype, dupindices[i]);
 }
 
-seque<std::pair<int, int>> getallelements(mm2m const &m,
-                                          std::pair<int, int> const &node) {
+seque<std::pair<int, int>> getallelements(mm2m const &m, int nodetype,
+                                          int node) {
   seque<std::pair<int, int>> ret;
-  auto [nodeType, nodeNumber] = node;
   int totalElements = 0;
   // Compute total number of elements incident to the node.
   for (int elementType = 0; elementType < m.ntypes; ++elementType) {
-    if (elementType != nodeType)
-      totalElements += m.nelems(nodeType, nodeNumber, elementType);
+    if (elementType != nodetype)
+      totalElements += m.nelems(nodetype, node, elementType);
   }
   setsize(ret, totalElements);
   int pos = 0;
   // Second pass: fill ret with pairs (elementType, element number)
   for (int elementType = 0; elementType < m.ntypes; ++elementType) {
-    if (elementType != nodeType) {
-      int numElems = m.nelems(nodeType, nodeNumber, elementType);
+    if (elementType != nodetype) {
+      int numElems = m.nelems(nodetype, node, elementType);
       for (int localelem = 0; localelem < numElems; ++localelem) {
         ret[pos++] = std::make_pair(
             elementType,
-            m(elementType, nodeType).efromn.lnods[nodeNumber][localelem]);
+            m(elementType, nodetype).efromn.lnods[node][localelem]);
       }
     }
   }
@@ -72,7 +89,7 @@ seque<std::pair<int, int>> getallelements(mm2m const &m,
 seque<std::pair<int, int>> getallelements(mm2m const &m, int nodetype) {
   seque<std::pair<int, int>> ret;
   for (int node = 0; node < m(nodetype, nodetype).nfrome.nelem; ++node) {
-    ret = getunion(ret, getallelements(m, std::make_pair(nodetype, node)));
+    ret = getunion(ret, getallelements(m, nodetype, node));
   }
   setorderedandunique(ret);
   return ret;
@@ -80,10 +97,9 @@ seque<std::pair<int, int>> getallelements(mm2m const &m, int nodetype) {
 
 // Collects all (nodeType, node) pairs associated with a given element.
 // The element is specified by (elementType, element number).
-seque<std::pair<int, int>> getallnodes(mm2m const &m,
-                                       std::pair<int, int> const &element) {
+seque<std::pair<int, int>> getallnodes(mm2m const &m, int elementType,
+                                       int elementNumber) {
   seque<std::pair<int, int>> ret;
-  auto [elementType, elementNumber] = element;
   int totalNodes = 0;
   // First pass: count total nodes from all node types.
   for (int nodeType = 0; nodeType < m.ntypes; ++nodeType) {
@@ -108,7 +124,7 @@ seque<std::pair<int, int>> getallnodes(mm2m const &m, int elementtype) {
   seque<std::pair<int, int>> ret;
   for (int element = 0; element < m(elementtype, element).nfrome.nelem;
        ++element) {
-    ret = getunion(ret, getallnodes(m, std::make_pair(elementtype, element)));
+    ret = getunion(ret, getallnodes(m, elementtype, element));
   }
   setorderedandunique(ret);
   return ret;
@@ -128,7 +144,7 @@ hidden::depthfirstsearchfromanode(mm2m const &m,
     if (visited.find(current) == visited.end()) {
       visited.insert(current);
       append(ret, current);
-      seque<P> elements = getallelements(m, current);
+      seque<P> elements = getallelements(m, current.first, current.second);
       for (int i = 0; i < getsize(elements); ++i) {
         if (visited.find(elements[i]) == visited.end())
           stack.push(elements[i]);
@@ -167,7 +183,7 @@ int appendelement(mm2m &m, int elementType, int nodeType,
 // Compresses (renumbers) the entire mm2m structure based on marked nodes.
 // This involves (1) expanding the marked set via DFS, (2) building per-type
 // node sets, (3) computing new mapping arrays, and (4) applying compression.
-void compress(mm2m &m) {
+void setcompressed(mm2m &m) {
   // Clean up the marked list.
   setorderedandunique(m.listofmarked);
   int markedSize = getsize(m.listofmarked);
@@ -206,7 +222,7 @@ void compress(mm2m &m) {
     for (int lelement = 0; lelement < getsize(nodes[type]); ++lelement) {
       auto element = nodes[type][lelement];
       for (int otype = 0; otype < m.ntypes; ++otype) {
-        erase(m(type, type).nfrome[element]);
+        erase(m(type, otype).nfrome[element]);
       }
     }
     for (int otype = 0; otype < m.ntypes; ++otype) {
@@ -222,7 +238,7 @@ void compress(mm2m &m) {
 // Build a topological order of the types based on inter-type dependencies.
 // That is, if for a given pair (elementType, nodeType) the nfrome.nelem is
 // nonzero, an edge is added from elementType to nodeType.
-seque<int> typegettoporder(mm2m const &m) {
+seque<int> gettypetoporder(mm2m const &m) {
   o2m typeDeps;
   setsize(typeDeps, m.ntypes);
   for (int elementType = 0; elementType < m.ntypes; ++elementType) {
@@ -238,7 +254,7 @@ seque<int> typegettoporder(mm2m const &m) {
 }
 
 // Retrieves elements from nodes for a particular pair of types.
-seque<int> getselementsfromnodes(mm2m &matrix, int elementType, int nodeType,
-                                 seque<int> const &nodes) {
+seque<int> getelementsfromnodes(mm2m &matrix, int elementType, int nodeType,
+                                seque<int> const &nodes) {
   return getelementsdefinedbythesenodes(matrix(elementType, nodeType), nodes);
 }
