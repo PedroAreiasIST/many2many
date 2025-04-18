@@ -47,6 +47,9 @@ int appendelement(mm2m &m, int elementype, int nodetype,
 seque<int> getelementsfromnodes(mm2m &matrix, int elementtype, int nodestype,
                                 seque<int> const &nodes);
 
+seque<int> getelementswithnodes(mm2m &matrix, int elementtype, int nodestype,
+                                seque<int> const &nodes);
+
 void setcompressed(mm2m &m);
 
 seque<int> gettypetoporder(mm2m const &m);

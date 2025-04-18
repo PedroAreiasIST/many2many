@@ -256,5 +256,10 @@ seque<int> gettypetoporder(mm2m const &m) {
 // Retrieves elements from nodes for a particular pair of types.
 seque<int> getelementsfromnodes(mm2m &matrix, int elementType, int nodeType,
                                 seque<int> const &nodes) {
-  return getelementsdefinedbythesenodes(matrix(elementType, nodeType), nodes);
+  return getelementsfromnodes(matrix(elementType, nodeType), nodes);
+}
+
+seque<int> getelementswithnodes(mm2m &matrix, int elementtype, int nodestype,
+                                seque<int> const &nodes) {
+  return getelementswithnodes(matrix(elementtype, nodestype), nodes);
 }

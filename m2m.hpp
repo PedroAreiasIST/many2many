@@ -24,9 +24,9 @@ void setnodesforelement(m2m &rel, int element, seque<int> const &nodes);
 
 void setsyncronized(m2m &rel);
 
-seque<int> getelementscontainingnodes(m2m const &rel, seque<int> const &nodes);
+seque<int> getelementswithnodes(m2m const &rel, seque<int> const &nodes);
 
-seque<int> getelementsdefinedbythesenodes(m2m const &rel,
+seque<int> getelementsfromnodes(m2m const &rel,
                                           seque<int> const &nodes);
 
 seque<int> getelementneighbours(m2m const &rel, int element);

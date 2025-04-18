@@ -28,7 +28,7 @@ void setsyncronized(m2m &rel) {
   }
 }
 
-seque<int> getelementscontainingnodes(m2m const &rel, seque<int> const &nodes) {
+seque<int> getelementswithnodes(m2m const &rel, seque<int> const &nodes) {
   assert(rel.isupdated);
   seque<int> elems;
   if (getsize(nodes) == 0)
@@ -39,10 +39,9 @@ seque<int> getelementscontainingnodes(m2m const &rel, seque<int> const &nodes) {
   return elems;
 }
 
-seque<int> getelementsdefinedbythesenodes(m2m const &rel,
-                                          seque<int> const &nodes) {
+seque<int> getelementsfromnodes(m2m const &rel, seque<int> const &nodes) {
   assert(rel.isupdated);
-  seque<int> elems = getelementscontainingnodes(rel, nodes), ret;
+  seque<int> elems = getelementswithnodes(rel, nodes), ret;
   for (int i = 0; i < getsize(elems); ++i)
     if (getsize(rel.nfrome.lnods[elems[i]]) == getsize(nodes))
       append(ret, elems[i]);
