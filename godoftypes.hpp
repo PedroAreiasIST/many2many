@@ -24,7 +24,7 @@ template <typename... T> struct godstruct {
   std::tuple<seque<T>...> as;
   // std::tuple type (aka Tuple)
   using Tuple = std::tuple<T...>;
-  // nchildren of type list
+  // nelems of type list
   static constexpr auto Size = sizeof...(T);
   // give Nth type
   template <int N> using Nth = typename std::tuple_element<N, Tuple>::type;

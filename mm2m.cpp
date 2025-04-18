@@ -35,12 +35,12 @@ int mm2m::nelems(int nodeType, int node, int elementType) const {
     return getsize(operator()(elementType, nodeType).efromn.lnods[node]);
 }
 int mm2m::nelems(int elementtype) {
-  return m[elementtype][elementtype].nfrome.nchildren();
+  return m[elementtype][elementtype].nfrome.nelems();
 }
 int mm2m::nactiveelements(int elementtype) {
   int nactive = 0;
-  for (int element = 0;
-       element < m[elementtype][elementtype].nfrome.nchildren(); ++element) {
+  for (int element = 0; element < m[elementtype][elementtype].nfrome.nelems();
+       ++element) {
     if (getsize(m[elementtype][elementtype].nfrome[element]) != 0)
       nactive++;
   }
@@ -207,9 +207,9 @@ void setcompressed(mm2m &m) {
   for (int type = 0; type < m.ntypes; ++type) {
     int nnmax = 0;
     for (int otherType = 0; otherType < m.ntypes; ++otherType) {
-      nnmax = std::max(nnmax, m(type, otherType).nfrome.nchildren());
+      nnmax = std::max(nnmax, m(type, otherType).nfrome.nelems());
       nnmax = std::max(nnmax, m(type, otherType).efromn.maxnode + 1);
-      nnmax = std::max(nnmax, m(otherType, type).efromn.nchildren());
+      nnmax = std::max(nnmax, m(otherType, type).efromn.nelems());
       nnmax = std::max(nnmax, m(otherType, type).nfrome.maxnode + 1);
     }
     // ensure that all are set

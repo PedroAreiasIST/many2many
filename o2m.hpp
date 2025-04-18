@@ -2,11 +2,6 @@
 #define RELATIONONETOMANY_HPP
 #include "basics.hpp"
 #include "seque.hpp"
-
-namespace hidden {
-using lst = seque<int>;
-}
-
 struct o2m {
   seque<seque<int>> lnods{{}};
   int nelem{0};
@@ -14,9 +9,8 @@ struct o2m {
   // Access operators
   seque<int> &operator[](int element) { return lnods[element]; }
   seque<int> const &operator[](int element) const { return lnods[element]; }
-  // Utility methods
-  int nchildren() const { return nelem; }
-  int nparents(int element) const { return lnods[element].size; }
+  int nelems() const { return nelem; }
+  int nnodes(int element) const { return lnods[element].size; }
 };
 
 PFR_FUNCTIONS_FOR(o2m)

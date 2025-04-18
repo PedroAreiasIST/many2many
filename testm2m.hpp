@@ -45,8 +45,8 @@ void testm2m() {
   cout << "neighbours of node 3=" << getnodeneighbours(mm1, 3) << endl;
   cout << "lexicographical order of mm1=" << mm1.nfrome.lnods(getorder(mm1))
        << endl;
-  getelementstoelements(mm1, ee1);
-  getnodestonodes(mm1, nn1);
+  ee1 = getelementstoelements(mm1);
+  nn1 = getnodestonodes(mm1);
   cout << "nodestonodes=" << nn1.nfrome.lnods << endl;
   cout << "elementstoelements=" << ee1.nfrome.lnods << endl;
 

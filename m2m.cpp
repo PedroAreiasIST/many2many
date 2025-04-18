@@ -97,16 +97,20 @@ void permutenodes(m2m &rel, seque<int> const &newnodefromold) {
   setsyncronized(rel);
 }
 
-void getelementstoelements(m2m const &rel, m2m &elementstoelements) {
+m2m getelementstoelements(m2m const &rel) {
+  m2m elementstoelements;
   assert(rel.isupdated);
   elementstoelements.nfrome = rel.nfrome * rel.efromn;
   elementstoelements.isupdated = false;
+  return elementstoelements;
 }
 
-void getnodestonodes(m2m const &rel, m2m &nodestonodes) {
+m2m getnodestonodes(m2m const &rel) {
+  m2m nodestonodes;
   assert(rel.isupdated);
   nodestonodes.nfrome = rel.efromn * rel.nfrome;
   nodestonodes.isupdated = false;
+  return nodestonodes;
 }
 
 seque<seque<int>> getcliques(m2m const &rel) {

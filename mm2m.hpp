@@ -10,17 +10,11 @@ struct mm2m {
   seque<seque<m2m>> m{};
   int ntypes{0};
   seque<std::pair<int, int>> listofmarked;
-
   m2m const &operator()(int elementtype, int nodetype) const;
-
   m2m &operator()(int elementtype, int nodetype);
-
   int nnodes(int elementtype, int element, int nodetype) const;
-
   int nelems(int nodetype, int node, int elementtype) const;
-
   int nelems(int elementtype);
-
   int nactiveelements(int elementtype);
 };
 

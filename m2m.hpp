@@ -41,9 +41,9 @@ void compresselements(m2m &rel, seque<int> const &oldelementfromnew);
 
 void permutenodes(m2m &rel, seque<int> const &newnodefromold);
 
-void getelementstoelements(m2m const &rel, m2m &elementstoelements);
+m2m getelementstoelements(m2m const &rel);
 
-void getnodestonodes(m2m const &rel, m2m &nodestonodes);
+m2m getnodestonodes(m2m const &rel);
 
 seque<seque<int>> getcliques(m2m const &rel);
 
