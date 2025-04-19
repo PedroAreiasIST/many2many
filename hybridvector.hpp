@@ -319,7 +319,7 @@ public:
         data_.push_back(new T(value));
       }
     } else {
-      data_ = init;
+      data_.assign(init);
     }
     return *this;
   }

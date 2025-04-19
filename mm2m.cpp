@@ -53,6 +53,9 @@ void marktoerase(mm2m &m, int nodeType, int node) {
 }
 
 void marktoeraserepeated(mm2m &m, int elementtype, int nodetype) {
+  if (elementtype < 0 || elementtype >= m.ntypes || nodetype < 0 || nodetype >= m.ntypes) {
+    throw std::out_of_range("Invalid elementtype or nodetype");
+  }
   auto mm = m(elementtype, nodetype);
   auto order = getorder(mm);
   auto dupindices = getindicesofduplicates(mm.nfrome.lnods, order);

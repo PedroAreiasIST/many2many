@@ -84,6 +84,9 @@ void uploadathing(mm2m &m, thing const &e, seque<thingmodel> const &models) {
 // Uploads all children of a thing into a separate mm2m matrix.
 void uploadchildren(mm2m &mchildren, thing const &e,
                     seque<thingmodel> const &models) {
+  if (e.typenumber < 0 || e.typenumber >= getsize(models)) {
+    throw std::out_of_range("Invalid typenumber in the thing object.");
+  }
   seque<thing> children = getallchildren(e, models);
   for (int i = 0; i < getsize(children); ++i)
     uploadathing(mchildren, children[i], models);

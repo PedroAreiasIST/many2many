@@ -20,6 +20,10 @@ struct quad {
   size_t formulation;
 };
 
+void marktoerase(mm2m &m, int nodetype, int node) {
+  append(m.listofmarked, std::make_pair(nodetype, node));
+}
+
 int main(int argc, char *argv[]) {
   using ElementTypes = typseque<tri, quad>;
   using OtherTypes = typseque<isanelement, node>;
