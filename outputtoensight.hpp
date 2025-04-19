@@ -1,7 +1,3 @@
-//
-// Created by pedro on 13-04-2025.
-//
-
 #ifndef OUTPUTTOENSIGHT_HPP
 #define OUTPUTTOENSIGHT_HPP
 #include "mm2m.hpp"

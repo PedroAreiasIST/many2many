@@ -1,9 +1,3 @@
-//
-// Created by pedro on 06-04-2025.
-//
-
-#ifndef TESTEO2M_HPP
-#define TESTEO2M_HPP
 #include "m2m.hpp"
 #include <array>
 #include <boost/container/flat_map.hpp>
@@ -52,7 +46,7 @@ inline void testeo2m() {
 
       for (int iex = 0; iex < nel; ++iex)
         for (int iey = 0; iey < nel; ++iey)
-          for (int iez = 0; iez < nel; ++iez) {
+          for ( int iez = 0; iez < nel; ++iez) {
             seque<int> nodes(8);
             nodes[0] = iex + iey * (nel + 1) + iez * pow(nel + 1, 2);
             nodes[1] = (iex + 1) + iey * (nel + 1) + iez * pow(nel + 1, 2);

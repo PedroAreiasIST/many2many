@@ -23,7 +23,7 @@ void setnumberofelements(m2m &rel, int nelem);
 
 void setnodesforelement(m2m &rel, int element, seque<int> const &nodes);
 
-void setsyncronized(m2m &rel);
+void setsynchronized(m2m &rel);
 
 seque<int> getelementswithnodes(m2m const &rel, seque<int> const &nodes);
 

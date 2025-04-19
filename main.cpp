@@ -1,6 +1,6 @@
 #include "superstruct.hpp"
-// nclude "testm2m.hpp"
-//  nclude "testmm2m.hpp"
+#include "testm2m.hpp"
+#include "testmm2m.hpp"
 #include "mm2m.hpp"
 #include "typseque.hpp"
 #include <cassert>
@@ -60,6 +60,6 @@ int main(int argc, char *argv[])
                          getnumber<isanelement, TypeManager>()),
                   {1});
     marktoerase(matrix, getnumber<node, TypeManager>(), 3);
-    // testm2m();
-    //  testmm2m();
+    testm2m();
+    testmm2m();
 }
