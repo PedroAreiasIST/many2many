@@ -28,6 +28,7 @@ void setsyncronized(m2m &rel) {
   }
 }
 
+// This function throws a runtime error if the relation is not updated.
 seque<int> getelementswithnodes(m2m const &rel, seque<int> const &nodes) {
   if (!rel.isupdated) {
     throw std::runtime_error("Relation is not updated.");
@@ -41,6 +42,7 @@ seque<int> getelementswithnodes(m2m const &rel, seque<int> const &nodes) {
   return elems;
 }
 
+// This function throws a runtime error if the relation is not updated.
 seque<int> getelementsfromnodes(m2m const &rel, seque<int> const &nodes) {
   if (!rel.isupdated) {
     throw std::runtime_error("Relation is not updated.");
