@@ -90,9 +90,6 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/hybridvector.hpp">
-			<Option target="ConsoleApplication1"/>
-		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/m2m.cpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
@@ -124,9 +121,6 @@
 			<Option target="ConsoleApplication1"/>
 		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/detail/config.hpp">
-			<Option target="ConsoleApplication1"/>
-		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/smallvector.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/symmetries.hpp">

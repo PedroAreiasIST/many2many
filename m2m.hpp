@@ -1,17 +1,16 @@
 #ifndef RELMANYTOMANY_HPP
 #define RELMANYTOMANY_HPP
-
-#include "godoftypes.hpp"
 #include "o2m.hpp"
 #include "seque.hpp"
 #include <cstddef>
 
-struct m2m {
-  o2m nfrome;
-  o2m efromn;
-  seque<seque<int>> nodeloc;
-  seque<seque<int>> elementloc;
-  bool isupdated{false};
+struct m2m
+{
+    o2m nfrome;
+    o2m efromn;
+    seque<seque<int> > nodeloc;
+    seque<seque<int> > elementloc;
+    bool isupdated{false};
 };
 
 PFR_FUNCTIONS_FOR(m2m)
@@ -45,6 +44,6 @@ void getelementstoelements(m2m const &rel, m2m &elementstoelements);
 
 void getnodestonodes(m2m const &rel, m2m &nodestonodes);
 
-seque<seque<int>> getcliques(m2m const &rel);
+seque<seque<int> > getcliques(m2m const &rel);
 
 #endif

@@ -34,8 +34,6 @@ add_executable(ConsoleApplication1
         testmm2m.hpp
         testeo2m.hpp
         outputtoensight.hpp
-        smallvector.hpp
-        hybridvector.hpp
 )
 
 #find_package(TBB REQUIRED)
