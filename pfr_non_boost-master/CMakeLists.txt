@@ -15,9 +15,9 @@ target_include_directories(boost_pfr INTERFACE include)
 
 if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.28.0" AND BUILD_MODULE)
     add_subdirectory(module)
-endif()
+endif ()
 
 if (BUILD_TESTING AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt")
-  add_subdirectory(test)
-endif()
+    add_subdirectory(test)
+endif ()
 

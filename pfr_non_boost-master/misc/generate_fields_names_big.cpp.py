@@ -10,9 +10,9 @@
 
 ############################################################################################################################
 
-import sys
-import string
 import random
+import string
+import sys
 
 # a bigger value might lead to compiler out of heap space error on MSVC
 STRUCT_COUNT = 50
@@ -194,13 +194,15 @@ field_names = {
 }
 field_names_by_id = {}
 
+
 def generate_new_field_name():
     result = ''
-    name_len = random.randint(1,100)
+    name_len = random.randint(1, 100)
     result += random.choice("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_")
-    for i in range(name_len-1):
+    for i in range(name_len - 1):
         result += random.choice("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789")
     return result
+
 
 def generate_field_name(struct_id, field_id):
     key = (struct_id, field_id)
@@ -212,6 +214,7 @@ def generate_field_name(struct_id, field_id):
         field_names_by_id[key] = new_name
     return field_names_by_id[key]
 
+
 def generate_struct(struct_id):
     field_definitions = ''
     fields_count = struct_id
@@ -219,11 +222,13 @@ def generate_struct(struct_id):
         field_definitions += STRUCT_FIELD_DEFINITION_TEMPLATE.replace('%FIELD_NAME%', generate_field_name(struct_id, i))
     return STRUCT_TEMPLATE.replace('%FIELD_DEFINITIONS_LIST%', field_definitions).replace('%STRUCT_ID%', str(struct_id))
 
+
 def generate_structs_list():
     result = ''
     for i in range(STRUCT_COUNT):
-        result += generate_struct(i+1)
+        result += generate_struct(i + 1)
     return result
+
 
 def generate_test_get_name_definition(struct_id):
     checkers_list = ''
@@ -232,11 +237,13 @@ def generate_test_get_name_definition(struct_id):
         checkers_list += TEST_GET_NAME_CHECKER_TEMPLATE.replace('%FIELD_ID%', str(i)).replace('%STRUCT_ID%', str(struct_id)).replace('%FIELD_NAME%', generate_field_name(struct_id, i))
     return TEST_GET_NAME_TEMPLATE.replace('%TEST_ID%', str(struct_id)).replace('%CHECKERS_LIST%', checkers_list)
 
+
 def generate_test_get_name_definitions_list():
     result = ''
     for i in range(STRUCT_COUNT):
-        result += generate_test_get_name_definition(i+1)
+        result += generate_test_get_name_definition(i + 1)
     return result
+
 
 def generate_test_names_as_array_definition(struct_id):
     field_names_list = FIELD_NAME_TEMPLATE.replace('%FIELD_NAME%', generate_field_name(struct_id, 0))
@@ -245,23 +252,28 @@ def generate_test_names_as_array_definition(struct_id):
         field_names_list += ', ' + FIELD_NAME_TEMPLATE.replace('%FIELD_NAME%', generate_field_name(struct_id, i))
     return TEST_GET_NAMES_AS_ARRAY_TEMPLATE.replace('%TEST_ID%', str(struct_id)).replace('%FIELD_NAMES_LIST%', field_names_list).replace('%STRUCT_ID%', str(struct_id))
 
+
 def generate_test_names_as_array_definitions_list():
     result = ''
     for i in range(STRUCT_COUNT):
-        result += generate_test_names_as_array_definition(i+1)
+        result += generate_test_names_as_array_definition(i + 1)
     return result
+
 
 def generate_test_get_name_calls_list():
     result = ''
     for i in range(STRUCT_COUNT):
-        result += TEST_GET_NAME_CALL_TEMPLATE.replace('%TEST_ID%', str(i+1))
+        result += TEST_GET_NAME_CALL_TEMPLATE.replace('%TEST_ID%', str(i + 1))
     return result
+
 
 def generate_test_names_as_array_calls_list():
     result = ''
     for i in range(STRUCT_COUNT):
-        result += TEST_GET_NAMES_AS_ARRAY_CALL_TEMPLATE.replace('%TEST_ID%', str(i+1))
+        result += TEST_GET_NAMES_AS_ARRAY_CALL_TEMPLATE.replace('%TEST_ID%', str(i + 1))
     return result
 
-print(MAIN_TEMPLATE.replace('%STRUCTS_LIST%', generate_structs_list()).replace('%TEST_GET_NAME_DEFINITIONS_LIST%', generate_test_get_name_definitions_list()).replace('%TEST_GET_NAMES_AS_ARRAY_DEFINITIONS_LIST%', generate_test_names_as_array_definitions_list()).replace('%TEST_GET_NAME_CALLS_LIST%', generate_test_get_name_calls_list()).replace('%TEST_GET_NAMES_AS_ARRAY_CALLS_LIST%', generate_test_names_as_array_calls_list()))
 
+print(MAIN_TEMPLATE.replace('%STRUCTS_LIST%', generate_structs_list()).replace('%TEST_GET_NAME_DEFINITIONS_LIST%', generate_test_get_name_definitions_list()).replace('%TEST_GET_NAMES_AS_ARRAY_DEFINITIONS_LIST%',
+                                                                                                                                                                      generate_test_names_as_array_definitions_list()).replace(
+    '%TEST_GET_NAME_CALLS_LIST%', generate_test_get_name_calls_list()).replace('%TEST_GET_NAMES_AS_ARRAY_CALLS_LIST%', generate_test_names_as_array_calls_list()))

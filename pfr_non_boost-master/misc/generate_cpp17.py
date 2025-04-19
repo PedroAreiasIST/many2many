@@ -8,8 +8,8 @@
 
 ############################################################################################################################
 
-import sys
 import string
+import sys
 
 # Skipping some letters that may produce keywords or are hard to read, or shadow template parameters
 ascii_letters = string.ascii_letters.replace("o", "").replace("O", "").replace("i", "").replace("I", "").replace("T", "")
@@ -107,6 +107,7 @@ constexpr void tie_as_tuple(T& /*val*/, size_t_<I>) noexcept {
 #endif // PFR_DETAIL_CORE17_GENERATED_HPP
 """
 
+
 ############################################################################################################################
 
 def fold_workaround_cast(indexes, divider):
@@ -119,23 +120,27 @@ detail::workaround_cast<T, decltype({arg})>({arg})
     casts = [WORKAROUND_CAST_TEMPLATE.strip().format(arg=tok)
              for tok in tokens]
     for i in range(0, len(casts)):
-        if i%WORKAROUND_CAST_EXPRESSIONS_LIMIT_PER_LINE==0:
+        if i % WORKAROUND_CAST_EXPRESSIONS_LIMIT_PER_LINE == 0:
             div = ''
             lines.append('')
         lines[-1] += div + casts[i]
         div = ','
     return divider.join(lines)
 
+
 def calc_indexes_count(indexes):
     tokens = [x.strip() for x in indexes.split(',')]
     return len(tokens)
+
 
 class EmptyLinePrinter:
     def print_once(self):
         if not self.printed:
             print("")
             self.printed = True
+
     printed = False
+
 
 indexes = "    a"
 print(PROLOGUE)
@@ -164,7 +169,7 @@ for i in range(1, funcs_count):
         print(indexes)
         print("  ] = const_cast<std::remove_cv_t<T>&>(val); // ====================> Boost.PFR: User-provided type is not a SimpleAggregate.")
         empty_printer.print_once()
- 
+
     if indexes_count < WORKAROUND_CAST_EXPRESSIONS_LIMIT_PER_LINE:
         print("  return ::pfr::detail::make_tuple_of_references(" + printed_casts + ");")
     else:

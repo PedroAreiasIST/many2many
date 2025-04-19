@@ -2,20 +2,22 @@
 
 This is a C++14 library for very basic reflection that gives you access to structure elements by index and provides other `std::tuple` like methods for user defined types without any macro or boilerplate code.
 
-[Boost.PFR](https://boost.org/libs/pfr) is a part of the [Boost C++ Libraries](https://github.com/boostorg). However, Boost.PFR is a header only library that does not depend on Boost. You can just copy the content of the "include" folder from the github into your project, and the library will work fine.
+[Boost.PFR](https://boost.org/libs/pfr) is a part of the [Boost C++ Libraries](https://github.com/boostorg). However, Boost.PFR is a header only library that does not depend on Boost. You can just copy the content of the "include" folder from the
+github into your project, and the library will work fine.
 
 For a version of the library without `boost::` namespace see [PFR](https://github.com/apolukhin/pfr_non_boost).
 
 ### Test results
 
-Branches        | Build         | Tests coverage | More info
-----------------|-------------- | -------------- |-----------
-Develop:        | [![CI](https://github.com/boostorg/pfr/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/boostorg/pfr/actions/workflows/ci.yml) [![Build status](https://ci.appveyor.com/api/projects/status/0mavmnkdmltcdmqa/branch/develop?svg=true)](https://ci.appveyor.com/project/apolukhin/pfr/branch/develop) | [![Coverage Status](https://coveralls.io/repos/github/apolukhin/magic_get/badge.png?branch=develop)](https://coveralls.io/github/apolukhin/magic_get?branch=develop) | [details...](https://www.boost.org/development/tests/develop/developer/pfr.html)
-Master:         | [![CI](https://github.com/boostorg/pfr/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/boostorg/pfr/actions/workflows/ci.yml) [![Build status](https://ci.appveyor.com/api/projects/status/0mavmnkdmltcdmqa/branch/master?svg=true)](https://ci.appveyor.com/project/apolukhin/pfr/branch/master) | [![Coverage Status](https://coveralls.io/repos/github/apolukhin/magic_get/badge.png?branch=master)](https://coveralls.io/github/apolukhin/magic_get?branch=master) | [details...](https://www.boost.org/development/tests/master/developer/pfr.html)
+ Branches | Build                                                                                                                                                                                                                                                                                                                      | Tests coverage                                                                                                                                                       | More info                                                                        
+----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------
+ Develop: | [![CI](https://github.com/boostorg/pfr/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/boostorg/pfr/actions/workflows/ci.yml) [![Build status](https://ci.appveyor.com/api/projects/status/0mavmnkdmltcdmqa/branch/develop?svg=true)](https://ci.appveyor.com/project/apolukhin/pfr/branch/develop) | [![Coverage Status](https://coveralls.io/repos/github/apolukhin/magic_get/badge.png?branch=develop)](https://coveralls.io/github/apolukhin/magic_get?branch=develop) | [details...](https://www.boost.org/development/tests/develop/developer/pfr.html) 
+ Master:  | [![CI](https://github.com/boostorg/pfr/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/boostorg/pfr/actions/workflows/ci.yml) [![Build status](https://ci.appveyor.com/api/projects/status/0mavmnkdmltcdmqa/branch/master?svg=true)](https://ci.appveyor.com/project/apolukhin/pfr/branch/master)    | [![Coverage Status](https://coveralls.io/repos/github/apolukhin/magic_get/badge.png?branch=master)](https://coveralls.io/github/apolukhin/magic_get?branch=master)   | [details...](https://www.boost.org/development/tests/master/developer/pfr.html)  
 
 [Latest developer documentation](https://www.boost.org/doc/libs/develop/doc/html/boost_pfr.html)
 
 ### Motivating Example #0
+
 ```c++
 #include <iostream>
 #include <fstream>
@@ -40,15 +42,17 @@ int main(int argc, const char* argv[]) {
   }
 }
 ```
+
 Outputs:
+
 ```
 Edgar Allan Poe was born in 1809
 ```
 
 [Run the above sample](https://godbolt.org/z/PfYsWKb7v)
 
-
 ### Motivating Example #1
+
 ```c++
 #include <iostream>
 #include "pfr.hpp"
@@ -68,6 +72,7 @@ int main() {
 ```
 
 Outputs:
+
 ```
 my_struct has 3 fields: {100, H, 3.14159}
 ```
@@ -92,6 +97,7 @@ int main() {
 ```
 
 Outputs:
+
 ```
 my_struct has 2 fields: {"Das ist fantastisch!", 100}
 ```
@@ -143,11 +149,12 @@ int main() {
 }
 
 ```
+
 Outputs:
+
 ```
 (34 Chip Douglas 2500)
 ```
-
 
 ### Requirements and Limitations
 
