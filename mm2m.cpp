@@ -78,6 +78,9 @@ seque<std::pair<int, int> > getallelements(mm2m const &m, int nodetype,
                                            int node)
 {
     seque<std::pair<int, int> > ret;
+    if (node < 0 || node >= m(nodetype, nodetype).nfrome.nelem) {
+        return ret;
+    }
     int totalElements = 0;
     // Compute total number of elements incident to the node.
     for (int elementType = 0; elementType < m.ntypes; ++elementType)
@@ -122,6 +125,9 @@ seque<std::pair<int, int> > getallnodes(mm2m const &m, int elementType,
                                         int elementNumber)
 {
     seque<std::pair<int, int> > ret;
+    if (elementNumber < 0 || elementNumber >= m(elementType, elementType).nfrome.nelem) {
+        return ret;
+    }
     int totalNodes = 0;
     // First pass: count total nodes from all node types.
     for (int nodeType = 0; nodeType < m.ntypes; ++nodeType)
@@ -212,6 +218,9 @@ int appendelement(mm2m &m, int elementType, int nodeType,
 
 void setnumberofelements(mm2m &m, int elementtype, int nelem)
 {
+    if (nelem < m(elementtype, elementtype).nfrome.nelem) {
+        throw std::runtime_error("New number of elements is less than the current number of elements.");
+    }
     for (int nodetype = 0; nodetype < m.ntypes; ++nodetype)
     {
         setnumberofelements(m(elementtype, nodetype), nelem);
@@ -220,6 +229,9 @@ void setnumberofelements(mm2m &m, int elementtype, int nelem)
 
 void setnodesforelement(mm2m &m, int elementtype, int element, int nodetype, seque<int> const &nodes)
 {
+    if (getsize(nodes) == 0) {
+        throw std::runtime_error("Nodes sequence is empty.");
+    }
     setnodesforelement(m(elementtype, nodetype), element, nodes);
 }
 
@@ -232,6 +244,9 @@ void setnodesforelement(mm2m &m, int elementtype, int element, int nodetype, seq
 // node sets, (3) computing new mapping arrays, and (4) applying compression.
 void setcompressed(mm2m &m)
 {
+    if (getsize(m.listofmarked) == 0) {
+        return;
+    }
     // Clean up the marked list.
     setorderedandunique(m.listofmarked);
     int markedSize = getsize(m.listofmarked);
