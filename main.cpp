@@ -68,7 +68,6 @@ int main(int argc, char *argv[])
     appendelement(matrix(getnumber<edge, TypeManager>(), getnumber<isanelement, TypeManager>()), {0});
     appendelement(matrix(getnumber<wedge, TypeManager>(), getnumber<node, TypeManager>()), {6, 3, 5, 1, 2, 4});
     appendelement(matrix(getnumber<wedge, TypeManager>(), getnumber<isanelement, TypeManager>()), {0});
-
     marktoerase(matrix, getnumber<node, TypeManager>(), 3);
     std::array<double, 3> d3{1.0, 2.0, 3.0};
     std::cout << d3 << std::endl;
