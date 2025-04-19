@@ -1,7 +1,7 @@
-#ifndef TYPSEK_H
-#define TYPSEK_H
+#ifndef TYPseque_H
+#define TYPseque_H
 /**
- * @brief The typsek class
+ * @brief The typseque class
  */
 template <typename...> struct typseque {};
 
@@ -44,4 +44,4 @@ struct typsequetostruct<typseque<ST...>, S> {
 template <typename ST, template <typename...> typename S>
 using typsequetostructtype = typename typsequetostruct<ST, S>::result_type;
 
-#endif // TYPSEK_H
+#endif // TYPseque_H

@@ -1,9 +1,9 @@
 #ifndef RELMANYTOMANY_HPP
 #define RELMANYTOMANY_HPP
 
-#include "godoftypes.hpp"
 #include "o2m.hpp"
 #include "seque.hpp"
+#include "superstruct.hpp"
 #include <cstddef>
 
 struct m2m {
@@ -26,8 +26,7 @@ void setsyncronized(m2m &rel);
 
 seque<int> getelementswithnodes(m2m const &rel, seque<int> const &nodes);
 
-seque<int> getelementsfromnodes(m2m const &rel,
-                                          seque<int> const &nodes);
+seque<int> getelementsfromnodes(m2m const &rel, seque<int> const &nodes);
 
 seque<int> getelementneighbours(m2m const &rel, int element);
 

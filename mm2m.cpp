@@ -1,7 +1,7 @@
 #include "mm2m.hpp"
 
-#include "godoftypes.hpp"
 #include "o2m.hpp"
+#include "superstruct.hpp"
 #include <algorithm>
 #include <cassert>
 #include <set>

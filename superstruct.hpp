@@ -8,37 +8,40 @@ template <class T, class Tuple> struct indexoftype {};
 
 template <class T, class... Types>
 struct indexoftype<T, std::tuple<T, Types...>> {
-  static constexpr int value = 0;
+  static constexpr std::size_t value = 0;
 };
 
 template <class T, class U, class... Types>
 struct indexoftype<T, std::tuple<U, Types...>> {
-  static const int value = 1 + indexoftype<T, std::tuple<Types...>>::value;
+  static const std::size_t value =
+      1 + indexoftype<T, std::tuple<Types...>>::value;
 };
 /**
- * @brief The godstruct class, registers the lists of entities const& use
+ * @brief The godstruct class, registers the lists of entities in use
  * at compile time
  */
-template <typename... T> struct godstruct {
+template <typename... T> struct superstruct {
   // content
   std::tuple<seque<T>...> as;
   // std::tuple type (aka Tuple)
   using Tuple = std::tuple<T...>;
-  // nelems of type list
+  // size of type list
   static constexpr auto Size = sizeof...(T);
   // give Nth type
-  template <int N> using Nth = typename std::tuple_element<N, Tuple>::type;
+  template <std::size_t N>
+  using Nth = typename std::tuple_element<N, Tuple>::type;
   // give First type
   using First = Nth<0>;
   // give Last type
   using Last = Nth<Size - 1>;
-  friend std::ostream &operator<<(std::ostream &os, godstruct<T...> const &s) {
+  friend std::ostream &operator<<(std::ostream &os,
+                                  superstruct<T...> const &s) {
     std::ios_base::sync_with_stdio(false);
     auto lambda = [&](auto const &arg) { os << arg << " "; };
     tupleforcycle(s.as, lambda);
     return os;
   }
-  friend std::istream &operator>>(std::istream &is, godstruct<T...> &s) {
+  friend std::istream &operator>>(std::istream &is, superstruct<T...> &s) {
     std::ios_base::sync_with_stdio(false);
     auto lambda = [&](auto const &arg) { is >> arg; };
     tupleforcycle(s.as, lambda);
@@ -46,11 +49,11 @@ template <typename... T> struct godstruct {
   }
 };
 
-template <typename T> seque<T> &godgetsequence(auto &tp) noexcept {
+template <typename T> seque<T> &getsequence(auto &tp) noexcept {
   return std::get<seque<T>>(tp.as);
 }
 
-template <typename T, typename G> constexpr int godgetnumber() {
+template <typename T, typename G> constexpr size_t getnumber() {
   return indexoftype<T, typename G::Tuple>::value;
 }
-#endif // GODOFTYPES_HPP
+#endif
