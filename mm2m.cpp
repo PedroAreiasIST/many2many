@@ -187,6 +187,9 @@ int appendelement(mm2m &m, int elementType, int nodeType,
 // This involves (1) expanding the marked set via DFS, (2) building per-type
 // node sets, (3) computing new mapping arrays, and (4) applying compression.
 void setcompressed(mm2m &m) {
+  if (m.listofmarked.empty()) {
+    return;
+  }
   // Clean up the marked list.
   setorderedandunique(m.listofmarked);
   int markedSize = getsize(m.listofmarked);

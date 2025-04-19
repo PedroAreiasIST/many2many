@@ -60,8 +60,10 @@ private:
   // Helper to clean up storage
   void delete_storage(storage_type &elem) {
     if constexpr (uses_pointers) {
-      delete elem;
-      elem = nullptr;
+      if (elem != nullptr) {
+        delete elem;
+        elem = nullptr;
+      }
     }
   }
 
