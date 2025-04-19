@@ -1,7 +1,9 @@
 #ifndef RELMANYTOMANY_HPP
 #define RELMANYTOMANY_HPP
+
 #include "o2m.hpp"
 #include "seque.hpp"
+#include "superstruct.hpp"
 #include <cstddef>
 
 struct m2m
@@ -23,10 +25,9 @@ void setnodesforelement(m2m &rel, int element, seque<int> const &nodes);
 
 void setsyncronized(m2m &rel);
 
-seque<int> getelementscontainingnodes(m2m const &rel, seque<int> const &nodes);
+seque<int> getelementswithnodes(m2m const &rel, seque<int> const &nodes);
 
-seque<int> getelementsdefinedbythesenodes(m2m const &rel,
-                                          seque<int> const &nodes);
+seque<int> getelementsfromnodes(m2m const &rel, seque<int> const &nodes);
 
 seque<int> getelementneighbours(m2m const &rel, int element);
 
@@ -40,9 +41,9 @@ void compresselements(m2m &rel, seque<int> const &oldelementfromnew);
 
 void permutenodes(m2m &rel, seque<int> const &newnodefromold);
 
-void getelementstoelements(m2m const &rel, m2m &elementstoelements);
+m2m getelementstoelements(m2m const &rel);
 
-void getnodestonodes(m2m const &rel, m2m &nodestonodes);
+m2m getnodestonodes(m2m const &rel);
 
 seque<seque<int> > getcliques(m2m const &rel);
 

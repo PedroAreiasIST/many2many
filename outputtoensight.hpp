@@ -346,7 +346,7 @@ void ensightfromdb(mm2m &m)
 
     printmesh(m, 0, coordinates);
     marktoerase(m, 1, 2);
-    compress(m);
+    setcompressed(m);
     printmesh(m, 1, coordinates);
 }
 

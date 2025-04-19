@@ -1,22 +1,65 @@
-#include "o2m.hpp"
-#include "outputtoensight.hpp"
-#include "testeo2m.hpp"
-#include "testm2m.hpp"
-#include "testmm2m.hpp"
+#include "superstruct.hpp"
+// nclude "testm2m.hpp"
+//  nclude "testmm2m.hpp"
+#include "mm2m.hpp"
+#include "typseque.hpp"
 #include <cassert>
-#include <omp.h>
+
 using namespace std;
+
+struct node
+{
+    std::array<double, 3> coord;
+};
+
+struct isanelement
+{
+};
+
+struct tri
+{
+    double thickness;
+    size_t formulation;
+};
+
+struct quad
+{
+    double thickness;
+    size_t formulation;
+};
 
 int main(int argc, char *argv[])
 {
-    // testseque();
-    omp_set_num_threads(16);
-    seque<double> db = {1.0, 2.0, 3.0, 4.0};
+    using ElementTypes = typseque<tri, quad>;
+    using OtherTypes = typseque<isanelement, node>;
+    using MeshType = typsequemergetype<ElementTypes, OtherTypes>;
+    using TypeManager = typsequetostructtype<MeshType, superstruct>;
+    TypeManager mesh;
+    mm2m matrix;
+    setnumberoftypes(matrix, mesh.Size);
+    auto e0 = append(getsequence<isanelement>(mesh), isanelement{});
+    auto e1 = append(getsequence<isanelement>(mesh), isanelement{});
+    auto n0 = append(getsequence<node>(mesh), node({0, 0, 0}));
+    auto n1 = append(getsequence<node>(mesh), node({1, 0, 0}));
+    auto n2 = append(getsequence<node>(mesh), node({2, 0, 0}));
+    auto n3 = append(getsequence<node>(mesh), node({2, 1, 0}));
+    auto n4 = append(getsequence<node>(mesh), node({1, 1, 0}));
+    auto t0 = append(getsequence<tri>(mesh), tri({0.01, 3}));
+    auto q0 = append(getsequence<quad>(mesh), quad(0.02, 4));
 
-    auto db2 = db({1, 3, 2});
-    cout << db2 << endl;
-    //   ensightoutput(0, "teste",100,vector<array<double,3>>(),20,0,0,0,)
-
-    testm2m();
-    testmm2m();
+    appendelement(
+        matrix(getnumber<tri, TypeManager>(), getnumber<node, TypeManager>()),
+        {0, 1, 4});
+    appendelement(matrix(getnumber<tri, TypeManager>(),
+                         getnumber<isanelement, TypeManager>()),
+                  {0});
+    appendelement(
+        matrix(getnumber<quad, TypeManager>(), getnumber<node, TypeManager>()),
+        {1, 2, 3, 4});
+    appendelement(matrix(getnumber<quad, TypeManager>(),
+                         getnumber<isanelement, TypeManager>()),
+                  {1});
+    marktoerase(matrix, getnumber<node, TypeManager>(), 3);
+    // testm2m();
+    //  testmm2m();
 }

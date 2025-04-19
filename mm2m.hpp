@@ -12,19 +12,17 @@ struct mm2m
     int ntypes{0};
     seque<std::pair<int, int> > listofmarked;
 
-    m2m const &operator()(int elementtype, int nodetype) const
-    {
-        return m[elementtype][nodetype];
-    }
+    m2m const &operator()(int elementtype, int nodetype) const;
 
-    m2m &operator()(int elementtype, int nodetype)
-    {
-        return m[elementtype][nodetype];
-    }
+    m2m &operator()(int elementtype, int nodetype);
 
     int nnodes(int elementtype, int element, int nodetype) const;
 
     int nelems(int nodetype, int node, int elementtype) const;
+
+    int nelems(int elementtype) const;
+
+    int nactiveelements(int elementtype) const;
 };
 
 PFR_FUNCTIONS_FOR(mm2m)
@@ -35,11 +33,11 @@ void marktoeraserepeated(mm2m &m, int elementtype, int nodetype);
 
 seque<std::pair<int, int> > getallelements(mm2m const &m, int nodetype);
 
-seque<std::pair<int, int> > getallelements(mm2m const &m,
-                                           std::pair<int, int> const &node);
+seque<std::pair<int, int> > getallelements(mm2m const &m, int nodetype,
+                                           int node);
 
-seque<std::pair<int, int> > getallnodes(mm2m const &m,
-                                        std::pair<int, int> const &element);
+seque<std::pair<int, int> > getallnodes(mm2m const &m, int elementtype,
+                                        int element);
 
 seque<std::pair<int, int> > getallnodes(mm2m const &m, int elementtype);
 
@@ -51,18 +49,23 @@ namespace hidden
 
 void setnumberoftypes(mm2m &m, int ntypes);
 
-int appendelement(mm2m &m, int elementype, int nodetype,
+int appendelement(mm2m &m, int elementtype, int nodetype,
                   seque<int> const &nodes);
 
-seque<int> getselementsfromnodes(mm2m &matrix, int elementtype, int nodestype,
-                                 seque<int> const &nodes);
 
-namespace hidden
-{
-}
+void setnumberofelements(mm2m &m, int elementtype, int nelem);
 
-void compress(mm2m &m);
+void setnodesforelement(mm2m &m, int elementtype, int element, int nodetype, seque<int> const &nodes);
 
-seque<int> typegettoporder(mm2m const &m);
+
+seque<int> getelementsfromnodes(mm2m &matrix, int elementtype, int nodestype,
+                                seque<int> const &nodes);
+
+seque<int> getelementswithnodes(mm2m &matrix, int elementtype, int nodestype,
+                                seque<int> const &nodes);
+
+void setcompressed(mm2m &m);
+
+seque<int> gettypetoporder(mm2m const &m);
 
 #endif // RELATIONMATRIX_HPP

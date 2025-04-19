@@ -35,18 +35,18 @@ void testm2m() {
   cout << "mm1=" << mm1 << endl;
   cout << "How about maxnode" << mm1.nfrome.maxnode << endl;
   cout << "elements defined by the 3 1 nodes"
-       << getelementsdefinedbythesenodes(mm1, {3, 1}) << endl;
+       << getelementsfromnodes(mm1, {3, 1}) << endl;
   cout << "elements defined by the 3 0 nodes"
-       << getelementsdefinedbythesenodes(mm1, {3, 0}) << endl;
+       << getelementsfromnodes(mm1, {3, 0}) << endl;
   cout << "elements containing the 2 6 nodes"
-       << getelementscontainingnodes(mm1, {2, 6}) << endl;
+       << getelementswithnodes(mm1, {2, 6}) << endl;
   cout << "neighbours of element 0=" << getelementneighbours(mm1, 0) << endl;
   cout << "neighbours of element 1=" << getelementneighbours(mm1, 1) << endl;
   cout << "neighbours of node 3=" << getnodeneighbours(mm1, 3) << endl;
   cout << "lexicographical order of mm1=" << mm1.nfrome.lnods(getorder(mm1))
        << endl;
-  getelementstoelements(mm1, ee1);
-  getnodestonodes(mm1, nn1);
+  ee1 = getelementstoelements(mm1);
+  nn1 = getnodestonodes(mm1);
   cout << "nodestonodes=" << nn1.nfrome.lnods << endl;
   cout << "elementstoelements=" << ee1.nfrome.lnods << endl;
 

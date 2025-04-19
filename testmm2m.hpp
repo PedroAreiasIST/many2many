@@ -134,7 +134,7 @@ void testmm2m()
     uploadallstuff(matrix, accessories, things, models);
     std::ofstream ofs;
     fileopenoutput(ofs, "matrix.txt");
-    compress(matrix);
+    setcompressed(matrix);
     ofs << "hexahedra\n";
     ofs << "hex,node" << matrix(hex, node).nfrome << "\n";
     ofs << "node,hex" << matrix(hex, node).efromn << "\n";
@@ -146,11 +146,11 @@ void testmm2m()
             << std::endl;
     ofs << "Full matrix" << matrix << endl;
     ofs << "All the nodes of a wedge\n";
-    ofs << getallnodes(matrix, make_pair(wedge, 0)) << "\n";
+    ofs << getallnodes(matrix, wedge, 0) << "\n";
     ofs << "all relations to isanelement 0:"
-            << getallelements(matrix, make_pair(isanelement, 0)) << "\n";
+            << getallelements(matrix, isanelement, 0) << "\n";
     ofs << "all relations to isanelement 1:"
-            << getallelements(matrix, make_pair(isanelement, 1)) << "\n";
+            << getallelements(matrix, isanelement, 1) << "\n";
     ensightfromdb(matrix);
 }
 
