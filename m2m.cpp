@@ -68,7 +68,7 @@ seque<int> getelementneighbours(m2m const &rel, int element)
     seque<int> neighbours;
     setsize(neighbours, 0);
     const seque<int> &elementNodes = rel.nfrome.lnods[element];
-    for (int i =  < getsize(elementNodes); ++i)
+    for (int i =  0;i< getsize(elementNodes); ++i)
     {
         int node = elementNodes[i];
         const seque<int> &nodeElements = rel.efromn.lnods[node];

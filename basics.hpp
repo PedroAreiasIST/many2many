@@ -221,6 +221,7 @@ std::vector<std::string> pfrgetallnames<StructType>::names;
  */
 #define PFRALLNAMES(sname, nomestodos) pfrgetallnames<sname>::item<>(nomestodos)
 
+
 //--------------------------------------------------------------------------------
 //  Overloaded stream operators for std::pair
 //--------------------------------------------------------------------------------
@@ -261,6 +262,82 @@ std::istream &operator>>(std::istream &in, std::pair<T1, T2> &p)
     char ch1, ch2, ch3;
     in >> ch1 >> p.first >> ch2 >> p.second >> ch3;
     if (ch1 != '(' || ch2 != ',' || ch3 != ')')
+    {
+        in.setstate(std::ios::failbit);
+    }
+    return in;
+}
+
+//--------------------------------------------------------------------------------
+//  Overloaded stream operators for std::array
+//--------------------------------------------------------------------------------
+
+/**
+ * @brief Stream insertion operator for std::array.
+ *
+ * Outputs an array in the format [elem1, elem2, ..., elemN].
+ *
+ * @tparam T Type of array elements.
+ * @tparam N Size of the array.
+ * @param out The output stream.
+ * @param arr The array to output.
+ * @return std::ostream& The output stream.
+ */
+template<typename T, std::size_t N>
+std::ostream &operator<<(std::ostream &out, const std::array<T, N> &arr)
+{
+    out << '[';
+    if (N > 0)
+    {
+        for (std::size_t i = 0; i < N - 1; ++i)
+        {
+            out << arr[i] << ", ";
+        }
+        out << arr[N - 1];
+    }
+    out << ']';
+    return out;
+}
+
+/**
+ * @brief Stream extraction operator for std::array.
+ *
+ * Expects input in the format [elem1, elem2, ..., elemN].
+ * If the input format is incorrect, the stream's failbit is set.
+ *
+ * @tparam T Type of array elements.
+ * @tparam N Size of the array.
+ * @param in The input stream.
+ * @param arr The array to read into.
+ * @return std::istream& The input stream.
+ */
+template<typename T, std::size_t N>
+std::istream &operator>>(std::istream &in, std::array<T, N> &arr)
+{
+    char ch;
+    in >> ch;
+    if (ch != '[')
+    {
+        in.setstate(std::ios::failbit);
+        return in;
+    }
+
+    for (std::size_t i = 0; i < N; ++i)
+    {
+        in >> arr[i];
+        if (i < N - 1)
+        {
+            in >> ch;
+            if (ch != ',')
+            {
+                in.setstate(std::ios::failbit);
+                return in;
+            }
+        }
+    }
+
+    in >> ch;
+    if (ch != ']')
     {
         in.setstate(std::ios::failbit);
     }

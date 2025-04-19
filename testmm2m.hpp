@@ -8,6 +8,7 @@
 #include "mm2m.hpp"
 #include "symmetries.hpp"
 #include "thing.hpp"
+#include "outputtoensight.hpp"
 using namespace std;
 
 void testmm2m()
