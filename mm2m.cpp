@@ -305,7 +305,7 @@ void compress(mm2m &m)
         }
         for (int otype = 0; otype < m.ntypes; ++otype)
         {
-            setsynchronized(m(type, otype));
+            synchronize(m(type, otype));
         }
     }
 }

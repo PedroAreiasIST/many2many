@@ -135,7 +135,7 @@ void testmm2m()
     uploadallstuff(matrix, accessories, things, models);
     std::ofstream ofs;
     fileopenoutput(ofs, "matrix.txt");
-    setcompressed(matrix);
+    compress(matrix);
     ofs << "hexahedra\n";
     ofs << "hex,node" << matrix(hex, node).nfrome << "\n";
     ofs << "node,hex" << matrix(hex, node).efromn << "\n";

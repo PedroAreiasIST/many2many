@@ -21,7 +21,7 @@ void testm2m()
     appendelement(mm1.nfrome, {3, 1});
     appendelement(mm1.nfrome, {6, 3, 5, 1, 2, 4});
     cout << "Appended above" << endl;
-    setsynchronized(mm1);
+    synchronize(mm1);
     cout << "Cliques" << endl;
     cout << "nodefromelem" << mm1.nfrome.lnods << endl;
     cout << "elementfromnode" << mm1.efromn.lnods << endl;
