@@ -247,7 +247,7 @@ void setnodesforelement(mm2m &m, int elementtype, int element, int nodetype, seq
 // Compresses (renumbers) the entire mm2m structure based on marked nodes.
 // This involves (1) expanding the marked set via DFS, (2) building per-type
 // node sets, (3) computing new mapping arrays, and (4) applying compression.
-void setcompressed(mm2m &m)
+void compress(mm2m &m)
 {
     if (getsize(m.listofmarked) == 0)
     {

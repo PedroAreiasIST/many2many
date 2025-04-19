@@ -26,7 +26,7 @@
  * @param args Variables to store the input.
  */
 template<typename... T>
-inline void screenread(T &... args)
+inline void readscreen(T &... args)
 {
     ((std::cin >> args), ...);
 }
@@ -38,7 +38,7 @@ inline void screenread(T &... args)
  * @param args Values to write.
  */
 template<typename... T>
-inline void screenwrite(T &&... args)
+inline void writescreen(T &&... args)
 {
     ((std::cout << args << " "), ...);
     std::cout << std::endl;
@@ -302,8 +302,8 @@ std::ostream &operator<<(std::ostream &out, const std::array<T, N> &arr)
 /**
  * @brief Stream extraction operator for std::array.
  *
- * Expects input in the format [elem1, elem2, ..., elemN].
- * If the input format is incorrect, the stream's failbit is set.
+ * Expects input in the format [elem1, elem2, ..., elemN]. If the input format is
+ * incorrect, the stream's failbit is set.
  *
  * @tparam T Type of array elements.
  * @tparam N Size of the array.

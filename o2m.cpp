@@ -29,7 +29,7 @@ namespace hidden
 inline o2m geto2mfromsequence(const seque<int> &other)
 {
     o2m ret;
-    setsize(ret, getsize(other));
+    resize(ret, getsize(other));
     for (int element = 0; element < getsize(other); ++element)
     {
     }
@@ -41,7 +41,7 @@ seque<seque<int> > getcliques(const o2m &nodesfromelement,
 {
     seque<seque<int> > cliques;
     // Preallocate cliques vector according to the number of elements.
-    setsize(cliques, nodesfromelement.nelems());
+    resize(cliques, nodesfromelement.nelems());
 
     // Compute node positions once.
     seque<seque<int> > nodelocation =
@@ -51,7 +51,7 @@ seque<seque<int> > getcliques(const o2m &nodesfromelement,
     for (int element = 0; element < nodesfromelement.nelems(); ++element)
     {
         int ns = getsize(nodesfromelement[element]);
-        setsize(cliques[element], ns * ns);
+        resize(cliques[element], ns * ns);
     }
 
     // Parallelize over node1.
@@ -109,10 +109,10 @@ seque<seque<int> > getcliques(const o2m &nodesfromelement,
     return cliques;
 }
 
-void setsize(o2m &rel, int nelem)
+void resize(o2m &rel, int nelem)
 {
     rel.nelem = nelem;
-    setsize(rel.lnods, nelem);
+    resize(rel.lnods, nelem);
 }
 
 void setnodesforelement(o2m &rel, int element, seque<int> const &nodes)
@@ -138,7 +138,7 @@ int appendelement(o2m &rel, seque<int> const &nodes)
         throw std::runtime_error("Repeated nodes detected in the input.");
     }
     rel.nelem++;
-    setsize(rel.lnods, rel.nelem);
+    resize(rel.lnods, rel.nelem);
     assert(getsize(rel.lnods) == rel.nelem);
     rel.lnods[rel.nelem - 1] = nodes;
     rel.maxnode = hidden::update_max_for_nodes(nodes, rel.maxnode);
@@ -189,12 +189,12 @@ o2m Tr(const o2m &rel)
     }
 
     // Set the number of elements in the transposed relation
-    setsize(relt, numberOfNodes);
+    resize(relt, numberOfNodes);
 
     // Allocate node lists in the transposed relation
     for (int node = 0; node < numberOfNodes; ++node)
     {
-        setsize(relt.lnods[node], counts[node]);
+        resize(relt.lnods[node], counts[node]);
     }
 
     // Reuse the counts array as offsets to avoid unnecessary memory allocations
@@ -217,12 +217,12 @@ o2m operator*(const o2m &rela, const o2m &relb)
     o2m relc;
     const int camax = relb.nelems() - 1;
     relc.maxnode = relb.maxnode;
-    setsize(relc, rela.nelems());
+    resize(relc, rela.nelems());
 
     std::vector<int> row_sizes(rela.nelems(), 0);
     if (rela.maxnode <= camax)
     {
-        // Step 1: Compute sizes in parallel, no call to setsize here.
+        // Step 1: Compute sizes in parallel, no call to resize here.
 #pragma omp parallel
         {
             seque<int> marker(relc.maxnode + 1, 0);
@@ -250,11 +250,11 @@ o2m operator*(const o2m &rela, const o2m &relb)
             }
         }
 
-        // Step 2: Sequentially call setsize safely.
+        // Step 2: Sequentially call resize safely.
         for (int ra = 0; ra < rela.nelems(); ++ra)
-            setsize(relc.lnods[ra], row_sizes[ra]);
+            resize(relc.lnods[ra], row_sizes[ra]);
 
-        // Step 3: Parallel filling of relc data (no setsize calls).
+        // Step 3: Parallel filling of relc data (no resize calls).
 #pragma omp parallel
         {
             seque<int> marker(relc.maxnode + 1, 0);
@@ -282,7 +282,7 @@ o2m operator*(const o2m &rela, const o2m &relb)
         }
     } else
     {
-        // Step 1: Compute sizes in parallel, no call to setsize here.
+        // Step 1: Compute sizes in parallel, no call to resize here.
 #pragma omp parallel
         {
             seque<int> marker(relc.maxnode + 1, 0);
@@ -312,11 +312,11 @@ o2m operator*(const o2m &rela, const o2m &relb)
             }
         }
 
-        // Step 2: Sequentially call setsize safely.
+        // Step 2: Sequentially call resize safely.
         for (int ra = 0; ra < rela.nelems(); ++ra)
-            setsize(relc.lnods[ra], row_sizes[ra]);
+            resize(relc.lnods[ra], row_sizes[ra]);
 
-        // Step 3: Parallel filling of relc data (no setsize calls).
+        // Step 3: Parallel filling of relc data (no resize calls).
 #pragma omp parallel
         {
             seque<int> marker(relc.maxnode + 1, 0);
@@ -359,7 +359,7 @@ o2m operator+(const o2m &rela, const o2m &relb)
 {
     o2m relc;
     int maxElements = std::max(rela.nelem, relb.nelem);
-    setsize(relc, maxElements);
+    resize(relc, maxElements);
     relc.maxnode = std::max(rela.maxnode, relb.maxnode);
     // #pragma omp parallel
     {
@@ -432,7 +432,7 @@ o2m operator&&(const o2m &rela, const o2m &relb)
 {
     o2m relc;
     const int nElements = std::min(rela.nelem, relb.nelem);
-    setsize(relc, nElements);
+    resize(relc, nElements);
     relc.maxnode = std::max(rela.maxnode, relb.maxnode);
 #pragma omp parallel for schedule(static)
     for (int element = 0; element < nElements; ++element)
@@ -450,7 +450,7 @@ o2m operator-(const o2m &rela, const o2m &relb)
 {
     o2m relc;
     const int nElements = rela.nelem;
-    setsize(relc, nElements);
+    resize(relc, nElements);
     relc.maxnode = std::max(rela.maxnode, relb.maxnode);
 #pragma omp parallel for schedule(static)
     for (int element = 0; element < nElements; ++element)
@@ -473,7 +473,7 @@ o2m operator-(const o2m &rela, const o2m &relb)
 seque<int> gettoporder(const o2m &rel)
 {
     seque<int> order;
-    setsize(order, 0);
+    resize(order, 0);
     std::vector<int> inDegree(getsize(rel.lnods), 0);
 #ifdef _OPENMP
 #pragma omp parallel for schedule(dynamic)
@@ -544,7 +544,7 @@ seque<seque<int> > hidden::getnodepositions(o2m const &nodesfromelement,
 #pragma omp parallel for schedule(static)
     for (int node = 0; node < elementsfromnode.nelems(); ++node)
     {
-        setsize(nodepositions[node], elementsfromnode.nnodes(node));
+        resize(nodepositions[node], elementsfromnode.nnodes(node));
     }
 
     // Prepare a counter for each node to track where the next insertion should
@@ -594,7 +594,7 @@ seque<seque<int> > hidden::getelementpositions(o2m const &nodesfromelement,
     for (int element = 0; element < nodesfromelement.nelems(); ++element)
     {
         int count = nodesfromelement.nnodes(element);
-        setsize(elementpositions[element], count);
+        resize(elementpositions[element], count);
     }
 
     // Parallelize over all global nodes.

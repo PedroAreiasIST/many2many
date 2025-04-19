@@ -64,7 +64,7 @@ seque<int> getelementsfromnodes(mm2m &matrix, int elementtype, int nodestype,
 seque<int> getelementswithnodes(mm2m &matrix, int elementtype, int nodestype,
                                 seque<int> const &nodes);
 
-void setcompressed(mm2m &m);
+void compress(mm2m &m);
 
 seque<int> gettypetoporder(mm2m const &m);
 

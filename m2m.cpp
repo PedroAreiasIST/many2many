@@ -22,7 +22,7 @@ void setnodesforelement(m2m &rel, int element, seque<int> const &nodes)
     rel.isupdated = false;
 }
 
-void setsynchronized(m2m &rel)
+void synchronize(m2m &rel)
 {
     if (!rel.isupdated)
     {
@@ -38,7 +38,7 @@ seque<int> getelementswithnodes(m2m const &rel, seque<int> const &nodes)
 {
     if (!rel.isupdated)
     {
-        setsynchronized(const_cast<m2m&>(rel));
+        synchronize(const_cast<m2m&>(rel));
     }
     seque<int> elems;
     if (getsize(nodes) == 0)
@@ -63,7 +63,7 @@ seque<int> getelementneighbours(m2m const &rel, int element)
 {
     if (!rel.isupdated)
     {
-        setsynchronized(const_cast<m2m&>(rel));
+        synchronize(const_cast<m2m&>(rel));
     }
     seque<int> neighbours;
     setsize(neighbours, 0);
@@ -109,14 +109,14 @@ void compresselements(m2m &rel, seque<int> const &oldelementfromnew)
     if (rel.nfrome.nelem > 0)
     {
         hidden::compresselements(rel.nfrome, oldelementfromnew);
-        setsynchronized(rel);
+        synchronize(rel);
     }
 }
 
 void permutenodes(m2m &rel, seque<int> const &newnodefromold)
 {
     hidden::permutenodes(rel.nfrome, newnodefromold);
-    setsynchronized(rel);
+    synchronize(rel);
 }
 
 m2m getelementstoelements(m2m const &rel)

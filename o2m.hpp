@@ -17,7 +17,7 @@ struct o2m
 
 PFR_FUNCTIONS_FOR(o2m)
 
-void setsize(o2m &rel, int nelem);
+void resize(o2m &rel, int nelem);
 
 void setnodesforelement(o2m &rel, int element, seque<int> const &nodes);
 
