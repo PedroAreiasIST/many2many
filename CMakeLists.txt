@@ -32,6 +32,8 @@ add_executable(ConsoleApplication1
         testmm2m.hpp
         testeo2m.hpp
         outputtoensight.hpp
+        zoo.cpp
+        zoo.hpp
 )
 
 #find_package(TBB REQUIRED)

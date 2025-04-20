@@ -38,6 +38,7 @@ struct wedge
 
 PFR_FUNCTIONS_FOR(wedge)
 
+
 int main(int argc, char *argv[])
 {
     using ElementTypes = typseque<edge, tet, wedge>;
@@ -46,29 +47,32 @@ int main(int argc, char *argv[])
     using TypeManager = typsequetostructtype<MeshType, superstruct>;
     TypeManager mesh;
     mm2m matrix;
-    setnumberoftypes(matrix, mesh.Size);
-    auto e0 = append(getsequence<isanelement>(mesh), isanelement{});
-    auto n0 = append(getsequence<node>(mesh), node({0, 0, 0}));
-    auto n1 = append(getsequence<node>(mesh), node({1, 0, 0}));
-    auto n2 = append(getsequence<node>(mesh), node({2, 0, 0}));
-    auto n3 = append(getsequence<node>(mesh), node({2, 1, 0}));
-    auto n4 = append(getsequence<node>(mesh), node({1, 1, 0}));
-    auto n5 = append(getsequence<node>(mesh), node({3, 1, 0}));
-    auto n6 = append(getsequence<node>(mesh), node({2, 1, 1}));
-    auto tet0 = append(getsequence<tet>(mesh), tet());
-    auto edge0 = append(getsequence<edge>(mesh), edge());
-    auto edge1 = append(getsequence<edge>(mesh), edge());
-    auto wedge0 = append(getsequence<wedge>(mesh), wedge());
+    setnumberoftypes(matrix, TypeManager::Size);
 
-    appendelement(matrix(getnumber<tet, TypeManager>(), getnumber<node, TypeManager>()), {4, 2, 6, 0});
-    appendelement(matrix(getnumber<tet, TypeManager>(), getnumber<isanelement, TypeManager>()), {0});
-    appendelement(matrix(getnumber<edge, TypeManager>(), getnumber<node, TypeManager>()), {3, 0});
-    appendelement(matrix(getnumber<edge, TypeManager>(), getnumber<isanelement, TypeManager>()), {0});
-    appendelement(matrix(getnumber<edge, TypeManager>(), getnumber<node, TypeManager>()), {3, 1});
-    appendelement(matrix(getnumber<edge, TypeManager>(), getnumber<isanelement, TypeManager>()), {0});
-    appendelement(matrix(getnumber<wedge, TypeManager>(), getnumber<node, TypeManager>()), {6, 3, 5, 1, 2, 4});
-    appendelement(matrix(getnumber<wedge, TypeManager>(), getnumber<isanelement, TypeManager>()), {0});
+    int e0 = appendnode<isanelement>(mesh);
+    int n0 = appendnode<node>(mesh, 0., 0., 0.);
+    int n1 = appendnode<node>(mesh, 1., 0., 0.);
+    int n2 = appendnode<node>(mesh, 2., 0., 0.);
+    int n3 = appendnode<node>(mesh, 2., 1., 0.);
+    int n4 = appendnode<node>(mesh, 1., 1., 0.);
+    int n5 = appendnode<node>(mesh, 3., 1., 0.);
+    int n6 = appendnode<node>(mesh, 2., 1., 1.);
+    int tet0 = appendnode<tet>(mesh);
+    int edge0 = appendnode<edge>(mesh);
+    int edge1 = appendnode<edge>(mesh);
+    int wedge0 = appendnode<wedge>(mesh);
+
+    appendelement<TypeManager, tet, node>(matrix, {4, 2, 6, 0});
+    appendelement<TypeManager, tet, isanelement>(matrix, {0});
+    appendelement<TypeManager, edge, node>(matrix, {3, 0});
+    appendelement<TypeManager, edge, isanelement>(matrix, {0});
+    appendelement<TypeManager, edge, node>(matrix, {3, 1});
+    appendelement<TypeManager, edge, isanelement>(matrix, {0});
+    appendelement<TypeManager, wedge, node>(matrix, {6, 3, 5, 1, 2, 4});
+    appendelement<TypeManager, wedge, isanelement>(matrix, {0});
+
     marktoerase(matrix, getnumber<node, TypeManager>(), 3);
+
     std::array<double, 3> d3{1.0, 2.0, 3.0};
     std::cout << d3 << std::endl;
     node mmm{0, 2, 4};
@@ -77,7 +81,4 @@ int main(int argc, char *argv[])
     TypeManager another;
     another = mesh;
     std::cout << "another=" << another << std::endl;
-    //  std::cout << "matrix=" << matrix << std::endl;
-    //  testm2m();
-    //  testmm2m();
 }
