@@ -88,4 +88,5 @@ int main(int argc, char *argv[]) {
   another = mesh;
   std::cout << "another=" << another << std::endl;
   testmm2m();
+  testm2m();
 }
