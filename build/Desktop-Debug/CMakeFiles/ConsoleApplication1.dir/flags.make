@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include -I/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr -I/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/detail -I/home/pedro/vcpkg-clion/packages/tabulate_x64-linux/include
 
-CXX_FLAGS = -g -O0 -std=c++20 -fbacktrace -std=gnu++20 -fdiagnostics-color=always
+CXX_FLAGS = -g -O0 -std=c++20 -fopenmp -fbounds-check -std=gnu++20 -fdiagnostics-color=always
 

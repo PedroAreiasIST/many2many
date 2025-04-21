@@ -59,10 +59,16 @@ int main(int argc, char *argv[])
     int n4 = appendnode<node>(mesh, 1., 1., 0.);
     int n5 = appendnode<node>(mesh, 3., 1., 0.);
     int n6 = appendnode<node>(mesh, 2., 1., 1.);
-    int tet0 = appendnode<tet>(mesh);
-    int edge0 = appendnode<edge>(mesh);
     int edge1 = appendnode<edge>(mesh);
     int wedge0 = appendnode<wedge>(mesh);
+
+    seque<node> &nodes = getsequence<node>(mesh);
+    nodes[2].x = 3;
+    nodes[2].y = 4;
+    nodes[2].z = 5;
+    cout << "Mesh new nodes" << endl;
+    cout << getsequence<node>(mesh);
+
 
     appendelement<TypeManager, tet, node>(matrix, {4, 2, 6, 0});
     appendelement<TypeManager, tet, isanelement>(matrix, {0});
