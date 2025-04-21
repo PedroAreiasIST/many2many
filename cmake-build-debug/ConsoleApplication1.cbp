@@ -11,10 +11,10 @@
 				<Option working_dir="/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="ConsoleApplication1">
@@ -28,19 +28,19 @@
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr"/>
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/detail"/>
 					<Add directory="/home/pedro/vcpkg-clion/packages/tabulate_x64-linux/include"/>
-					<Add directory="/usr/include/c++/11"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/11"/>
-					<Add directory="/usr/include/c++/11/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/11/include"/>
+					<Add directory="/usr/include/c++/14"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/14"/>
+					<Add directory="/usr/include/c++/14/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/14/include"/>
 					<Add directory="/usr/local/include"/>
 					<Add directory="/usr/include/x86_64-linux-gnu"/>
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 ConsoleApplication1"/>
-					<CompileFile command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 ConsoleApplication1"/>
+					<CompileFile command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="ConsoleApplication1/fast">
@@ -54,39 +54,39 @@
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr"/>
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/detail"/>
 					<Add directory="/home/pedro/vcpkg-clion/packages/tabulate_x64-linux/include"/>
-					<Add directory="/usr/include/c++/11"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/11"/>
-					<Add directory="/usr/include/c++/11/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/11/include"/>
+					<Add directory="/usr/include/c++/14"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/14"/>
+					<Add directory="/usr/include/c++/14/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/14/include"/>
 					<Add directory="/usr/local/include"/>
 					<Add directory="/usr/include/x86_64-linux-gnu"/>
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 ConsoleApplication1/fast"/>
-					<CompileFile command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 ConsoleApplication1/fast"/>
+					<CompileFile command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
 				<Option working_dir="/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
 				<Option working_dir="/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j12 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>

@@ -752,6 +752,12 @@ seque<V, S, P> getunion(seque<V, S, P> const &sortedcontainerA,
 }
 
 template <typename V, int S, auto P>
+seque<V, S, P> operator||(seque<V, S, P> const &lhs,
+                          seque<V, S, P> const &rhs) {
+  return getunion(lhs, rhs);
+}
+
+template <typename V, int S, auto P>
 seque<V, S, P> getdifference(seque<V, S, P> const &sortedcontainerA,
                              seque<V, S, P> const &sortedcontainerB) {
   seque<V, S, P> resultContainer(sortedcontainerA.size + sortedcontainerB.size);
