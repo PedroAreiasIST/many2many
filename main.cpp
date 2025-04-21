@@ -30,7 +30,15 @@ struct wedge {};
 
 PFR_FUNCTIONS_FOR(wedge)
 
+struct palhaco {
+  double d;
+  int i;
+  auto operator<=>(const palhaco &) const = default;
+};
 int main(int argc, char *argv[]) {
+  palhaco p1{20, -20};
+  palhaco p2{3, -3};
+  std::cout << (p1 < p2) << std::endl;
   using ElementTypes = typseque<edge, tet, wedge>;
   using OtherTypes = typseque<isanelement, node>;
   using MeshType = typsequemergetype<ElementTypes, OtherTypes>;
