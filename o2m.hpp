@@ -8,7 +8,6 @@ struct o2m
     seque<seque<int> > lnods{{}};
     int nelem{0};
     int maxnode{0};
-    // Access operators
     seque<int> &operator[](int element) { return lnods[element]; }
     seque<int> const &operator[](int element) const { return lnods[element]; }
     int nelems() const { return nelem; }

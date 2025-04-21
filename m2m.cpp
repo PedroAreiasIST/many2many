@@ -26,7 +26,6 @@ void synchronize(m2m &rel)
 {
     if (!rel.isupdated)
     {
-        // Create inverse mapping from nodes to elements
         rel.efromn = Tr(rel.nfrome);
         rel.nodeloc = hidden::getnodepositions(rel.nfrome, rel.efromn);
         rel.elementloc = hidden::getelementpositions(rel.nfrome, rel.efromn);

@@ -9,26 +9,19 @@
 #include <sstream>
 #include <string>
 #include <vector>
-// This function writes simulation output in Ensight Gold format.
-// Note: For simplicity the nodal coordinate array 'x' is assumed to be a vector
-//       of std::array<double,3> (one per node); similarly, the connectivity and
-//       field arrays are assumed to be provided in flattened form in row-major
-//       order.
+
 void ensightoutput(
-    int number, // Number of time steps (should be <= 9999)
-    const std::string &filename, // Base filename for output files
-    int nnoe, // Number of nodes
+    int number,
+    const std::string &filename,
+    int nnoe,
     const std::vector<std::array<double, 3> >
-    &x, // Node coordinates: one std::array<double,3> per node
-    int nele, // Number of elements
+    &x,
+    int nele,
     const std::vector<std::string> &names, const std::vector<int> &nelpr,
     const std::vector<int> &ncnos, const std::vector<int> &el_ni,
     const std::vector<int> &el_no)
 {
-    const int mtp = 7; // maximum number of parts (element types)
-    // -------------------------
-    // Preliminary bounds checking
-    // -------------------------
+    const int mtp = 7;
     if (nnoe > 99999999 || nele > 99999999)
     {
         std::cerr << "Too large problem, more than 99,999,999 elements or nodes"
@@ -42,11 +35,6 @@ void ensightoutput(
         std::exit(1);
     }
 
-    // -------------------------
-    // Determine padded step number string.
-    // This produces a string such that a number like 1 becomes "0001", 12 becomes
-    // "0012", etc.
-    // -------------------------
     std::ostringstream oss;
     if (number <= 9)
         oss << "000";
@@ -54,13 +42,9 @@ void ensightoutput(
         oss << "00";
     else if (number <= 999)
         oss << "0";
-    // else no prefix is needed
     oss << number;
     std::string ext = oss.str();
 
-    // -------------------------
-    // Write the geometry file (.geo)
-    // -------------------------
     {
         std::string geoFilename = filename + ".geo" + ext;
         std::ofstream geoFile(geoFilename);
@@ -77,13 +61,9 @@ void ensightoutput(
                 << std::setw(8) << nnoe << "\n";
 
         geoFile << std::scientific << std::setprecision(5);
-        // Write node data: For each node, print node id (1-indexed) and the three
-        // coordinates.
         for (int node = 0; node < nnoe; node++)
         {
             geoFile << std::setw(8) << (node + 1);
-            // In Fortran the loop was over i=1,3 for x(i, node). Here x[node][0..2]
-            // holds the coordinates.
             for (int comp = 0; comp < 3; comp++)
             {
                 geoFile << std::setw(12) << x[node][comp];
@@ -94,8 +74,6 @@ void ensightoutput(
         geoFile << "part 1" << "\n"
                 << "Only one part" << "\n";
 
-        // Group elements by part (element “type”) using a temporary vector.
-        // (Note: nelpr is assumed to have values 1..mtp.)
         for (int part = 1; part <= mtp; part++)
         {
             std::vector<int> el_list;
@@ -109,20 +87,16 @@ void ensightoutput(
             if (!el_list.empty())
             {
                 geoFile << " " << "\n";
-                // names vector is assumed to be 0-indexed and correspond to
-                // parts 1..mtp.
                 geoFile << names[part - 1] << "\n";
                 geoFile << std::setw(8) << el_list.size() << "\n";
                 int ilimit = ncnos[part - 1];
-                // For each element in the current part, write the element id and
-                // connectivity.
                 for (size_t idx = 0; idx < el_list.size(); idx++)
                 {
                     int elem = el_list[idx];
                     geoFile << std::setw(8)
-                            << (elem + 1); // output element id (1-indexed)
+                            << (elem + 1);
                     int start =
-                            el_ni[elem]; // starting connectivity index for this element
+                            el_ni[elem];
                     int end = start + ilimit;
                     for (int kk = start; kk < end; kk++)
                     {
@@ -135,9 +109,6 @@ void ensightoutput(
         geoFile.close();
     }
 
-    // -------------------------
-    // Write the case file (.case)
-    // -------------------------
     {
         std::string caseFilename = filename + ".case";
         std::ofstream caseFile(caseFilename);
@@ -151,7 +122,6 @@ void ensightoutput(
                 << "GEOMETRY" << "\n"
                 << "model: 1 " << filename << ".geo****" << "\n"
                 << "VARIABLE" << "\n";
-        // Write nodal variable definitions.
         caseFile << "TIME" << "\n";
         caseFile << "time set: " << std::setw(8) << 1 << "\n";
         caseFile << "number of steps: " << std::setw(8) << (number + 1) << "\n";
@@ -159,7 +129,6 @@ void ensightoutput(
         caseFile << "filename increment: " << std::setw(8) << 1 << "\n";
         caseFile << "time values:" << "\n";
         int total_steps = number + 1;
-        // Print time values (simply 0,1,2,...,number), with 5 per line.
         for (int i = 0; i < total_steps; i++)
         {
             caseFile << std::setw(8) << i;
@@ -193,7 +162,7 @@ void printmesh(mm2m &m, int number,
         hex
     };
     std::string filename = "output";
-    int nnoe = coordinates.size(); // m(node, node).efromn.nelem;
+    int nnoe = coordinates.size();
     auto aaa = getallelements(m, isanelement);
     aaa = getunion(aaa, getallelements(m, node));
     aaa = getunion(aaa, getallelements(m, point));
@@ -318,11 +287,11 @@ void printmesh(mm2m &m, int number,
                 break;
         }
     }
-    ensightoutput(number, // Number of time steps (should be <= 9999)
-                  filename, // Base filename for output files
-                  nnoe, // Number of nodes
+    ensightoutput(number,
+                  filename,
+                  nnoe,
                   coordinates, nele, nomes, nelpr, ncnos, elni,
-                  elno); // Node coordinates: one std::array<double,3> per node
+                  elno);
 }
 
 void ensightfromdb(mm2m &m, mm2m &m2)

@@ -34,6 +34,3 @@ add_executable(ConsoleApplication1
         outputtoensight.hpp
         zoo.hpp
 )
-
-#find_package(TBB REQUIRED)
-#target_link_libraries(ConsoleApplication1 PUBLIC TBB::tbb)
