@@ -273,30 +273,6 @@ thing.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/thing.cpp.s
 .PHONY : thing.cpp.s
 
-zoo.o: zoo.cpp.o
-.PHONY : zoo.o
-
-# target to build an object file
-zoo.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/zoo.cpp.o
-.PHONY : zoo.cpp.o
-
-zoo.i: zoo.cpp.i
-.PHONY : zoo.i
-
-# target to preprocess a source file
-zoo.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/zoo.cpp.i
-.PHONY : zoo.cpp.i
-
-zoo.s: zoo.cpp.s
-.PHONY : zoo.s
-
-# target to generate assembly for a file
-zoo.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/zoo.cpp.s
-.PHONY : zoo.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -324,9 +300,6 @@ help:
 	@echo "... thing.o"
 	@echo "... thing.i"
 	@echo "... thing.s"
-	@echo "... zoo.o"
-	@echo "... zoo.i"
-	@echo "... zoo.s"
 .PHONY : help
 
 

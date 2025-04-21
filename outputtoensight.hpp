@@ -193,8 +193,17 @@ void printmesh(mm2m &m, int number,
         hex
     };
     std::string filename = "output";
-    int nnoe = m(node, node).efromn.nelem;
+    int nnoe = coordinates.size(); // m(node, node).efromn.nelem;
     auto aaa = getallelements(m, isanelement);
+    aaa = getunion(aaa, getallelements(m, node));
+    aaa = getunion(aaa, getallelements(m, point));
+    aaa = getunion(aaa, getallelements(m, edge));
+    aaa = getunion(aaa, getallelements(m, tri));
+    aaa = getunion(aaa, getallelements(m, quad));
+    aaa = getunion(aaa, getallelements(m, tet));
+    aaa = getunion(aaa, getallelements(m, wedge));
+    aaa = getunion(aaa, getallelements(m, hex));
+    setorderedandunique(aaa);
     int nele = getsize(aaa);
     std::cout << aaa << std::endl;
     std::vector<int> nelpr(getsize(aaa));
@@ -316,7 +325,7 @@ void printmesh(mm2m &m, int number,
                   elno); // Node coordinates: one std::array<double,3> per node
 }
 
-void ensightfromdb(mm2m &m)
+void ensightfromdb(mm2m &m, mm2m &m2)
 {
     std::vector<std::array<double, 3> > coordinates;
     coordinates.reserve(19);
@@ -339,11 +348,15 @@ void ensightfromdb(mm2m &m)
     coordinates.push_back({0, 1, 2});
     coordinates.push_back({0, 0, 1});
     coordinates.push_back({0, 0, 0});
-
-    printmesh(m, 0, coordinates);
-    marktoerase(m, 1, 2);
     compress(m);
-    printmesh(m, 1, coordinates);
+    printmesh(m, 0, coordinates);
+    compress(m2);
+    printmesh(m2, 1, coordinates);
+    marktoerase(m, 1, 7);
+    compress(m);
+    printmesh(m, 2, coordinates);
+    compress(m2);
+    printmesh(m2, 3, coordinates);
 }
 
 #endif // OUTPUTTOENSIGHT_HPP

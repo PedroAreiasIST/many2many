@@ -33,17 +33,12 @@ void appendchildrenbuilder(seque<thingmodel> &em, int elementtype,
 // thing
 void settypenumberofathing(thing &e, int elementnumber);
 
-void appendnodesofonetype(thing &e, int nodetype, seque<int> const &nodes);
+void appendelement(thing &e, int nodetype, seque<int> const &nodes);
 
 seque<thing> getallchildren(thing const &element,
-                            seque<thingmodel> const &models);
+                            thingmodel const &models);
 
-void uploadathing(mm2m &m, thing const &e, seque<thingmodel> const &models);
+void uploadathing(mm2m &m, thing const &e, thingmodel const &model);
 
-void uploadchildren(mm2m &mchildren, thing const &e,
-                    seque<thingmodel> const &models);
-
-void uploadallstuff(mm2m &m, mm2m &mchildren, seque<thing> const &things,
-                    seque<thingmodel> const &models);
 
 #endif // RELATIONMANAGER_HPP

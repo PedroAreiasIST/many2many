@@ -51,7 +51,6 @@ seque<int> getelementswithnodes(m2m const &rel, seque<int> const &nodes)
 
 seque<int> getelementsfromnodes(m2m const &rel, seque<int> const &nodes)
 {
-    assert(rel.isupdated);
     seque<int> elems = getelementswithnodes(rel, nodes), ret;
     for (int i = 0; i < getsize(elems); ++i)
         if (getsize(rel.nfrome.lnods[elems[i]]) == getsize(nodes))
@@ -85,7 +84,10 @@ seque<int> getelementneighbours(m2m const &rel, int element)
 
 seque<int> getnodeneighbours(m2m const &rel, int node)
 {
-    assert(rel.isupdated);
+    if (!rel.isupdated)
+    {
+        synchronize(const_cast<m2m &>(rel));
+    }
     seque<int> neighbours;
     setsize(neighbours, 0);
     const seque<int> &elements = rel.efromn.lnods[node];
@@ -119,27 +121,27 @@ void permutenodes(m2m &rel, seque<int> const &newnodefromold)
     synchronize(rel);
 }
 
-m2m getelementstoelements(m2m const &rel)
+m2m getelementstoelements(m2m &rel)
 {
     m2m elementstoelements;
-    assert(rel.isupdated);
+    if (!rel.isupdated)synchronize(rel);
     elementstoelements.nfrome = rel.nfrome * rel.efromn;
     elementstoelements.isupdated = false;
     return elementstoelements;
 }
 
-m2m getnodestonodes(m2m const &rel)
+m2m getnodestonodes(m2m &rel)
 {
     m2m nodestonodes;
-    assert(rel.isupdated);
+    if (!rel.isupdated)synchronize(rel);
     nodestonodes.nfrome = rel.efromn * rel.nfrome;
     nodestonodes.isupdated = false;
     return nodestonodes;
 }
 
-seque<seque<int> > getcliques(m2m const &rel)
+seque<seque<int> > getcliques(m2m &rel)
 {
-    assert(rel.isupdated);
+    if (!rel.isupdated)synchronize(rel);
     return getcliques(rel.nfrome, rel.efromn);
 }
 

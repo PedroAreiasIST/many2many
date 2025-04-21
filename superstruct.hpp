@@ -109,8 +109,4 @@ int appendelement(
     return appendelement(matrixGetter, elemIdx, nodeIdx, fields);
 }
 
-
-#define APPEND_RELATION(TypeManager,matrix,elemType, nodeType, ...) \
-appendelement(matrix(getnumber<elemType, TypeManager>(), getnumber<nodeType, TypeManager>()), {__VA_ARGS__})
-
 #endif

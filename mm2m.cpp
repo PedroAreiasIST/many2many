@@ -249,10 +249,10 @@ void setnodesforelement(mm2m &m, int elementtype, int element, int nodetype, seq
 // node sets, (3) computing new mapping arrays, and (4) applying compression.
 void compress(mm2m &m)
 {
-    if (getsize(m.listofmarked) == 0)
+    /*if (getsize(m.listofmarked) == 0)
     {
         return;
-    }
+    }*/
     // Clean up the marked list.
     setorderedandunique(m.listofmarked);
     int markedSize = getsize(m.listofmarked);

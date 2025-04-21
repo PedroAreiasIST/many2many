@@ -4,6 +4,7 @@
 #include "mm2m.hpp"
 #include "typseque.hpp"
 #include <cassert>
+#include "zoo.hpp"
 
 using namespace std;
 
@@ -44,6 +45,7 @@ int main(int argc, char *argv[])
     using ElementTypes = typseque<edge, tet, wedge>;
     using OtherTypes = typseque<isanelement, node>;
     using MeshType = typsequemergetype<ElementTypes, OtherTypes>;
+    zoo<MeshType> garden;
     using TypeManager = typsequetostructtype<MeshType, superstruct>;
     TypeManager mesh;
     mm2m matrix;
@@ -81,4 +83,5 @@ int main(int argc, char *argv[])
     TypeManager another;
     another = mesh;
     std::cout << "another=" << another << std::endl;
+    testmm2m();
 }

@@ -9,6 +9,8 @@
 #include "symmetries.hpp"
 #include "thing.hpp"
 #include "outputtoensight.hpp"
+#include "zoo.hpp"
+#include "typseque.hpp"
 using namespace std;
 
 void testmm2m()
@@ -46,113 +48,124 @@ void testmm2m()
         {2, 0, 1, 5, 3, 4}, {0, 2, 1, 3, 5, 4},
         {2, 1, 0, 5, 4, 3}, {1, 0, 2, 4, 3, 5}
     };
-    // thing skeletons
-    // assigntype numbers
-    enum typenumbers : int
+
+    struct isanelement
     {
-        isanelement = 0,
-        node,
-        point,
-        edge,
-        tri,
-        quad,
-        tet,
-        wedge,
-        hex
     };
-    seque<thingmodel> models;
-    appendsymmetrygroup(models, isanelement, isanelement, emptysymm);
-    appendsymmetrygroup(models, node, node, emptysymm);
-    appendsymmetrygroup(models, point, node, emptysymm);
-    appendsymmetrygroup(models, point, isanelement, emptysymm);
-    appendsymmetrygroup(models, edge, node, e2symm);
-    appendsymmetrygroup(models, edge, isanelement, emptysymm);
-    appendsymmetrygroup(models, tri, node, t3sym);
-    appendsymmetrygroup(models, tri, isanelement, emptysymm);
-    appendsymmetrygroup(models, quad, node, q4sym);
-    appendsymmetrygroup(models, quad, isanelement, emptysymm);
-    appendsymmetrygroup(models, tet, node, tet4sym);
-    appendsymmetrygroup(models, tet, isanelement, emptysymm);
-    appendsymmetrygroup(models, wedge, node, wedge6);
-    appendsymmetrygroup(models, wedge, isanelement, emptysymm);
-    appendsymmetrygroup(models, hex, node, tet4sym);
-    appendsymmetrygroup(models, hex, isanelement, emptysymm);
-    appendchildrenbuilder(models, tri, edge, node, {0, 1});
-    appendchildrenbuilder(models, tri, edge, node, {1, 2});
-    appendchildrenbuilder(models, tri, edge, node, {2, 0});
-    appendchildrenbuilder(models, quad, edge, node, {0, 1});
-    appendchildrenbuilder(models, quad, edge, node, {1, 2});
-    appendchildrenbuilder(models, quad, edge, node, {2, 3});
-    appendchildrenbuilder(models, quad, edge, node, {3, 0});
-    appendchildrenbuilder(models, tet, tri, node, {0, 1, 3});
-    appendchildrenbuilder(models, tet, tri, node, {0, 3, 2});
-    appendchildrenbuilder(models, tet, tri, node, {1, 0, 2});
-    appendchildrenbuilder(models, tet, tri, node, {1, 2, 3});
-    appendchildrenbuilder(models, wedge, quad, node, {1, 4, 5, 2});
-    appendchildrenbuilder(models, wedge, quad, node, {1, 0, 3, 4});
-    appendchildrenbuilder(models, wedge, quad, node, {0, 2, 5, 3});
-    appendchildrenbuilder(models, wedge, tri, node, {0, 1, 2});
-    appendchildrenbuilder(models, wedge, tri, node, {4, 3, 5});
-    appendchildrenbuilder(models, hex, quad, node, {0, 1, 5, 4});
-    appendchildrenbuilder(models, hex, quad, node, {1, 2, 6, 5});
-    appendchildrenbuilder(models, hex, quad, node, {2, 3, 7, 6});
-    appendchildrenbuilder(models, hex, quad, node, {3, 0, 4, 7});
-    appendchildrenbuilder(models, hex, quad, node, {4, 5, 6, 7});
-    appendchildrenbuilder(models, hex, quad, node, {1, 0, 3, 2});
-    seque<thing> things{29};
-    settypenumberofathing(things[0], isanelement);
-    settypenumberofathing(things[1], isanelement);
-    for (int i = 0; i < 19; ++i)
-        settypenumberofathing(things[i + 2], node);
-    settypenumberofathing(things[21], point);
-    settypenumberofathing(things[22], edge);
-    settypenumberofathing(things[23], tri);
-    settypenumberofathing(things[24], quad);
-    settypenumberofathing(things[25], quad);
-    settypenumberofathing(things[26], tet);
-    settypenumberofathing(things[27], wedge);
-    settypenumberofathing(things[28], hex);
-    appendnodesofonetype(things[21], node, {5});
-    appendnodesofonetype(things[21], isanelement, {1});
-    appendnodesofonetype(things[22], node, {6, 5});
-    appendnodesofonetype(things[22], isanelement, {1});
-    appendnodesofonetype(things[23], node, {4, 3, 1});
-    appendnodesofonetype(things[23], isanelement, {1});
-    appendnodesofonetype(things[24], node, {7, 4, 3, 6});
-    appendnodesofonetype(things[24], isanelement, {1});
-    appendnodesofonetype(things[25], node, {3, 2, 0, 1});
-    appendnodesofonetype(things[25], isanelement, {1});
-    appendnodesofonetype(things[26], node, {14, 18, 15, 17});
-    appendnodesofonetype(things[26], isanelement, {0});
-    appendnodesofonetype(things[27], node, {13, 16, 10, 8, 11, 6});
-    appendnodesofonetype(things[27], isanelement, {0});
-    appendnodesofonetype(things[28], node, {7, 9, 14, 12, 6, 8, 13, 10});
-    appendnodesofonetype(things[28], isanelement, {0});
-    mm2m matrix;
-    setnumberoftypes(matrix, 9);
-    mm2m accessories;
-    setnumberoftypes(accessories, 9);
-    uploadallstuff(matrix, accessories, things, models);
+    struct node
+    {
+    };
+    struct point
+    {
+    };
+    struct edge
+    {
+    };
+    struct tri
+    {
+    };
+    struct quad
+    {
+    };
+    struct tet
+    {
+    };
+    struct wedge
+    {
+    };
+    struct hex
+    {
+    };
+
+    using ElementTypes = typseque<isanelement, node, point, edge, tri, quad, tet, wedge, hex>;
+    // using OtherTypes = typseque<node, isanelement>;
+    using MeshType = ElementTypes;
+    zoo<MeshType> garden;
+    garden.definesymmetrygroup<isanelement, isanelement>(emptysymm);
+    garden.definesymmetrygroup<node, node>(emptysymm);
+    garden.definesymmetrygroup<point, node>({{0}});
+    garden.definesymmetrygroup<point, isanelement>({{0}});
+    garden.definesymmetrygroup<edge, node>({{0, 1}});
+    garden.definesymmetrygroup<edge, isanelement>({{0}});
+    garden.definesymmetrygroup<tri, node>(t3sym);
+    garden.definesymmetrygroup<tri, isanelement>({{0}});
+    garden.definesymmetrygroup<quad, node>(q4sym);
+    garden.definesymmetrygroup<quad, isanelement>({{0}});
+    garden.definesymmetrygroup<tet, node>(tet4sym);
+    garden.definesymmetrygroup<tet, isanelement>({{}});
+    garden.definesymmetrygroup<wedge, node>(wedge6);
+    garden.definesymmetrygroup<wedge, isanelement>({{}});
+    garden.definesymmetrygroup<hex, node>(h8symm);
+    garden.definesymmetrygroup<hex, isanelement>({{}});
+    garden.definechildrenbuilder<tri, edge, node>({{0, 1}});
+    garden.definechildrenbuilder<tri, edge, node>({{1, 2}});
+    garden.definechildrenbuilder<tri, edge, node>({{2, 0}});
+    garden.definechildrenbuilder<quad, edge, node>({{0, 1}});
+    garden.definechildrenbuilder<quad, edge, node>({{1, 2}});
+    garden.definechildrenbuilder<quad, edge, node>({{2, 3}});
+    garden.definechildrenbuilder<quad, edge, node>({{3, 0}});
+    garden.definechildrenbuilder<tet, tri, node>({{0, 1, 3}});
+    garden.definechildrenbuilder<tet, tri, node>({{0, 3, 2}});
+    garden.definechildrenbuilder<tet, tri, node>({{1, 0, 2}});
+    garden.definechildrenbuilder<tet, tri, node>({{1, 2, 3}});
+    garden.definechildrenbuilder<wedge, quad, node>({{1, 4, 5, 2}});
+    garden.definechildrenbuilder<wedge, quad, node>({{1, 0, 3, 4}});
+    garden.definechildrenbuilder<wedge, quad, node>({{0, 2, 5, 3}});
+    garden.definechildrenbuilder<wedge, tri, node>({{0, 1, 2}});
+    garden.definechildrenbuilder<wedge, tri, node>({{4, 3, 5}});
+    garden.definechildrenbuilder<hex, quad, node>({{0, 1, 5, 4}});
+    garden.definechildrenbuilder<hex, quad, node>({{1, 2, 6, 5}});
+    garden.definechildrenbuilder<hex, quad, node>({{2, 3, 7, 6}});
+    garden.definechildrenbuilder<hex, quad, node>({{3, 0, 4, 7}});
+    garden.definechildrenbuilder<hex, quad, node>({{4, 5, 6, 7}});
+    garden.definechildrenbuilder<hex, quad, node>({{1, 0, 3, 2}});
+    thing p0;
+    garden.appendnodestoathing<point, node>(p0, {5});
+    garden.appendnodestoathing<point, isanelement>(p0, {1});
+    garden.uploadelement(p0);
+    thing e1;
+    garden.appendnodestoathing<edge, node>(e1, {6, 5});
+    garden.appendnodestoathing<edge, isanelement>(e1, {1});
+    garden.uploadelement(e1);
+    thing t0;
+    garden.appendnodestoathing<tri, node>(t0, {4, 3, 1});
+    garden.appendnodestoathing<tri, isanelement>(t0, {1});
+    garden.uploadelement(t0);
+    thing q0;
+    garden.appendnodestoathing<quad, node>(q0, {7, 4, 3, 6});
+    garden.appendnodestoathing<quad, isanelement>(q0, {1});
+    garden.uploadelement(q0);
+    thing q1;
+    garden.appendnodestoathing<quad, node>(q1, {3, 2, 0, 1});
+    garden.appendnodestoathing<quad, isanelement>(q1, {1});
+    garden.uploadelement(q1);
+    thing tet0;
+    garden.appendnodestoathing<tet, node>(tet0, {14, 18, 15, 17});
+    garden.appendnodestoathing<tet, isanelement>(tet0, {0});
+    garden.uploadelement(tet0);
+    thing wedge0;
+    garden.appendnodestoathing<wedge, node>(wedge0, {13, 16, 10, 8, 11, 6});
+    garden.appendnodestoathing<wedge, isanelement>(wedge0, {0});
+    garden.uploadelement(wedge0);
+    thing hex0;
+    garden.appendnodestoathing<hex, node>(hex0, {7, 9, 14, 12, 6, 8, 13, 10});
+    garden.appendnodestoathing<hex, isanelement>(hex0, {0});
+    garden.uploadelement(hex0);
+    mm2m matrix = garden.lifemanager;
+    mm2m matrix2 = garden.synthesized;
+    //uploadallstuff(matrix, accessories, things, models);
+    compress(matrix);
+    compress(matrix2);
     std::ofstream ofs;
     fileopenoutput(ofs, "matrix.txt");
-    compress(matrix);
-    ofs << "hexahedra\n";
-    ofs << "hex,node" << matrix(hex, node).nfrome << "\n";
-    ofs << "node,hex" << matrix(hex, node).efromn << "\n";
-    ofs << "hex,isanelement" << matrix(hex, isanelement).nfrome << "\n";
-    ofs << "isanelement,quad" << matrix(isanelement, quad).nfrome << "\n";
-    ofs << "isanalement hex--- efromn" << matrix(hex, isanelement).efromn
-            << std::endl;
-    ofs << "isanalement quad--- efromn" << matrix(quad, isanelement).efromn
-            << std::endl;
-    ofs << "Full matrix" << matrix << endl;
-    ofs << "All the nodes of a wedge\n";
-    ofs << getallnodes(matrix, wedge, 0) << "\n";
-    ofs << "all relations to isanelement 0:"
-            << getallelements(matrix, isanelement, 0) << "\n";
-    ofs << "all relations to isanelement 1:"
-            << getallelements(matrix, isanelement, 1) << "\n";
-    ensightfromdb(matrix);
+    ofs << matrix;
+    ofs.close();
+    fileopenoutput(ofs, "matrix2.txt");
+    ofs << matrix2;
+    ofs.close();
+    std::cout << "Matrix 2 edge node=";
+    std::cout << matrix2(3, 1).nfrome << std::endl;
+    ensightfromdb(matrix, matrix2);
 }
 
 #endif // TESTMMM_HPP

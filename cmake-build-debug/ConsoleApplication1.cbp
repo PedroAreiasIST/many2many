@@ -147,9 +147,6 @@
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/thing.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/zoo.cpp">
-			<Option target="ConsoleApplication1"/>
-		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/zoo.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
