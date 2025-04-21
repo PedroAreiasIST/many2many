@@ -9,8 +9,8 @@ project(ConsoleApplication1)
 include_directories(pfr_non_boost-master/include
         pfr_non_boost-master/include/pfr
         pfr_non_boost-master/include/pfr/detail
+        .
         /usr/local/include
-        /home/pedro/vcpkg-clion/packages/tabulate_x64-linux/include
 )
 
 add_executable(ConsoleApplication1

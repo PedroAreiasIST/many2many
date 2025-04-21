@@ -27,7 +27,7 @@
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include"/>
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr"/>
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/detail"/>
-					<Add directory="/home/pedro/vcpkg-clion/packages/tabulate_x64-linux/include"/>
+					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/."/>
 					<Add directory="/usr/include/c++/14"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/14"/>
 					<Add directory="/usr/include/c++/14/backward"/>
@@ -53,7 +53,7 @@
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include"/>
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr"/>
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/detail"/>
-					<Add directory="/home/pedro/vcpkg-clion/packages/tabulate_x64-linux/include"/>
+					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/."/>
 					<Add directory="/usr/include/c++/14"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/14"/>
 					<Add directory="/usr/include/c++/14/backward"/>
