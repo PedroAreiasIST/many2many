@@ -46,7 +46,7 @@ inline void testeo2m() {
 
       for (int iex = 0; iex < nel; ++iex)
         for (int iey = 0; iey < nel; ++iey)
-          for ( int iez = 0; iez < nel; ++iez) {
+          for (int iez = 0; iez < nel; ++iez) {
             seque<int> nodes(8);
             nodes[0] = iex + iey * (nel + 1) + iez * pow(nel + 1, 2);
             nodes[1] = (iex + 1) + iey * (nel + 1) + iez * pow(nel + 1, 2);
@@ -120,4 +120,3 @@ inline void testeo2m() {
     std::cout << result.nfrome.lnods[0] << std::endl;
   }
 }
-#endif // TESTEO2M_HPP

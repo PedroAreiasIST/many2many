@@ -238,11 +238,17 @@ ConsoleApplication1_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 ConsoleApplication1_SOURCE_DIR:STATIC=/home/pedro/SimPlas/ConsoleApplication1
 
+//Git command line client
+GIT_EXECUTABLE:FILEPATH=/usr/bin/git
+
 //Path to a program.
 ProcessorCount_cmd_nproc:FILEPATH=/usr/bin/nproc
 
 //Path to a program.
 ProcessorCount_cmd_sysctl:FILEPATH=/usr/sbin/sysctl
+
+//The directory containing a CMake configuration file for cereal.
+cereal_DIR:PATH=cereal_DIR-NOTFOUND
 
 
 ########################
@@ -400,6 +406,8 @@ CMAKE_TAPI-ADVANCED:INTERNAL=1
 CMAKE_UNAME:INTERNAL=/usr/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: GIT_EXECUTABLE
+GIT_EXECUTABLE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: ProcessorCount_cmd_nproc
 ProcessorCount_cmd_nproc-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: ProcessorCount_cmd_sysctl

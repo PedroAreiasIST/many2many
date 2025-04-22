@@ -1,4 +1,4 @@
-cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_DEPENDS_USE_COMPILER=FALSE -G "CodeBlocks - Unix Makefiles" -S /home/pedro/SimPlas/ConsoleApplication1 -B /home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug
+cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_TOOLCHAIN_FILE=/home/pedro/vcpkg-clion/scripts/buildsystems/vcpkg.cmake -DCMAKE_DEPENDS_USE_COMPILER=FALSE -G "CodeBlocks - Unix Makefiles" -S /home/pedro/SimPlas/ConsoleApplication1 -B /home/pedro/SimPlas/ConsoleApplication1/cmake-build-debug
 CMake Deprecation Warning:
   Support for "Extra Generators" like
 

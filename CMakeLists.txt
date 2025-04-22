@@ -13,6 +13,17 @@ include_directories(pfr_non_boost-master/include
         /usr/local/include
 )
 
+include(ExternalProject)
+ExternalProject_Add(cereal
+        GIT_REPOSITORY git@github.com:USCiLab/cereal.git
+        PREFIX cereal
+        SOURCE_DIR "third-party/cereal"
+        CONFIGURE_COMMAND ""
+        BUILD_COMMAND ""
+        INSTALL_COMMAND ""
+)
+include_directories(third-party/cereal/include)
+
 add_executable(ConsoleApplication1
         main.cpp
         pfr_non_boost-master/include/pfr.hpp
@@ -22,8 +33,6 @@ add_executable(ConsoleApplication1
         m2m.hpp
         o2m.cpp
         m2m.cpp
-        testseque.cpp
-        testseque.hpp
         mm2m.cpp
         symmetries.hpp
         thing.cpp
@@ -34,3 +43,4 @@ add_executable(ConsoleApplication1
         outputtoensight.hpp
         zoo.hpp
 )
+

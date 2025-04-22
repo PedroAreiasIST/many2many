@@ -5,13 +5,23 @@
 		<Option title="ConsoleApplication1"/>
 		<Option makefile_is_custom="1"/>
 		<Option compiler="gcc"/>
-		<Option virtualFolders="CMake Files\;"/>
+		<Option virtualFolders="CMake Files\;CMake Files\cmake-build-release\;CMake Files\cmake-build-release\cereal\;CMake Files\cmake-build-release\cereal\tmp\;"/>
 		<Build>
 			<Target title="all">
 				<Option working_dir="/home/pedro/SimPlas/ConsoleApplication1/cmake-build-release"/>
 				<Option type="4"/>
 				<MakeCommands>
 					<Build command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-release/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="cereal">
+				<Option working_dir="/home/pedro/SimPlas/ConsoleApplication1/cmake-build-release"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-release/Makefile&quot;  VERBOSE=1 cereal"/>
 					<CompileFile command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
 					<Clean command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
 					<DistClean command="/usr/bin/gmake -j32 -f &quot;/home/pedro/SimPlas/ConsoleApplication1/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
@@ -28,6 +38,7 @@
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr"/>
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/detail"/>
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/."/>
+					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/third-party/cereal/include"/>
 					<Add directory="/usr/include/c++/14"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/14"/>
 					<Add directory="/usr/include/c++/14/backward"/>
@@ -54,6 +65,7 @@
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr"/>
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/pfr_non_boost-master/include/pfr/detail"/>
 					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/."/>
+					<Add directory="/home/pedro/SimPlas/ConsoleApplication1/third-party/cereal/include"/>
 					<Add directory="/usr/include/c++/14"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/14"/>
 					<Add directory="/usr/include/c++/14/backward"/>
@@ -135,12 +147,6 @@
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/testmm2m.hpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/testseque.cpp">
-			<Option target="ConsoleApplication1"/>
-		</Unit>
-		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/testseque.hpp">
-			<Option target="ConsoleApplication1"/>
-		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/thing.cpp">
 			<Option target="ConsoleApplication1"/>
 		</Unit>
@@ -152,6 +158,9 @@
 		</Unit>
 		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/pedro/SimPlas/ConsoleApplication1/cmake-build-release/cereal/tmp/cereal-mkdirs.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release\cereal\tmp\"/>
 		</Unit>
 	</Project>
 </CodeBlocks_project_file>

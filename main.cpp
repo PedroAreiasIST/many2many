@@ -1,5 +1,6 @@
 #include "mm2m.hpp"
 #include "superstruct.hpp"
+#include "testeo2m.hpp"
 #include "testm2m.hpp"
 #include "testmm2m.hpp"
 #include "typseque.hpp"
@@ -30,15 +31,8 @@ struct wedge {};
 
 PFR_FUNCTIONS_FOR(wedge)
 
-struct palhaco {
-  double d;
-  int i;
-  auto operator<=>(const palhaco &) const = default;
-};
 int main(int argc, char *argv[]) {
-  palhaco p1{20, -20};
-  palhaco p2{3, -3};
-  std::cout << (p1 < p2) << std::endl;
+
   using ElementTypes = typseque<edge, tet, wedge>;
   using OtherTypes = typseque<isanelement, node>;
   using MeshType = typsequemergetype<ElementTypes, OtherTypes>;
@@ -89,4 +83,5 @@ int main(int argc, char *argv[]) {
   std::cout << "another=" << another << std::endl;
   testmm2m();
   testm2m();
+  testeo2m();
 }

@@ -117,6 +117,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named cereal
+
+# Build rule for target.
+cereal: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 cereal
+.PHONY : cereal
+
+# fast build rule for target.
+cereal/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cereal.dir/build.make CMakeFiles/cereal.dir/build
+.PHONY : cereal/fast
+
+#=============================================================================
 # Target rules for targets named ConsoleApplication1
 
 # Build rule for target.
@@ -225,30 +238,6 @@ o2m.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/o2m.cpp.s
 .PHONY : o2m.cpp.s
 
-testseque.o: testseque.cpp.o
-.PHONY : testseque.o
-
-# target to build an object file
-testseque.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/testseque.cpp.o
-.PHONY : testseque.cpp.o
-
-testseque.i: testseque.cpp.i
-.PHONY : testseque.i
-
-# target to preprocess a source file
-testseque.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/testseque.cpp.i
-.PHONY : testseque.cpp.i
-
-testseque.s: testseque.cpp.s
-.PHONY : testseque.s
-
-# target to generate assembly for a file
-testseque.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ConsoleApplication1.dir/build.make CMakeFiles/ConsoleApplication1.dir/testseque.cpp.s
-.PHONY : testseque.cpp.s
-
 thing.o: thing.cpp.o
 .PHONY : thing.o
 
@@ -281,6 +270,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... cereal"
 	@echo "... ConsoleApplication1"
 	@echo "... m2m.o"
 	@echo "... m2m.i"
@@ -294,9 +284,6 @@ help:
 	@echo "... o2m.o"
 	@echo "... o2m.i"
 	@echo "... o2m.s"
-	@echo "... testseque.o"
-	@echo "... testseque.i"
-	@echo "... testseque.s"
 	@echo "... thing.o"
 	@echo "... thing.i"
 	@echo "... thing.s"
