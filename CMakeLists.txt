@@ -3,7 +3,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(GCC_COVERAGE_COMPILE_FLAGS "-Wall -Wextra -Wconversion")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -std=c++20 -fopenmp -fbounds-check")
-set(CMAKE_CXX_FLAGS_RELEASE " -Ofast -std=c++20 -fopenmp-simd -ffast-math -fno-trapping-math -fassociative-math -fargument-noalias-global -fomit-frame-pointer -fopenmp -march=native -mtune=native  ")
+set(CMAKE_CXX_FLAGS_RELEASE " -Ofast -std=c++20 -ffast-math -fno-trapping-math -fassociative-math -fargument-noalias-global -fomit-frame-pointer -fopenmp -march=native -mtune=native  ")
 project(ConsoleApplication1)
 
 include_directories(pfr_non_boost-master/include
@@ -11,6 +11,9 @@ include_directories(pfr_non_boost-master/include
         pfr_non_boost-master/include/pfr/detail
         .
         /usr/local/include
+        cereal-1.3.2/include/cereal
+        cereal-1.3.2/include/cereal/archives
+        cereal-1.3.2/include
 )
 
 include(ExternalProject)

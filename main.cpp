@@ -1,3 +1,5 @@
+#include "cereal/archives/json.hpp"
+#include "cereal/cereal.hpp"
 #include "mm2m.hpp"
 #include "superstruct.hpp"
 #include "testeo2m.hpp"
@@ -6,82 +8,94 @@
 #include "typseque.hpp"
 #include "zoo.hpp"
 #include <cassert>
+#include <cereal-1.3.2/include/cereal/types/vector.hpp>
+#include <fstream>
+#include <iostream>
+
+// #include <iostream>
 
 using namespace std;
 
-struct node {
-  double x, y, z;
+struct node
+{
+    double x, y, z;
 };
 
 PFR_FUNCTIONS_FOR(node)
 
-struct isanelement {};
+struct isanelement
+{
+};
 
 PFR_FUNCTIONS_FOR(isanelement)
 
-struct edge {};
+struct edge
+{
+};
 
 PFR_FUNCTIONS_FOR(edge)
 
-struct tet {};
+struct tet
+{
+};
 
 PFR_FUNCTIONS_FOR(tet)
 
-struct wedge {};
+struct wedge
+{
+};
 
 PFR_FUNCTIONS_FOR(wedge)
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
+    using ElementTypes = typseque<edge, tet, wedge>;
+    using OtherTypes = typseque<isanelement, node>;
+    using MeshType = typsequemergetype<ElementTypes, OtherTypes>;
+    zoo<MeshType> garden;
+    using TypeManager = typsequetostructtype<MeshType, superstruct>;
+    TypeManager mesh;
+    mm2m matrix;
+    setnumberoftypes(matrix, TypeManager::Size);
+    int e0 = appendnode<isanelement>(mesh);
+    int n0 = appendnode<node>(mesh, 0., 0., 0.);
+    int n1 = appendnode<node>(mesh, 1., 0., 0.);
+    int n2 = appendnode<node>(mesh, 2., 0., 0.);
+    int n3 = appendnode<node>(mesh, 2., 1., 0.);
+    int n4 = appendnode<node>(mesh, 1., 1., 0.);
+    int n5 = appendnode<node>(mesh, 3., 1., 0.);
+    int n6 = appendnode<node>(mesh, 2., 1., 1.);
+    int edge1 = appendnode<edge>(mesh);
+    int wedge0 = appendnode<wedge>(mesh);
 
-  using ElementTypes = typseque<edge, tet, wedge>;
-  using OtherTypes = typseque<isanelement, node>;
-  using MeshType = typsequemergetype<ElementTypes, OtherTypes>;
-  zoo<MeshType> garden;
-  using TypeManager = typsequetostructtype<MeshType, superstruct>;
-  TypeManager mesh;
-  mm2m matrix;
-  setnumberoftypes(matrix, TypeManager::Size);
-
-  int e0 = appendnode<isanelement>(mesh);
-  int n0 = appendnode<node>(mesh, 0., 0., 0.);
-  int n1 = appendnode<node>(mesh, 1., 0., 0.);
-  int n2 = appendnode<node>(mesh, 2., 0., 0.);
-  int n3 = appendnode<node>(mesh, 2., 1., 0.);
-  int n4 = appendnode<node>(mesh, 1., 1., 0.);
-  int n5 = appendnode<node>(mesh, 3., 1., 0.);
-  int n6 = appendnode<node>(mesh, 2., 1., 1.);
-  int edge1 = appendnode<edge>(mesh);
-  int wedge0 = appendnode<wedge>(mesh);
-
-  seque<node> &nodes = getsequence<node>(mesh);
-  nodes[2].x = 3;
-  nodes[2].y = 4;
-  nodes[2].z = 5;
-  cout << "Mesh new nodes" << endl;
-  cout << getsequence<node>(mesh);
-
-  auto nodetype = getnumber<node, TypeManager>();
-  auto edgetype = getnumber<edge, TypeManager>();
-  auto tettype = getnumber<tet, TypeManager>();
-  auto wedgetype = getnumber<wedge, TypeManager>();
-  appendelement<TypeManager, tet, node>(matrix, {4, 2, 6, 0});
-  appendelement<TypeManager, tet, isanelement>(matrix, {0});
-  appendelement<TypeManager, edge, node>(matrix, {3, 0});
-  appendelement<TypeManager, edge, isanelement>(matrix, {0});
-  appendelement<TypeManager, edge, node>(matrix, {3, 1});
-  appendelement<TypeManager, edge, isanelement>(matrix, {0});
-  appendelement<TypeManager, wedge, node>(matrix, {6, 3, 5, 1, 2, 4});
-  appendelement<TypeManager, wedge, isanelement>(matrix, {0});
-  compress(matrix);
-  auto elnode3 = getallelements(matrix, nodetype, 3);
-  cout << "en3=" << elnode3 << endl;
-  node mmm{0, 2, 4};
-  std::cout << mmm << std::endl;
-  std::cout << "   mesh=" << mesh << std::endl;
-  TypeManager another;
-  another = mesh;
-  std::cout << "another=" << another << std::endl;
-  testmm2m();
-  testm2m();
-  testeo2m();
+    seque<node> &nodes = getsequence<node>(mesh);
+    nodes[2].x = 3;
+    nodes[2].y = 4;
+    nodes[2].z = 5;
+    // cout << "Mesh new nodes" << endl;
+    cout << getsequence<node>(mesh);
+    auto nodetype = getnumber<node, TypeManager>();
+    auto edgetype = getnumber<edge, TypeManager>();
+    auto tettype = getnumber<tet, TypeManager>();
+    auto wedgetype = getnumber<wedge, TypeManager>();
+    appendelement<TypeManager, tet, node>(matrix, {4, 2, 6, 0});
+    appendelement<TypeManager, tet, isanelement>(matrix, {0});
+    appendelement<TypeManager, edge, node>(matrix, {3, 0});
+    appendelement<TypeManager, edge, isanelement>(matrix, {0});
+    appendelement<TypeManager, edge, node>(matrix, {3, 1});
+    appendelement<TypeManager, edge, isanelement>(matrix, {0});
+    appendelement<TypeManager, wedge, node>(matrix, {6, 3, 5, 1, 2, 4});
+    appendelement<TypeManager, wedge, isanelement>(matrix, {0});
+    compress(matrix);
+    auto elnode3 = getallelements(matrix, nodetype, 3);
+    // cout << "en3=" << elnode3 << endl;
+    node mmm{0, 2, 4};
+    // std::cout << mmm << std::endl;
+    //  std::cout << "   mesh=" << mesh << std::endl;
+    TypeManager another;
+    another = mesh;
+    //  std::cout << "another=" << another << std::endl;
+    testmm2m();
+    testm2m();
+    testeo2m();
 }

@@ -32,6 +32,7 @@ inline o2m geto2mfromsequence(const seque<int> &other)
     setsize(ret, getsize(other));
     for (int element = 0; element < getsize(other); ++element)
     {
+        ret.lnods[element] = {element};
     }
     return ret;
 }
@@ -101,6 +102,10 @@ void setnodesforelement(o2m &rel, int element, seque<int> const &nodes)
 {
     if (element >= rel.nelems())
         throw std::runtime_error("Element index out of bounds");
+    erase(rel.lnods[element]);
+    setsize(rel.lnods[element], getsize(nodes));
+    std::copy(std::execution::par, nodes.begin(), nodes.end(),
+              rel.lnods[element].begin());
     if (getsize(rel.lnods[element]) != getsize(nodes))
     {
         rel.lnods[element] = nodes;
@@ -325,8 +330,7 @@ o2m operator+(const o2m &rela, const o2m &relb)
     o2m relc;
     int maxElements = std::max(rela.nelem, relb.nelem);
     setsize(relc, maxElements);
-    relc.maxnode = std::max(rela.maxnode, relb.maxnode);
-    {
+    relc.maxnode = std::max(rela.maxnode, relb.maxnode); {
         std::vector<int> marker(relc.maxnode + 1, 0);
         int local_generation = 1;
         for (int element = 0; element < maxElements; ++element)

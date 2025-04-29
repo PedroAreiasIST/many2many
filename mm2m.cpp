@@ -2,7 +2,6 @@
 
 #include "o2m.hpp"
 #include "basics.hpp"
-#include "superstruct.hpp"
 #include <algorithm>
 #include <cassert>
 #include <set>
@@ -67,8 +66,8 @@ void marktoeraserepeated(mm2m &m, int elementtype, int nodetype)
     auto mm = m(elementtype, nodetype);
     auto order = getorder(mm);
     auto dupindices = getindicesofduplicates(mm.nfrome.lnods, order);
-    for (int i = 0; i < getsize(dupindices); ++i)
-        marktoerase(m, elementtype, dupindices[i]);
+    for (int i=0;i<getsize(dupindices);++i)
+    marktoerase(m, elementtype, dupindices[i]);
 }
 
 seque<std::pair<int, int> > getallelements(mm2m const &m, int nodetype,
