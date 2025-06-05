@@ -66,8 +66,8 @@ void marktoeraserepeated(mm2m &m, int elementtype, int nodetype)
     auto mm = m(elementtype, nodetype);
     auto order = getorder(mm);
     auto dupindices = getindicesofduplicates(mm.nfrome.lnods, order);
-    for (int i=0;i<getsize(dupindices);++i)
-    marktoerase(m, elementtype, dupindices[i]);
+    for (int i = 0; i < getsize(dupindices); ++i)
+        marktoerase(m, elementtype, dupindices[i]);
 }
 
 seque<std::pair<int, int> > getallelements(mm2m const &m, int nodetype,
@@ -211,15 +211,6 @@ void setnumberofelements(mm2m &m, int elementtype, int nelem)
     {
         setnumberofelements(m(elementtype, nodetype), nelem);
     }
-}
-
-void setnodesforelement(mm2m &m, int elementtype, int element, int nodetype, seque<int> const &nodes)
-{
-    if (getsize(nodes) == 0)
-    {
-        throw std::runtime_error("Nodes sequence is empty.");
-    }
-    setnodesforelement(m(elementtype, nodetype), element, nodes);
 }
 
 void compress(mm2m &m)

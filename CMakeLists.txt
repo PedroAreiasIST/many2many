@@ -10,22 +10,8 @@ include_directories(pfr_non_boost-master/include
         pfr_non_boost-master/include/pfr
         pfr_non_boost-master/include/pfr/detail
         .
-        /usr/local/include
-        cereal-1.3.2/include/cereal
-        cereal-1.3.2/include/cereal/archives
-        cereal-1.3.2/include
-)
+        /usr/local/include)
 
-include(ExternalProject)
-ExternalProject_Add(cereal
-        GIT_REPOSITORY git@github.com:USCiLab/cereal.git
-        PREFIX cereal
-        SOURCE_DIR "third-party/cereal"
-        CONFIGURE_COMMAND ""
-        BUILD_COMMAND ""
-        INSTALL_COMMAND ""
-)
-include_directories(third-party/cereal/include)
 
 add_executable(ConsoleApplication1
         main.cpp
@@ -47,3 +33,9 @@ add_executable(ConsoleApplication1
         zoo.hpp
 )
 
+find_package(cereal CONFIG REQUIRED)
+
+target_link_libraries(ConsoleApplication1 PRIVATE cereal::cereal)
+
+find_package(TBB REQUIRED)
+target_link_libraries(ConsoleApplication1 PUBLIC TBB::tbb)

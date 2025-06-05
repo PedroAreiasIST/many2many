@@ -45,10 +45,9 @@ inline void testeo2m()
             case 6:
                 nel = 250;
                 nmax = pow(nel, 3);
-                setsize(els, nmax);
+                //         setsize(els, nmax);
                 std::cout << "Started" << std::endl;
-                setsize(om, nmax);
-
+                //     setsize(om, nmax);
                 for (int iex = 0; iex < nel; ++iex)
                     for (int iey = 0; iey < nel; ++iey)
                         for (int iez = 0; iez < nel; ++iez)
@@ -66,8 +65,8 @@ inline void testeo2m()
                                     (iex + 1) + (iey + 1) * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
                             nodes[7] =
                                     iex + (iey + 1) * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
-                            // appendelement(mm, nodes);
-                            setnodesforelement(om, e++, nodes);
+                            appendelement(om, nodes);
+                            //setnodesforelement(om, e++, nodes);
                         }
                 break;
             case 4:
@@ -85,7 +84,7 @@ inline void testeo2m()
                         nodes[1] = (iex + 1) + iey * (nel + 1);
                         nodes[2] = (iex + 1) + (iey + 1) * (nel + 1);
                         nodes[3] = iex + (iey + 1) * (nel + 1);
-                        setnodesforelement(om, e++, nodes);
+                        appendelement(om, nodes);
                     }
                 break;
             default:

@@ -98,23 +98,6 @@ void setsize(o2m &rel, int nelem)
     setsize(rel.lnods, nelem);
 }
 
-void setnodesforelement(o2m &rel, int element, seque<int> const &nodes)
-{
-    if (element >= rel.nelems())
-        throw std::runtime_error("Element index out of bounds");
-    erase(rel.lnods[element]);
-    setsize(rel.lnods[element], getsize(nodes));
-    std::copy(std::execution::par, nodes.begin(), nodes.end(),
-              rel.lnods[element].begin());
-    if (getsize(rel.lnods[element]) != getsize(nodes))
-    {
-        rel.lnods[element] = nodes;
-    } else
-        std::copy(std::execution::par, nodes.begin(), nodes.end(),
-                  rel.lnods[element].begin());
-    rel.maxnode = hidden::update_max_for_nodes(nodes, rel.maxnode);
-}
-
 int appendelement(o2m &rel, seque<int> const &nodes)
 {
     seque<int> nodetemp = nodes;
@@ -140,6 +123,23 @@ o2m &operator<<(o2m &rel, std::initializer_list<int> nodes)
     }
     appendelement(rel, temp);
     return rel;
+}
+
+seque<int> getduplicates(o2m const &rel)
+{
+    std::set<seque<int> > Map;
+    seque<int> res;
+    for (int i = 0; i < rel.nelem; ++i)
+    {
+        if (Map.find(rel[i]) == Map.end())
+        {
+            Map.insert(rel[i]);
+        } else
+        {
+            append(res, i);
+        }
+    }
+    return res;
 }
 
 o2m Tr(const o2m &rel)

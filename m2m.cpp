@@ -16,12 +16,6 @@ void setnumberofelements(m2m &rel, int nelem)
     rel.efromn.maxnode = nelem - 1;
 }
 
-void setnodesforelement(m2m &rel, int element, seque<int> const &nodes)
-{
-    setnodesforelement(rel.efromn, element, nodes);
-    rel.isupdated = false;
-}
-
 void synchronize(m2m &rel)
 {
     if (!rel.isupdated)

@@ -9,8 +9,24 @@ namespace hidden
 {
     using Permutation = seque<int>;
     using Group = seque<Permutation>;
+    /**
+     * @brief Constant representing an uninitialized or unset state in various data structures or algorithms.
+     *
+     * This value is often used to indicate an uninitialized slot in arrays or sequences
+     * or as a placeholder in situations where no valid value has yet been assigned.
+     */
     static const int UNSET = -1;
 
+    /**
+     * Checks if the given sequence is a valid full permutation present in the group.
+     *
+     * The function iterates through the permutations in the group and checks
+     * if any of them match the provided sequence exactly.
+     *
+     * @param position The sequence of integers to validate as a full permutation.
+     * @param G The group containing permutations to compare against.
+     * @return true if the sequence matches a full permutation in the group, false otherwise.
+     */
     inline bool isvalidfullpermutation(const seque<int> &position, const Group &G)
     {
         const int posSize = getsize(position);
@@ -36,6 +52,18 @@ namespace hidden
         return false;
     }
 
+    /**
+     * Checks whether the given sequence can be extended consistently with the provided group of permutations.
+     *
+     * The method iterates through each permutation in the group and checks if the given sequence `position`
+     * matches consistently for indices up to `upTo`. If at least one permutation is consistent, the sequence
+     * can be extended, and the method returns true.
+     *
+     * @param position The current sequence of integers to validate against the group of permutations.
+     * @param upTo The index up to which the consistency of the sequence is checked.
+     * @param G The group of permutations to be checked against the current sequence.
+     * @return Returns true if the sequence can be extended consistently with at least one permutation, false otherwise.
+     */
     inline bool canextend(const seque<int> &position, int upTo, const Group &G)
     {
         for (const auto &perm: G)
@@ -61,6 +89,17 @@ namespace hidden
         return false;
     }
 
+    /**
+     * Recursively attempts to assign slots in a permutation, ensuring the permutation
+     * satisfies certain constraints defined by the given group structure.
+     *
+     * @param level The current recursion depth or slot that is being assigned.
+     * @param position A sequence representing the current assignment of indices to positions.
+     * @param sortedIndices A sequence of candidate indices sorted in a specific order.
+     * @param used A sequence of flags indicating whether each index in `sortedIndices` has been used.
+     * @param G The group structure defining the constraints for valid permutations.
+     * @return True if a valid assignment that satisfies the constraints is found; otherwise, false.
+     */
     inline bool assignslot(int level, seque<int> &position, const seque<int> &sortedIndices, seque<bool> &used,
                            const Group &G)
     {
@@ -94,6 +133,17 @@ namespace hidden
     }
 } // namespace hidden
 
+/**
+ * Computes the canonical form of a given sequence of labels under the constraints of a group of permutations.
+ *
+ * If the group is empty or the permutation sizes do not match the size of the label sequence,
+ * the original label sequence is returned as is. Otherwise, the function determines a canonical
+ * permutation of the labels using the group.
+ *
+ * @param labels The input sequence of labels for which the canonical form is to be computed.
+ * @param G The group of permutations that defines the equivalence under which the canonical form is derived.
+ * @return A sequence representing the canonical form of the given labels under the provided group of permutations.
+ */
 inline seque<int> getcanonicalform(const seque<int> &labels, const hidden::Group &G)
 {
     using namespace hidden;
