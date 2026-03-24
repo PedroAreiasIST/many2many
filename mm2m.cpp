@@ -246,7 +246,8 @@ void compress(mm2m &m)
             nnmax = std::max(nnmax, m(otherType, type).efromn.nelems());
             nnmax = std::max(nnmax, m(otherType, type).nfrome.maxnode + 1);
         }
-        setnumberofelements(m(type, type), nnmax);
+        setnumberofelements(m(type, type), 0);
+        setsize(m(type, type).nfrome.lnods, nnmax);
         for (int i = 0; i < nnmax; ++i)
         {
             appendelement(m(type, type), {i});

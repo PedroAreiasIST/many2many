@@ -1,6 +1,5 @@
 #include "m2m.hpp"
 #include <array>
-#include <boost/container/flat_map.hpp>
 #include <chrono>
 #include <cstddef>
 #include <random>
@@ -38,7 +37,6 @@ inline void testeo2m()
     o2m om;
     {
         constexpr int ntype = 6;
-        int e = 0;
         switch (ntype)
         {
             case 6:

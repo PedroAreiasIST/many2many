@@ -5,7 +5,7 @@
 #include <cereal/archives/binary.hpp>
 #include "pfr_non_boost-master/include/pfr.hpp"
 #include <algorithm>
-#include <boost/core/demangle.hpp>
+#include <cxxabi.h>
 #include <cstddef>
 #include <fstream>
 #include <iostream>
@@ -62,29 +62,27 @@ inline void pointerdestroy(T *&p) noexcept
     }
 }
 
+namespace hidden {
+inline std::string demangle(const char *name)
+{
+    int status = 0;
+    char *demangled = abi::__cxa_demangle(name, nullptr, nullptr, &status);
+    std::string result = (status == 0 && demangled) ? demangled : name;
+    std::free(demangled);
+    return result;
+}
+} // namespace hidden
+
 template<typename T>
-/**
- * @brief Retrieves the demangled name of the type T.
- *
- * @return A string representing the demangled name of the type T.
- */
 inline std::string typetoname()
 {
-    const char *name = typeid(T).name();
-    return boost::core::demangle(name);
+    return hidden::demangle(typeid(T).name());
 }
 
 template<typename T>
-/**
- * Converts the type of an object to its demangled type name string.
- *
- * @param obj The object whose type name needs to be determined.
- * @return A string containing the demangled type name of the object.
- */
 inline std::string typetoname(const T &obj)
 {
-    const char *name = typeid(obj).name();
-    return boost::core::demangle(name);
+    return hidden::demangle(typeid(obj).name());
 }
 
 template<typename TupleT, typename Fn>
@@ -196,13 +194,6 @@ std::vector<std::string> pfrgetallnames<StructType>::names;
 #define PFRALLNAMES(sname, nomestodos) pfrgetallnames<sname>::item<>(nomestodos)
 
 template<typename T1, typename T2>
-/**
- * Overloads the operator for the specified functionality.
- *
- * @param lhs The left-hand side operand of the operator.
- * @param rhs The right-hand side operand of the operator.
- * @return The result of the operation performed by the overloaded operator.
- */
 std::ostream &operator<<(std::ostream &out, const std::pair<T1, T2> &p)
 {
     out << '(' << p.first << ", " << p.second << ')';
@@ -210,14 +201,6 @@ std::ostream &operator<<(std::ostream &out, const std::pair<T1, T2> &p)
 }
 
 template<typename T1, typename T2>
-/**
- * Overloads the operator to perform a specific operation between two objects or values.
- * The operation can vary depending on the implementation within the class or structure.
- *
- * @param lhs The left-hand side operand involved in the operation.
- * @param rhs The right-hand side operand involved in the operation.
- * @return The result of the operation as a value, determined by the specific implementation.
- */
 std::istream &operator>>(std::istream &in, std::pair<T1, T2> &p)
 {
     char ch1, ch2, ch3;
@@ -230,12 +213,6 @@ std::istream &operator>>(std::istream &in, std::pair<T1, T2> &p)
 }
 
 template<typename T, std::size_t N>
-/**
- * Overloads the operator for a custom implementation.
- *
- * @param other The object or value to compare or operate with.
- * @return The result of the operation as determined by the custom implementation.
- */
 std::ostream &operator<<(std::ostream &out, const std::array<T, N> &arr)
 {
     out << '[';

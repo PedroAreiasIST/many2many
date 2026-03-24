@@ -12,6 +12,7 @@ int appendelement(m2m &rel, seque<int> const &nodes)
 void setnumberofelements(m2m &rel, int nelem)
 {
     setsize(rel.nfrome.lnods, nelem);
+    rel.nfrome.nelem = nelem;
     rel.isupdated = false;
     rel.efromn.maxnode = nelem - 1;
 }

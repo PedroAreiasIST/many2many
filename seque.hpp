@@ -104,91 +104,15 @@ template<typename V, int S = hidden::STACKSIZE, auto P = std::execution::par>
  */
 struct seque
 {
-    /**
-     * @brief Retrieves the number of elements currently in the stack.
-     *
-     * This function returns the total number of elements that are
-     * currently stored in the stack. It does not modify the stack
-     * or its contents.
-     *
-     * @return Size of the stack as an integer value.
-     */
     static constexpr int stacksize = S;
-    /**
-     * @brief Indicates whether an operation or process should be executed in parallel.
-     *
-     * The `parallel` variable is typically used to enable or disable parallel processing,
-     * allowing a process or task to execute concurrently across multiple resources (such
-     * as CPU cores or threads). If set to true, parallelism is enabled, otherwise the
-     * process executes sequentially.
-     *
-     * This variable can be useful in scenarios requiring optimization for performance
-     * through concurrent execution.
-     */
     static constexpr auto parallel = P;
-    /**
-     * @brief Returns the number of elements in the container.
-     *
-     * This function provides the total count of elements currently stored
-     * in the container. It does not modify the container or its content.
-     *
-     * @return The size of the container as an unsigned integer.
-     */
     int size = 0;
-    /**
-     * @class StackData
-     * @brief A class that represents a data structure for managing stack elements.
-     *
-     * The StackData class provides functionalities to store, manage, and
-     * handle elements in a stack-like structure. It offers standard stack
-     * operations such as pushing, popping, and accessing the top element.
-     *
-     * The implementation assumes a fixed or dynamically allocated memory
-     * for managing the stack's data and ensures basic safety and stack
-     * behavior principles are adhered to.
-     */
     V stackdata[S];
-    /**
-     * @class HeapData
-     * @brief Represents a data structure for handling data in a heap-allocated context.
-     *
-     * This class is designed to manage raw data stored on the heap with functionality
-     * to initialize, access, and manage the underlying data buffer. It is typically used
-     * for scenarios requiring efficient memory allocation and deallocation.
-     *
-     * The class provides methods to access the raw data, retrieve its size, and
-     * manipulate the content safely. Proper memory management practices should be followed
-     * to avoid leaks or undefined behavior when using this class.
-     */
     V *heapdata = nullptr;
-    /**
-     * @brief Determines the size of a binary heap represented as an array.
-     *
-     * @param heap Array representing the binary heap.
-     * @return The size of the binary heap.
-     *
-     * This function calculates the size of a binary heap by counting the
-     * number of elements in the array that represents the heap. It assumes
-     * the binary heap is complete and stored in a contiguous block of memory.
-     */
     int heapsize = 0;
-    /**
-     * @brief Holds the actual value for a given process or computation.
-     *
-     * The `actual` variable is used to store the real or measured data value
-     * in a program. It is typically utilized in scenarios where comparisons
-     * are made between expected and observed outcomes. This variable serves
-     * as the representation of the observed result.
-     */
+    /** Points to the active storage: stackdata when small, heapdata when grown. */
     V *actual = stackdata;
 
-    /**
-     * This method takes an input sequence and processes it to calculate the next sequence in the series
-     * based on a predefined transformation or logic.
-     *
-     * @param inputSequence The input sequence to be processed, typically an iterable collection of elements.
-     * @return The resulting sequence after processing the input sequence.
-     */
     seque()
     {
     }
@@ -541,16 +465,7 @@ void setsize(seque<V, S, P> &container, int newSize)
 
 
 template<typename V, int S, auto P>
-/**
- * Saves the provided data to a specified file path.
- *
- * @param data The data that needs to be saved.
- * @param filePath The location where the data should be saved.
- * @param overwrite Indicates whether to overwrite the file if it already exists.
- *                  If true, the file will be overwritten. If false, the method will not overwrite.
- * @throws IOException If an I/O error occurs during saving the data.
- * @throws IllegalArgumentException If the provided file path is null or empty.
- */
+/** Serializes the container via the given archive functor. */
 void save(auto archiver, seque<V, S, P> const &container)
 {
     archiver(container.size);
@@ -561,13 +476,7 @@ void save(auto archiver, seque<V, S, P> const &container)
 }
 
 template<typename V, int S, auto P>
-/**
- * Loads a resource or data into the system.
- *
- * @param resource The resource or data to be loaded into the system. This can be a file, URL, or a string representing the data.
- * @param options Additional parameters or configurations that may influence the loading behavior. This can include settings like caching, loading mode, or resource type.
- * @param callback A callback function to handle the response after the resource has been successfully loaded or if an error occurs.
- */
+/** Deserializes the container via the given archive functor. */
 void load(auto archiver, seque<V, S, P> &container)
 {
     int loadedSize = 0;
@@ -587,27 +496,14 @@ bool isindexvalid(seque<V, S, P> const &container, int index)
 }
 
 template<typename V, int S, auto P>
-/**
- * Erases the specified element from a container.
- *
- * @param container The container from which the element will be erased.
- * @param element The element to be removed from the container.
- */
+/** Clears all elements from the container. */
 void erase(seque<V, S, P> &container)
 {
     setsize(container, 0);
 }
 
 template<typename V, int S, auto P>
-/**
- * Erases elements from the container within the specified range.
- * The elements to be erased are determined by the provided iterators.
- * After erasing, the size of the container is reduced, and any iterators
- * referring to the erased elements are invalidated.
- *
- * @param start Iterator pointing to the beginning of the range to be erased.
- * @param end Iterator pointing to the end of the range to be erased (exclusive).
- */
+/** Erases the element at eraseIndex by swapping with the last element. */
 void erase(seque<V, S, P> &container, int eraseIndex)
 {
     if (isindexvalid(container, eraseIndex) && container.size > 0)
@@ -619,12 +515,6 @@ void erase(seque<V, S, P> &container, int eraseIndex)
 }
 
 template<typename V, int S, auto P>
-/**
- * Removes the last element from a given list or container if it is not empty.
- *
- * @param container A reference to the container from which the last element will be removed.
- *                  The container must support removing elements and provide a size or equivalent method.
- */
 void eraselast(seque<V, S, P> &container)
 {
     if (container.size > 0)
@@ -1129,16 +1019,7 @@ void setreversed(seque<V, S, P> &container)
 }
 
 template<typename V, int S, auto P>
-/**
- * Sets the rotation of an object or dataset around a specified index. This method updates the
- * rotational alignment based on the provided index and rotation angle. Rotation could affect the
- * object's orientation depending on the implementation.
- *
- * @param index The reference index around which the rotation will be performed.
- *              The index should typically fall within the object’s valid range.
- * @param angle The rotation angle in degrees or radians, depending on the implementation.
- *              Defines how far the object is rotated around the given index.
- */
+/** Rotates elements so that rotationIndex becomes the first element. */
 void setrotatedaroundindex(seque<V, S, P> &container, int rotationIndex)
 {
     if (rotationIndex > container.size)
@@ -1150,19 +1031,7 @@ void setrotatedaroundindex(seque<V, S, P> &container, int rotationIndex)
 }
 
 template<typename V, int S, auto P>
-/**
- * @brief Sets the permutation of elements in a clockwise order.
- *
- * This function alters the arrangement of elements within a given data structure
- * or grid to transform them into a clockwise permutation sequence.
- *
- * The implementation typically assumes that the input structure allows element-wise
- * traversal and that the operation conforms to a scenario where the arrangement
- * forms a rectilinear or circular ordering.
- *
- * The use case for this function often involves graphical transformations, matrix
- * rotations, or geometry-related tasks where clockwise communication is essential.
- */
+/** Advances to the next lexicographic permutation. Returns false if wrapped. */
 bool setpermuteclockwise(seque<V, S, P> &container)
 {
     return std::next_permutation(container.actual,
@@ -1170,16 +1039,7 @@ bool setpermuteclockwise(seque<V, S, P> &container)
 }
 
 template<typename V, int S, auto P>
-/**
- * Sets the permutation of the given array to the next counterclockwise position.
- *
- * This method modifies the order of the elements in the provided array
- * moving them to the next counterclockwise permutation based on their current order.
- *
- * @param arr The array of elements whose permutation is to be set. Must not be null.
- * @return True if the permutation was successfully set to the next counterclockwise state,
- *         or false if no further counterclockwise permutations exist.
- */
+/** Retreats to the previous lexicographic permutation. Returns false if wrapped. */
 bool setpermutecounterclockwise(seque<V, S, P> &container)
 {
     return std::prev_permutation(container.actual,

@@ -26,14 +26,17 @@ namespace hidden
         return current_max;
     }
 } // namespace hidden
-inline o2m geto2mfromsequence(const seque<int> &other)
+o2m geto2mfromsequence(const seque<int> &other)
 {
     o2m ret;
     setsize(ret, getsize(other));
     for (int element = 0; element < getsize(other); ++element)
     {
-        ret.lnods[element] = {element};
+        ret.lnods[element] = {other[element]};
     }
+    ret.maxnode = getsize(other) > 0
+        ? *std::max_element(other.actual, other.actual + other.size)
+        : 0;
     return ret;
 }
 

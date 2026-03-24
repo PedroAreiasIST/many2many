@@ -121,7 +121,7 @@ struct superstruct
     friend std::istream &operator>>(std::istream &is, superstruct<T...> &s)
     {
         std::ios_base::sync_with_stdio(false);
-        auto lambda = [&](auto const &arg) { is >> arg; };
+        auto lambda = [&](auto &arg) { is >> arg; };
         tupleforcycle(s.as, lambda);
         return is;
     }

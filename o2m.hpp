@@ -95,7 +95,7 @@ namespace hidden
                                            o2m const &elementsfromnode);
 } // namespace hidden
 
-/** Creates an identity o2m from a sequence (each element maps to itself). */
+/** Creates an o2m from a sequence (element i maps to {other[i]}). */
 o2m geto2mfromsequence(const seque<int> &other);
 
 /** Computes clique numbering for element-node connectivity. */
