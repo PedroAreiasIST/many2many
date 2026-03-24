@@ -63,7 +63,7 @@ void marktoerase(mm2m &m, int nodeType, int node)
 
 void marktoeraserepeated(mm2m &m, int elementtype, int nodetype)
 {
-    auto mm = m(elementtype, nodetype);
+    auto const &mm = m(elementtype, nodetype);
     auto order = getorder(mm);
     auto dupindices = getindicesofduplicates(mm.nfrome.lnods, order);
     for (int i = 0; i < getsize(dupindices); ++i)

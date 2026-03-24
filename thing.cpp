@@ -55,12 +55,12 @@ seque<thing> getallchildren(thing const &element,
             for (int nodetype = 0;
                  nodetype < getsize(model.childrenbuilders[childtype]); ++nodetype)
             {
-                auto builderCollection = model.childrenbuilders[childtype][nodetype];
+                auto const &builderCollection = model.childrenbuilders[childtype][nodetype];
                 // For each instance in the builder for the current nodetype, create a
                 // new child.
                 for (int i = 0; i < getsize(builderCollection); ++i)
                 {
-                    auto localnodes = builderCollection[i];
+                    auto const &localnodes = builderCollection[i];
                     // Retrieve the nodes from the parent 'element' based on these
                     // indices.
                     seque<int> nodes = element.typesandnodes[nodetype](localnodes);

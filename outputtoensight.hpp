@@ -163,128 +163,56 @@ void printmesh(mm2m &m, int number,
     };
     std::string filename = "output";
     int nnoe = coordinates.size();
-    auto aaa = getallelements(m, isanelement);
-    aaa = getunion(aaa, getallelements(m, node));
-    aaa = getunion(aaa, getallelements(m, point));
-    aaa = getunion(aaa, getallelements(m, edge));
-    aaa = getunion(aaa, getallelements(m, tri));
-    aaa = getunion(aaa, getallelements(m, quad));
-    aaa = getunion(aaa, getallelements(m, tet));
-    aaa = getunion(aaa, getallelements(m, wedge));
-    aaa = getunion(aaa, getallelements(m, hex));
+    // Map element types to their Ensight part numbers (1-based)
+    const std::map<int, int> typeToPartNumber = {
+        {point, 1}, {edge, 2}, {tri, 3}, {quad, 4},
+        {tet, 5}, {hex, 6}, {wedge, 7}
+    };
+
+    seque<std::pair<int, int> > aaa;
+    for (int t = 0; t <= hex; ++t)
+    {
+        aaa = getunion(aaa, getallelements(m, t));
+    }
     setorderedandunique(aaa);
     int nele = getsize(aaa);
     std::cout << aaa << std::endl;
     std::vector<int> nelpr(getsize(aaa));
-    std::vector<int> elni(1000, 0), elno(1000, 0);
+    // Size buffers based on actual data
+    int totalConnectivity = 0;
+    for (int i = 0; i < getsize(aaa); ++i)
+    {
+        int etype = aaa[i].first;
+        int e = aaa[i].second;
+        auto it = typeToPartNumber.find(etype);
+        if (it != typeToPartNumber.end())
+        {
+            const m2m &temp = m(etype, node);
+            totalConnectivity += temp.nfrome[e].size;
+        }
+    }
+    std::vector<int> elni(getsize(aaa) + 1, 0);
+    std::vector<int> elno(totalConnectivity, 0);
     nele = 0;
     for (int i = 0; i < getsize(aaa); ++i)
     {
         int etype = aaa[i].first;
         int e = aaa[i].second;
-        m2m temp;
-        switch (etype)
+        auto it = typeToPartNumber.find(etype);
+        if (it != typeToPartNumber.end())
         {
-            case point:
-                temp = m(etype, node);
-                if (temp.nfrome[e].size > 0)
+            const m2m &temp = m(etype, node);
+            if (temp.nfrome[e].size > 0)
+            {
+                nelpr[nele] = it->second;
+                int ss = temp.nfrome[e].size;
+                elni[nele + 1] = elni[nele] + ss;
+                for (int j = 0; j < ss; ++j)
                 {
-                    nelpr[nele] = 1;
-                    int ss = temp.nfrome[e].size;
-                    elni[nele + 1] = elni[nele] + ss;
-                    for (int j = 0; j < ss; ++j)
-                    {
-                        elno[elni[nele] + j] = temp.nfrome[e][j] + 1;
-                    }
-                    nele++;
+                    elno[elni[nele] + j] = temp.nfrome[e][j] + 1;
                 }
-                break;
-            case edge:
-                temp = m(edge, node);
-                if (temp.nfrome[e].size > 0)
-                {
-                    nelpr[nele] = 2;
-                    int ss = temp.nfrome[e].size;
-                    elni[nele + 1] = elni[nele] + ss;
-                    for (int j = 0; j < ss; ++j)
-                    {
-                        elno[elni[nele] + j] = temp.nfrome[e][j] + 1;
-                    }
-                    nele++;
-                }
-                break;
-            case tri:
-                temp = m(tri, node);
-                if (temp.nfrome[e].size > 0)
-                {
-                    nelpr[nele] = 3;
-                    int ss = temp.nfrome[e].size;
-                    elni[nele + 1] = elni[nele] + ss;
-                    for (int j = 0; j < ss; ++j)
-                    {
-                        elno[elni[nele] + j] = temp.nfrome[e][j] + 1;
-                    }
-                    nele++;
-                }
-                break;
-            case quad:
-                temp = m(quad, node);
-                if (temp.nfrome[e].size > 0)
-                {
-                    nelpr[nele] = 4;
-                    int ss = temp.nfrome[e].size;
-                    elni[nele + 1] = elni[nele] + ss;
-                    for (int j = 0; j < ss; ++j)
-                    {
-                        elno[elni[nele] + j] = temp.nfrome[e][j] + 1;
-                    }
-                    nele++;
-                }
-                break;
-            case tet:
-                temp = m(tet, node);
-                if (temp.nfrome[e].size > 0)
-                {
-                    nelpr[nele] = 5;
-                    int ss = temp.nfrome[e].size;
-                    elni[nele + 1] = elni[nele] + ss;
-                    for (int j = 0; j < ss; ++j)
-                    {
-                        elno[elni[nele] + j] = temp.nfrome[e][j] + 1;
-                    }
-                    nele++;
-                }
-                break;
-            case wedge:
-                temp = m(wedge, node);
-                if (temp.nfrome[e].size > 0)
-                {
-                    nelpr[nele] = 7;
-                    int ss = temp.nfrome[e].size;
-                    elni[nele + 1] = elni[nele] + ss;
-                    for (int j = 0; j < ss; ++j)
-                    {
-                        elno[elni[nele] + j] = temp.nfrome[e][j] + 1;
-                    }
-                    nele++;
-                }
-                break;
-            case hex:
-                temp = m(hex, node);
-                if (temp.nfrome[e].size > 0)
-                {
-                    nelpr[nele] = 6;
-                    int ss = temp.nfrome[e].size;
-                    elni[nele + 1] = elni[nele] + ss;
-                    for (int j = 0; j < ss; ++j)
-                    {
-                        elno[elni[nele] + j] = temp.nfrome[e][j] + 1;
-                    }
-                    nele++;
-                }
-                break;
-            default:
-                break;
+                nele++;
+            }
         }
     }
     ensightoutput(number,

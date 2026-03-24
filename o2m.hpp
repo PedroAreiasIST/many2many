@@ -4,196 +4,57 @@
 #include "seque.hpp"
 
 /**
- * @class o2m
- * @brief Represents a one-to-many relationship model in a system.
+ * @brief One-to-many relation: maps elements to their node lists.
  *
- * The o2m class is designed to facilitate the management and
- * representation of one-to-many relationships between objects.
- * It allows for mapping a single parent entity to multiple
- * associated child entities, providing functionality to add,
- * remove, or access these relationships.
- *
- * This class can be utilized predominantly in database models
- * or applications requiring structured relational management.
+ * Each element (row) has a variable-length list of node indices.
+ * Supports sparse algebraic operations (*, +, -, &&), transpose, and topological ordering.
  */
 struct o2m
 {
-    /**
-     * @brief Represents a list of node identifiers or references.
-     *
-     * This variable is used to store a collection of nodes, which could be
-     * utilized in various contexts such as graph structures, tree representations,
-     * or mesh data in computational sciences.
-     *
-     * The specific type and structure of the nodes, as well as their application,
-     * depend on the particular use case and implementation.
-     */
+    /** Per-element node lists: lnods[element] = {node0, node1, ...}. */
     seque<seque<int> > lnods{{}};
-    /**
-     * @brief Represents the number of elements or items in a collection, array, or container.
-     *
-     * This variable is typically used to store the count of elements in a data structure
-     * or to track the size of a collection. It is integral to loops, iterators, or any
-     * functionality where the quantity of elements is required.
-     *
-     * Proper initialization and management of this variable are critical to ensure
-     * its accuracy in representing the intended size.
-     */
     int nelem{0};
-    /**
-     * @brief Represents the maximum number of nodes that can be processed or managed.
-     *
-     * This variable is used to define an upper limit on the total number of nodes
-     * that can be handled within the system or algorithm. The value of maxnode
-     * can be configured based on the specific requirements of the application,
-     * ensuring optimal performance and preventing over-allocation of resources.
-     *
-     * It is commonly utilized in operations involving graph traversal, tree structures,
-     * or other node-based data structures to impose a constraint on the problem domain.
-     */
+    /** Highest node index seen across all elements. */
     int maxnode{0};
-    /**
-     * Overloads the operator for custom behavior.
-     *
-     * @param lhs The left-hand side operand of the operator.
-     * @param rhs The right-hand side operand of the operator.
-     * @return The result of the operation.
-     */
     seque<int> &operator[](int element) { return lnods[element]; }
-    /**
-     * Overloads the operator for performing a specific operation.
-     *
-     * @param lhs The left-hand side operand involved in the operator operation.
-     * @param rhs The right-hand side operand involved in the operator operation.
-     * @return The result of the operation performed by the operator.
-     */
     seque<int> const &operator[](int element) const { return lnods[element]; }
-    /**
-     * @brief Calculates the number of elements in an array or container.
-     *
-     * This method determines the total number of elements in a given array
-     * or container. It is typically used to derive the count of elements
-     * without manually iterating over them.
-     *
-     * @return The total number of elements as an integer.
-     */
     int nelems() const { return nelem; }
-    /**
-     * Calculates the number of nodes in a given tree structure.
-     *
-     * @param root The root node of the tree from which to count the nodes.
-     *             This should be a pointer to the root node or nullptr if the tree is empty.
-     * @return The total number of nodes in the tree. Returns 0 if the tree is empty.
-     */
     int nnodes(int element) const { return lnods[element].size; }
     //    REFLECT(o2m, lnods, nelem, maxnode);
 };
 
 PFR_FUNCTIONS_FOR(o2m)
 
-/**
- * Sets the size of the specified object or collection.
- *
- * Adjusts the size to the given value, potentially altering the internal
- * structure or contents of the object or collection to match the new size.
- *
- * @param newSize The desired size to set the object or collection to.
- *                Must be a non-negative integer.
- * @throws invalid_argument If newSize is negative.
- * @throws runtime_error If resizing fails due to memory allocation issues
- *                       or other internal constraints.
- */
 void setsize(o2m &rel, int nelem);
 
-/**
- * Appends an element to the end of a collection or list.
- *
- * @param collection The collection or list to which the element is to be appended.
- * @param element The element to be added to the collection.
- * @return A boolean indicating whether the operation was successful.
- */
+/** @return Index of the newly appended element. */
 int appendelement(o2m &rel, const seque<int> &nodes);
 
-/**
- * Overloads the operator to provide custom behavior when the operator is used.
- *
- * @param lhs The left-hand side operand of the operator.
- * @param rhs The right-hand side operand of the operator.
- * @return The result of the operation as per the custom implementation.
- */
+/** Appends an element from an initializer list of node ids. */
 o2m &operator<<(o2m &rel, std::initializer_list<int> nodes);
 
-/**
- * Retrieves a list of duplicate elements found in the provided input list.
- * The method identifies duplicates based on their equality.
- *
- * @param inputList the list of elements to check for duplicates
- * @return a list containing the duplicate elements found in the input list
- */
+/** Returns indices of elements whose node lists appear more than once. */
 seque<int> getduplicates(o2m const &rel);
 
-
+/** Transpose: returns node-to-element mapping from an element-to-node relation. */
 o2m Tr(const o2m &rel);
 
-/**
- * Overloads the operator to define a specific behavior for the operation.
- *
- * @param other An object or value to which this operator will be applied.
- *               The type and purpose of 'other' depend on the operator being overloaded.
- * @return The result of the operation, which can be a new object, a modified object,
- *         or a specific value depending on the operator logic.
- */
+/** Sparse symbolic multiplication of two o2m relations. */
 o2m operator*(const o2m &rela, const o2m &relb);
 
-/**
- * Overloaded operator for performing a specific operation.
- *
- * @param lhs The left-hand side operand of the operation.
- * @param rhs The right-hand side operand of the operation.
- * @return The result of the operation between the left-hand and right-hand operands.
- */
+/** Multiplies a relation by a vector (converts vec to identity o2m first). */
 o2m operator*(const o2m &rela, const seque<int> &vec);
 
-/**
- * Overloaded operator for a specific functionality.
- *
- * This operator is used to define custom behavior when the operator is invoked
- * on instances of this class or type. The exact implementation depends on the
- * type of operation the operator is intended to perform.
- *
- * @param other The operand or argument to be used in conjunction with the operator.
- *              This may be another instance of the class/type or a different type entirely,
- *              depending on the operator being overloaded.
- * @return The result of applying the operator. The return type and value
- *         depend on the specific implementation of the operator.
- */
+/** Row-wise union of two relations. */
 o2m operator+(const o2m &rela, const o2m &rel);
 
-/**
- * Overloads the operator to enable custom behavior for a specific operation.
- *
- * @param lhs The left-hand side operand involved in the operator invocation.
- * @param rhs The right-hand side operand involved in the operator invocation.
- * @return The result of the operation performed by the overloaded operator.
- */
+/** Alias for operator+ (row-wise union). */
 o2m operator||(const o2m &a, const o2m &b);
 
-/**
- * Overloads the operator to define a custom behavior for a specific operation.
- *
- * @param lhs The left-hand side operand involved in the operation.
- * @param rhs The right-hand side operand involved in the operation.
- * @return The result of the custom operation as defined by the operator overload.
- */
+/** Row-wise intersection of two relations. */
 o2m operator&&(const o2m &a, const o2m &b);
 
-/**
- * Overloads the operator for a specific functionality.
- *
- * @param lhs The left-hand side operand of the operator.
- * @param rhs The right-hand side operand of the operator.
- * @return The result of applying the operator on the operands.
- */
+/** Row-wise set difference (rela \ relb). */
 o2m operator-(const o2m &rela, const o2m &relb);
 
 /**
@@ -215,67 +76,30 @@ o2m operator-(const o2m &rela, const o2m &relb);
  */
 seque<int> gettoporder(const o2m &rel);
 
-/**
- * Retrieves the details of an order based on the provided order identifier.
- *
- * @param orderId A unique identifier for the order to be retrieved.
- * @return The details of the order as an order object or null if the order is not found.
- */
+/** Returns a lexicographic ordering permutation of the relation's rows. */
 seque<int> getorder(const o2m &rel);
 
 namespace hidden
 {
-    /**
-     * Compresses the given array of elements by replacing consecutive duplicate elements
-     * with a single instance of that element.
-     *
-     * @param elements The array of elements to be compressed. Must not be null.
-     * @param size The size of the input array. Must be a non-negative integer.
-     * @return The new size of the compressed array.
-     */
+    /** Reorders elements according to oldelementfromnew mapping and updates nelem/maxnode. */
     void compresselements(o2m &rel, const seque<int> &oldelementfromnew);
 
-    /**
-     * Permutes the nodes of a graph or tree*/
+    /** Replaces node indices using newnodefromold permutation. */
     void permutenodes(o2m &rel, const seque<int> &newnodefromold);
 
-    /**
-     * Retrieves the positions of nodes from a data structure or a graph.
-     *
-     * @param nodes A collection of nodes for which the positions are to be determined.
-     *              This could be a list, set, or any other data structure containing nodes.
-     * @return A collection of positions corresponding to the input nodes.
-     *         Each position represents the location data or metadata associated with a node.
-     */
+    /** For each node, returns the local positions within each element it belongs to. */
     seque<seque<int> > getnodepositions(o2m const &nodesfromelement,
                                         o2m const &elementsfromnode);
 
-    /**
-     * Retrieves the positions of all occurrences of a specified element within a collection.
-     *
-     * @param collection The collection in which to search for the specified element.
-     * @param element The element whose positions are to be found within the collection.
-     * @return A vector containing the positions of the specified element within the collection.
-     *         If the element is not found, the vector will be empty.
-     */
+    /** For each element, returns which position in each node's adjacency list it occupies. */
     seque<seque<int> > getelementpositions(o2m const &nodesfromelement,
                                            o2m const &elementsfromnode);
 } // namespace hidden
 
-/**
- * Retrieves a one-to-many mapping from a provided sequence.
- *
- * @param sequence A collection or iterable input from which the one-to-many mapping is derived.
- * @return A one-to-many mapping object constructed based on the given sequence.
- */
+/** Creates an identity o2m from a sequence (each element maps to itself). */
 o2m geto2mfromsequence(const seque<int> &other);
 
-/**
- * Retrieves all cliques (maximally connected subgraphs) from the given graph.
- *
- * @param graph The input graph represented as an adjacency matrix or adjacency list.
- * @return A collection of cliques, where each clique is represented as a list or set of nodes.
- */
+/** Computes clique numbering for element-node connectivity. */
 seque<seque<int> > getcliques(const o2m &nodesfromelement,
                               const o2m &elementsfromnode);
 

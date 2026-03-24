@@ -431,7 +431,7 @@ o2m operator-(const o2m &rela, const o2m &relb)
             relc.lnods[element] = std::move(getdifference(elementA, elementB));
         } else
         {
-            relc.lnods[element] = std::move(rela.lnods[element]);
+            relc.lnods[element] = rela.lnods[element];
         }
     }
     return relc;

@@ -36,7 +36,6 @@ inline void testeo2m()
     seque<int> els;
     m2m mm;
     o2m om;
-    if constexpr (2 == 2)
     {
         constexpr int ntype = 6;
         int e = 0;
@@ -44,34 +43,32 @@ inline void testeo2m()
         {
             case 6:
                 nel = 400;
-                nmax = pow(nel, 3);
-                //         setsize(els, nmax);
+                nmax = nel * nel * nel;
                 std::cout << "Started" << std::endl;
-                //     setsize(om, nmax);
-                for (int iex = 0; iex < nel; ++iex)
-                    for (int iey = 0; iey < nel; ++iey)
-                        for (int iez = 0; iez < nel; ++iez)
-                        {
-                            seque<int> nodes(8);
-                            nodes[0] = iex + iey * (nel + 1) + iez * pow(nel + 1, 2);
-                            nodes[1] = (iex + 1) + iey * (nel + 1) + iez * pow(nel + 1, 2);
-                            nodes[2] =
-                                    (iex + 1) + (iey + 1) * (nel + 1) + iez * pow(nel + 1, 2);
-                            nodes[3] = iex + (iey + 1) * (nel + 1) + iez * pow(nel + 1, 2);
-                            nodes[4] = iex + iey * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
-                            nodes[5] =
-                                    (iex + 1) + iey * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
-                            nodes[6] =
-                                    (iex + 1) + (iey + 1) * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
-                            nodes[7] =
-                                    iex + (iey + 1) * (nel + 1) + (iez + 1) * pow(nel + 1, 2);
-                            appendelement(om, nodes);
-                            //setnodesforelement(om, e++, nodes);
-                        }
+                {
+                    const int stride1 = nel + 1;
+                    const int stride2 = stride1 * stride1;
+                    for (int iex = 0; iex < nel; ++iex)
+                        for (int iey = 0; iey < nel; ++iey)
+                            for (int iez = 0; iez < nel; ++iez)
+                            {
+                                const int base = iex + iey * stride1 + iez * stride2;
+                                seque<int> nodes(8);
+                                nodes[0] = base;
+                                nodes[1] = base + 1;
+                                nodes[2] = base + 1 + stride1;
+                                nodes[3] = base + stride1;
+                                nodes[4] = base + stride2;
+                                nodes[5] = base + 1 + stride2;
+                                nodes[6] = base + 1 + stride1 + stride2;
+                                nodes[7] = base + stride1 + stride2;
+                                appendelement(om, nodes);
+                            }
+                }
                 break;
             case 4:
                 nel = 12000;
-                nmax = std::pow(nel, 2);
+                nmax = nel * nel;
                 setsize(els, nmax);
                 std::cout << "Started" << std::endl;
                 setsize(om, nmax);
@@ -92,13 +89,7 @@ inline void testeo2m()
         }
 
         mm.nfrome = om;
-        // o2m one = mm.nfrome;
-        // std::cout << "e=" << e << std::endl;
-        // std::cout << "Finished inserting stuff" << std::endl;
-        // std::cout << "How many ?" << mm.nfrome.nelem << std::endl;
-        // setsyncronized(mm);
         o2m &om1 = mm.nfrome;
-        // std::cout << "Finished setting the pointers" << std::endl;
         m2m result;
         auto start_time = std::chrono::high_resolution_clock::now();
         std::cout << "tr beg\n";
@@ -112,21 +103,10 @@ inline void testeo2m()
             end_time - start_time);
         std::cout << "Duration: " << duration.count() << " milliseconds"
                 << std::endl;
-        // multiplication(om1, om2, om3);
         std::cout << "mult end\n";
         std::cout << "maxnode 3=" << om3.maxnode << std::endl;
         std::cout << "maxnode 2=" << om2.maxnode << std::endl;
-        // getnodestonodes(mm, result);
-        //   std::cout << "Finished the Tr stuff" << std::endl;
-        //   auto start_time = std::chrono::high_resolution_clock::now();
-        // o2m two = Tr(one);
-        //  o2m cad = getcliques(one, two);
-        //  std::cout << "Transposed" << std::endl;
-        //  auto resultado = two * seque<int>({1, 2, 3, 4});
-        //  o2m three = one * two;
         std::cout << result.nfrome[0] << std::endl;
-
-
         std::cout << result.nfrome.lnods[0] << std::endl;
     }
 }
