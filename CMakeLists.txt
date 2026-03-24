@@ -16,6 +16,16 @@ set(JUST_INSTALL_CEREAL ON CACHE BOOL "" FORCE)
 set(SKIP_PERFORMANCE_COMPARISON ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(cereal)
 
+FetchContent_Declare(
+    tbb
+    GIT_REPOSITORY https://github.com/oneapi-src/oneTBB.git
+    GIT_TAG        v2021.13.0
+)
+set(TBB_TEST OFF CACHE BOOL "" FORCE)
+set(TBB_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(TBB_STRICT OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(tbb)
+
 include_directories(pfr_non_boost-master/include
         pfr_non_boost-master/include/pfr
         pfr_non_boost-master/include/pfr/detail
@@ -45,5 +55,4 @@ add_executable(ConsoleApplication1
 
 target_link_libraries(ConsoleApplication1 PRIVATE cereal::cereal)
 
-find_package(TBB REQUIRED)
 target_link_libraries(ConsoleApplication1 PUBLIC TBB::tbb)
