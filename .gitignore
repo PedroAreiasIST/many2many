@@ -1,0 +1,13 @@
+# Build directories
+build/
+cmake-build-debug/
+cmake-build-release/
+
+# Output files
+*.txt
+!CMakeLists.txt
+*.case
+*.geo*
+
+# IDE
+.idea/
