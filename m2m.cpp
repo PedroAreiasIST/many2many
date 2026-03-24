@@ -27,11 +27,11 @@ void synchronize(m2m &rel)
     }
 }
 
-seque<int> getelementswithnodes(m2m const &rel, seque<int> const &nodes)
+seque<int> getelementswithnodes(m2m &rel, seque<int> const &nodes)
 {
     if (!rel.isupdated)
     {
-        synchronize(const_cast<m2m &>(rel));
+        synchronize(rel);
     }
     seque<int> elems;
     if (getsize(nodes) == 0)
@@ -42,7 +42,7 @@ seque<int> getelementswithnodes(m2m const &rel, seque<int> const &nodes)
     return elems;
 }
 
-seque<int> getelementsfromnodes(m2m const &rel, seque<int> const &nodes)
+seque<int> getelementsfromnodes(m2m &rel, seque<int> const &nodes)
 {
     seque<int> elems = getelementswithnodes(rel, nodes), ret;
     for (int i = 0; i < getsize(elems); ++i)
@@ -51,11 +51,11 @@ seque<int> getelementsfromnodes(m2m const &rel, seque<int> const &nodes)
     return ret;
 }
 
-seque<int> getelementneighbours(m2m const &rel, int element)
+seque<int> getelementneighbours(m2m &rel, int element)
 {
     if (!rel.isupdated)
     {
-        synchronize(const_cast<m2m &>(rel));
+        synchronize(rel);
     }
     seque<int> neighbours;
     setsize(neighbours, 0);
@@ -75,11 +75,11 @@ seque<int> getelementneighbours(m2m const &rel, int element)
     return neighbours;
 }
 
-seque<int> getnodeneighbours(m2m const &rel, int node)
+seque<int> getnodeneighbours(m2m &rel, int node)
 {
     if (!rel.isupdated)
     {
-        synchronize(const_cast<m2m &>(rel));
+        synchronize(rel);
     }
     seque<int> neighbours;
     setsize(neighbours, 0);

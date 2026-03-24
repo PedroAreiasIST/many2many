@@ -86,31 +86,10 @@ template<typename... T>
  */
 struct superstruct
 {
-    /**
-     * @brief Represents a variable for storing a specific value or data.
-     *
-     * The purpose of the variable `as` is contextual and depends
-     * on the design and implementation of the program. Ensure the
-     * variable's name and usage are intuitive and meaningful for
-     * its intended function.
-     */
+    /** Tuple of seque<T> containers, one per type in the parameter pack. */
     std::tuple<seque<T>...> as;
     // std::tuple type (aka Tuple)
     using Tuple = std::tuple<T...>;
-    /**
-     * @brief Represents the size of an object or structure.
-     *
-     * The Size variable is used to define or store the dimensions or magnitude
-     * of a certain entity, typically in terms of physical or abstract quantity.
-     * It can be applied to a variety of concepts such as file sizes, physical dimensions,
-     * or any relevant metric where size-related information is required.
-     *
-     * Ensure that the value assigned to Size is consistent with the context in which it is used.
-     * It should be properly validated to avoid anomalies or undesired behavior.
-     *
-     * @note Proper units or measurement systems (if applicable) should be clearly
-     * documented in the context where this variable is utilized.
-     */
     static constexpr auto Size = sizeof...(T);
     // give Nth type
     template<std::size_t N>
@@ -160,15 +139,8 @@ seque<T> &getsequence(auto &tp) noexcept
     return std::get<seque<T> >(tp.as);
 }
 
+/** Returns the compile-time index of type T within the type list of G. */
 template<typename T, typename G>
-/**
- * Retrieves a numeric value from the system or a calculation process.
- *
- * This method is designed to return a specific numeric result calculated
- * or fetched based on the implementation details.
- *
- * @return An integer representing the retrieved or calculated number.
- */
 constexpr size_t getnumber()
 {
     return indexoftype<T, typename G::Tuple>::value;

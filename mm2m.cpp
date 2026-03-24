@@ -63,7 +63,7 @@ void marktoerase(mm2m &m, int nodeType, int node)
 
 void marktoeraserepeated(mm2m &m, int elementtype, int nodetype)
 {
-    auto mm = m(elementtype, nodetype);
+    auto const &mm = m(elementtype, nodetype);
     auto order = getorder(mm);
     auto dupindices = getindicesofduplicates(mm.nfrome.lnods, order);
     for (int i = 0; i < getsize(dupindices); ++i)
@@ -146,7 +146,7 @@ seque<std::pair<int, int> > getallnodes(mm2m const &m, int elementType,
 seque<std::pair<int, int> > getallnodes(mm2m const &m, int elementtype)
 {
     seque<std::pair<int, int> > ret;
-    for (int element = 0; element < m(elementtype, element).nfrome.nelem;
+    for (int element = 0; element < m(elementtype, elementtype).nfrome.nelem;
          ++element)
     {
         ret = getunion(ret, getallnodes(m, elementtype, element));

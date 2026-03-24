@@ -67,7 +67,6 @@ int main(int argc, char *argv[])
     nodes[2].x = 3;
     nodes[2].y = 4;
     nodes[2].z = 5;
-    // cout << "Mesh new nodes" << endl;
     cout << getsequence<node>(mesh);
     auto nodetype = getnumber<node, TypeManager>();
     auto edgetype = getnumber<edge, TypeManager>();
