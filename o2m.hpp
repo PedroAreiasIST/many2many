@@ -20,7 +20,6 @@ struct o2m
     seque<int> const &operator[](int element) const { return lnods[element]; }
     int nelems() const { return nelem; }
     int nnodes(int element) const { return lnods[element].size; }
-    //    REFLECT(o2m, lnods, nelem, maxnode);
 };
 
 PFR_FUNCTIONS_FOR(o2m)

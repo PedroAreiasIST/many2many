@@ -153,7 +153,6 @@ void testmm2m()
     garden.uploadelement(hex0);
     mm2m matrix = garden.lifemanager;
     mm2m matrix2 = garden.synthesized;
-    //uploadallstuff(matrix, accessories, things, models);
     compress(matrix);
     compress(matrix2);
     std::ofstream ofs;
