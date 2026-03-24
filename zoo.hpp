@@ -188,8 +188,8 @@ struct zoo
      * Template Parameters:
      *   - E: The type of the element for which the active count will be retrieved.
      */
-    void getactiveelements()
+    int getactiveelements()
     {
-        lifemanager.nactiveelements(getnumber<E, TypeManager>());
+        return lifemanager.nactiveelements(getnumber<E, TypeManager>());
     }
 };

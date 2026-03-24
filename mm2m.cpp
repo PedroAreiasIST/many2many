@@ -146,7 +146,7 @@ seque<std::pair<int, int> > getallnodes(mm2m const &m, int elementType,
 seque<std::pair<int, int> > getallnodes(mm2m const &m, int elementtype)
 {
     seque<std::pair<int, int> > ret;
-    for (int element = 0; element < m(elementtype, element).nfrome.nelem;
+    for (int element = 0; element < m(elementtype, elementtype).nfrome.nelem;
          ++element)
     {
         ret = getunion(ret, getallnodes(m, elementtype, element));

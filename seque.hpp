@@ -193,24 +193,8 @@ struct seque
     {
     }
 
-    /**
-     * Calculates the nth Fibonacci number using a recursive approach.
-     *
-     * @param n The position in the Fibonacci sequence for which the value is to be calculated.
-     *          Must be a non-negative integer.
-     * @return The Fibonacci number at position n. If n is 0, returns 0. If n is 1, returns 1.
-     *         Otherwise, returns the sum of Fibonacci numbers at positions (n-1) and (n-2).
-     */
     explicit seque(int newSize) : seque() { setsize(*this, newSize); }
 
-    /**
-     * This method generates a sequence of integers within the specified range.
-     *
-     * @param start The starting value of the sequence (inclusive).
-     * @param end The ending value of the sequence (exclusive).
-     * @param step The step value used to increment the sequence. Must be greater than 0.
-     * @return A vector containing the generated sequence of integers.
-     */
     seque(int newSize, V value) : seque(newSize)
     {
         for (int i = 0; i < size; i++)
@@ -219,34 +203,14 @@ struct seque
         }
     }
 
-    /**
-     * This method calculates the nth term in a sequence based on the provided logic.
-     * The sequence logic must be defined within the implementation.
-     *
-     * @param n The position in the sequence for which the term is to be calculated. Must be a non-negative integer.
-     * @return The value of the nth term in the sequence.
-     */
     seque(std::initializer_list<V> const &values)
     {
         setsize(*this, values.size());
         std::copy(values.begin(), values.end(), actual);
     }
 
-    /**
-     * This method calculates the nth Fibonacci number using recursion.
-     *
-     * @param n The position in the Fibonacci sequence for which the value is to be calculated.
-     *          Must be a non-negative integer.
-     * @return The nth Fibonacci number as an integer. Returns 0 if n is 0.
-     */
     seque(seque const &other) : seque() { copy_from(other); }
 
-    /**
-     * Calculates the nth Fibonacci number using a recursive approach.
-     *
-     * @param n The position in the Fibonacci sequence to calculate. Must be a non-negative integer.
-     * @return The nth Fibonacci number as an integer. If n is 0, returns 0. If n is 1, returns 1.
-     */
     seque(seque &&other) noexcept
     {
         size = other.size;
@@ -275,14 +239,6 @@ struct seque
         other.actual = other.stackdata;
     }
 
-    /**
-     * Overloads the operator to perform a specified operation.
-     *
-     * @param other The object to be used in the operation with the current instance.
-     *              The type and usage of this parameter depend on the operator being implemented.
-     * @return The result of the operation, depending on the type of operator being overloaded.
-     *         The return type varies based on the operator and the class implementation.
-     */
     seque &operator=(seque &&other) noexcept
     {
         if (this != &other)
@@ -321,14 +277,6 @@ struct seque
         return *this;
     }
 
-    /**
-     * @brief Swaps the values of two variables.
-     *
-     * This method exchanges the values between two variables passed by reference.
-     *
-     * @param a The first variable to be swapped.
-     * @param b The second variable to be swapped.
-     */
     void swap(seque &other) noexcept
     {
         using std::swap;
@@ -349,27 +297,8 @@ struct seque
         other.actual = (other.heapdata ? other.heapdata : other.stackdata);
     }
 
-    /**
-     * Computes the factorial of a given non-negative integer.
-     *
-     * This method calculates the factorial of an integer `n`, represented as `n!`, which
-     * is the product of all positive integers from 1 up to `n`. For example, factorial(5)
-     * will return 120 because 5 * 4 * 3 * 2 * 1 = 120. The method assumes input `n` is
-     * non-negative. If `n` is 0, the result is 1 by definition.
-     *
-     * @param n the number whose factorial is to be computed. Must be a non-negative integer.
-     * @return the factorial of the input number `n`.
-     * @throws IllegalArgumentException if `n` is a negative integer.
-     */
     ~seque() { setsize(*this, 0); }
 
-    /**
-     * Overloads the operator to perform a custom operation.
-     *
-     * @param lhs The left-hand side operand for the operator.
-     * @param rhs The right-hand side operand for the operator.
-     * @return The result of the custom operation applied to the operands.
-     */
     seque &operator=(seque const &other)
     {
         if (this != &other)
@@ -379,43 +308,17 @@ struct seque
         return *this;
     }
 
-    /**
-     * Overloads the operator to define custom behavior for the specified operation.
-     *
-     * @param lhs The left-hand side operand involved in the operation.
-     * @param rhs The right-hand side operand involved in the operation.
-     * @return The result of applying the overloaded operator for the given operands.
-     */
+    /** Fills all elements with the given value. */
     seque &operator=(V const &value)
     {
         std::fill(std::execution::par, actual, actual + size, value);
         return *this;
     }
 
-    /**
-     * Overloads the operator to perform a specific operation.
-     *
-     * @param rhs The right-hand side operand to be used in the operation.
-     * @return The result of the operator overload operation.
-     */
     V &operator[](int index) { return actual[index]; }
-
-    /**
-     * Overloads the operator for the class to provide custom behavior.
-     *
-     * @param lhs The left-hand side operand of the operator.
-     * @param rhs The right-hand side operand of the operator.
-     * @return The result of the operator applied to the operands.
-     */
     V const &operator[](int index) const { return actual[index]; }
 
-    /**
-     * Overloaded operator for performing a specific operation between objects.
-     *
-     * @param lhs The left-hand side operand involved in the operation.
-     * @param rhs The right-hand side operand involved in the operation.
-     * @return The result of the operation between the left-hand and right-hand operands.
-     */
+    /** Access with auto-resize: grows the container if index >= size. */
     V &operator()(int index)
     {
         if (index >= size)
@@ -425,26 +328,13 @@ struct seque
         return actual[index];
     }
 
-    /**
-     * Overloads the operator to perform a specific operation.
-     *
-     * @param lhs The left-hand side operand involved in the operation.
-     * @param rhs The right-hand side operand involved in the operation.
-     * @return The result of the operation performed using the provided operator.
-     */
+    /** Checked const access: throws if index is out of range. */
     V const &operator()(int index) const
     {
         _explodeinvalidindex(index);
         return actual[index];
     }
 
-    /**
-     * Overloads the operator for the specified functionality.
-     *
-     * @param lhs The left-hand side operand for the operation.
-     * @param rhs The right-hand side operand for the operation.
-     * @return The result of the operation specified by the overloaded operator.
-     */
     seque &operator=(std::initializer_list<V> const &initList)
     {
         setsize(*this, initList.size());
@@ -452,60 +342,12 @@ struct seque
         return *this;
     }
 
-    /**
-     * Calculates the factorial of a non-negative integer.
-     *
-     * This method takes a non-negative integer as input and computes its factorial
-     * using an iterative approach. If the input number is 0, the method returns 1,
-     * as 0! is defined to be 1.
-     *
-     * @param n The non-negative integer for which the factorial is to be calculated.
-     * @return The factorial of the input integer. Returns 1 if the input is 0.
-     */
     V *begin() { return actual; }
-    /**
-     * Calculates the factorial of a given non-negative integer.
-     *
-     * This method uses a recursive approach to calculate the factorial of a number.
-     * The factorial of a number n is defined as the product of all positive integers
-     * less than or equal to n. For n = 0, the factorial is defined as 1.
-     *
-     * @param number the non-negative integer for which the factorial needs to be calculated
-     * @return the factorial of the given number
-     * @throws IllegalArgumentException if the given number is negative
-     */
     V *end() { return actual + size; }
-    /**
-     * Calculates the factorial of a given non-negative integer.
-     *
-     * The factorial of a number n is defined as the product of all
-     * positive integers less than or equal to n. For example, the factorial
-     * of 5 is 5 * 4 * 3 * 2 * 1 = 120. The factorial of 0 is 1 by definition.
-     *
-     * @param n The non-negative integer for which the factorial is calculated.
-     * @return The factorial of the input integer n. If the input is negative,
-     *         the behavior of this method is undefined.
-     */
     V const *begin() const { return actual; }
-    /**
-     * Calculates the factorial of the given non-negative integer number.
-     *
-     * The factorial of a number n is the product of all positive integers less than
-     * or equal to n. This method computes the factorial recursively. If the input
-     * number is 0 or 1, the factorial is 1 by definition.
-     *
-     * @param n The non-negative integer for which the factorial is to be calculated.
-     * @return The factorial of the input number n. If n is less than 0, the behavior is undefined.
-     */
     V const *end() const { return actual + size; }
 
-    /**
-     * Overloads the specified operator for the class to perform custom behavior.
-     *
-     * @param lhs The left-hand side operand involved in the operation.
-     * @param rhs The right-hand side operand involved in the operation.
-     * @return The result of the custom operation.
-     */
+    /** Gather: returns a new seque with elements at the given indices. */
     seque operator()(seque<int, S, P> const &indexContainer) const
     {
         seque result;
@@ -516,7 +358,7 @@ struct seque
                            indexContainer.actual + indexContainer.size, result.actual,
                            [&](int idx)
                            {
-                               if (idx > size)
+                               if (idx < 0 || idx >= size)
                                    throw std::out_of_range("sek: index " +
                                                            std::to_string(idx) +
                                                            " out of range [0, " +
@@ -656,28 +498,12 @@ public:
 };
 
 template<typename V, int S, auto P>
-/**
- * Computes the factorial of a given non-negative integer.
- *
- * @param n The non-negative integer for which the factorial is to be calculated.
- *          If n is 0, the result is 1 (as 0! = 1).
- * @return The factorial of the input integer n. If the input is a negative
- *         number, the behavior is undefined.
- */
 inline V *begin(seque<V, S, P> &container)
 {
     return container.begin();
 }
 
 template<typename V, int S, auto P>
-/**
- * Calculates the factorial of a given non-negative integer.
- *
- * @param n The non-negative integer for which the factorial is to be calculated.
- *          If n is 0, the method will return 1 as 0! is defined to be 1.
- * @return The factorial of the given integer n. Returns 1 if n is 0.
- *         If n is negative, the behavior of the function is undefined.
- */
 inline V *end(seque<V, S, P> &container)
 {
     return container.end();
@@ -755,20 +581,9 @@ void load(auto archiver, seque<V, S, P> &container)
 
 
 template<typename V, int S, auto P>
-/**
- * Checks whether the given index is valid within the specified bounds.
- *
- * This method determines if the provided index falls within the valid range,
- * typically starting from 0 to a specified maximum (exclusive).
- *
- * @param index The index to validate.
- * @param lowerBound The inclusive lower bound for the valid range.
- * @param upperBound The exclusive upper bound for the valid range.
- * @return true if the index is within bounds; false otherwise.
- */
 bool isindexvalid(seque<V, S, P> const &container, int index)
 {
-    return (index < container.size);
+    return (index >= 0 && index < container.size);
 }
 
 template<typename V, int S, auto P>
@@ -843,13 +658,7 @@ void eraseinplace(seque<V, S, P> &container, int startIndex,
 }
 
 template<typename V, int S, auto P>
-/**
- * Adds two integers and returns their sum.
- *
- * @param a The first integer to be added.
- * @param b The second integer to be added.
- * @return The sum of the two integers.
- */
+/** Inserts a value at the given index, shifting the existing element to the end. */
 void add(seque<V, S, P> &container, int insertIndex, V const &value)
 {
     container._explodeinvalidindex(insertIndex);
@@ -957,12 +766,6 @@ int getsize(seque<V, S, P> const &container)
 }
 
 template<typename V, int S, auto P>
-/**
- * Overloads the operator to perform a specific operation for the class.
- *
- * @param other The object to be used in the operation.
- * @return The result of the operation as a new object.
- */
 bool operator<(seque<V, S, P> const &lhs, seque<V, S, P> const &rhs)
 {
     return std::lexicographical_compare(
@@ -971,37 +774,18 @@ bool operator<(seque<V, S, P> const &lhs, seque<V, S, P> const &rhs)
 }
 
 template<typename V, int S, auto P>
-/**
- * Overloads the operator to perform the specified operation.
- *
- * @param lhs The left-hand side operand involved in the operation.
- * @param rhs The right-hand side operand involved in the operation.
- * @return The result of the operation between the left-hand side and the right-hand side operands.
- */
 bool operator>(seque<V, S, P> const &lhs, seque<V, S, P> const &rhs)
 {
     return rhs < lhs;
 }
 
 template<typename V, int S, auto P>
-/**
- * Overloads the operator for custom behavior.
- *
- * @param other The object to compare or operate with.
- * @return The result of the operation or comparison.
- */
 bool operator>=(seque<V, S, P> const &lhs, seque<V, S, P> const &rhs)
 {
     return (lhs > rhs) || (lhs == rhs);
 }
 
 template<typename V, int S, auto P>
-/**
- * Overloads the operator for this class to perform the desired operation.
- *
- * @param other The object to be used in the operation with the current instance.
- * @return The result of the operation as per the overloaded operator definition.
- */
 bool operator==(seque<V, S, P> const &lhs, seque<V, S, P> const &rhs)
 {
     if (lhs.size != rhs.size)
@@ -1011,13 +795,6 @@ bool operator==(seque<V, S, P> const &lhs, seque<V, S, P> const &rhs)
 }
 
 template<typename V, int S, auto P>
-/**
- * Overloaded operator to provide a custom implementation for specific operations.
- *
- * @param lhs The left-hand side operand involved in the operator.
- * @param rhs The right-hand side operand involved in the operator.
- * @return The result of the operator operation performed on the input operands.
- */
 auto operator<=>(seque<V, S, P> const &lhs, seque<V, S, P> const &rhs)
 {
     return std::lexicographical_compare_three_way(
@@ -1026,39 +803,12 @@ auto operator<=>(seque<V, S, P> const &lhs, seque<V, S, P> const &rhs)
 }
 
 template<typename V, int S, auto P>
-/**
- * Overloads the operator for performing a specific operation on the objects of the class.
- *
- * @param other The other object to be used in the operation.
- * @return The result of the operation as an object.
- */
 bool operator!=(seque<V, S, P> const &lhs, seque<V, S, P> const &rhs)
 {
     return !(lhs == rhs);
 }
 
 template<typename V, int S, auto P>
-/**
- * Overloads the operator to provide custom behavior for a specific operation.
- *
- * This operator function allows the redefinition of standard behavior for the given
- * operation on an instance of the associated class. The specific functionality
- * implemented depends on the operation being overloaded and the logic defined
- * within the function.
- *
- * Operator overloading should ensure that the implementation is intuitive and aligns
- * with the expected semantics for the given operation. Misuse or unexpected behavior
- * can lead to incorrect or difficult-to-maintain code.
- *
- * Common applications include:
- * - Mathematical operations (+, -, *, /)
- * - Comparison operations (==, !=, <, >, <=, >=)
- * - Stream insertion or extraction (<<, >>)
- * - Assignment and compound assignment operators (=, +=, -=, etc.)
- *
- * Proper type checking and validation are recommended within the operator overload
- * to ensure type safety and avoid unexpected runtime errors.
- */
 std::ostream &operator<<(std::ostream &os, seque<V, S, P> const &container)
 {
     auto outputElement = [&](auto element) { os << element << " "; };
@@ -1067,23 +817,6 @@ std::ostream &operator<<(std::ostream &os, seque<V, S, P> const &container)
 }
 
 template<typename V, int S, auto P>
-/**
- * Overloads the operator for a custom behavior or operation.
- *
- * Operator overloading allows the specification of a user-defined implementation for
- * a given operator to perform specific functionality for custom objects or types.
- *
- * Depending on the operator being overloaded, it can enable behavior such as addition,
- * comparison, assignment, or other operations according to the requirements.
- *
- * Ensure proper adherence to the rules for operator overloading:
- * - Some operators cannot be overloaded.
- * - Overloaded operators should maintain expected behaviors and avoid unexpected misuse.
- * - Global or member function declarations may be necessary based on the specific operator.
- *
- * If overloading comparison or arithmetic operators, ensure logical consistency in use
- * to maintain expected operator functionality.
- */
 std::istream &operator>>(std::istream &is, seque<V, S, P> &container)
 {
     auto inputElement = [&](auto &element) { is >> element; };
@@ -1092,18 +825,7 @@ std::istream &operator>>(std::istream &is, seque<V, S, P> &container)
 }
 
 template<typename V, int S, auto P>
-/**
- * @brief Checks if all conditions or requirements are satisfied.
- *
- * @details This function evaluates whether certain criteria, as defined
- *          by the implemented logic, are fully met. The determination of
- *          being fully satisfied typically involves evaluating variables,
- *          state, or inputs against a specific set of conditions.
- *
- * @return A boolean value indicating the result of the evaluation.
- *         Returns true if all conditions are satisfied.
- *         Returns false if one or more conditions are not met.
- */
+/** Returns true if predicate holds for all elements. */
 bool isfullysatisfied(seque<V, S, P> const &container, auto predicate)
 {
     return std::all_of(container.actual, container.actual + container.size,
@@ -1656,13 +1378,7 @@ seque<V, S, P> getunion(seque<V, S, P> const &sortedcontainerA,
 }
 
 template<typename V, int S, auto P>
-/**
- * Overloads the operator to perform the intended operation.
- *
- * @param lhs The left-hand side operand for the operation.
- * @param rhs The right-hand side operand for the operation.
- * @return The result of the operation between lhs and rhs.
- */
+/** Alias for getunion. */
 seque<V, S, P> operator||(seque<V, S, P> const &lhs,
                           seque<V, S, P> const &rhs)
 {
@@ -1670,13 +1386,7 @@ seque<V, S, P> operator||(seque<V, S, P> const &lhs,
 }
 
 template<typename V, int S, auto P>
-/**
- * Calculates the difference between two given numbers.
- *
- * @param a The first number.
- * @param b The second number.
- * @return The difference between the first and second numbers.
- */
+/** Set difference of two sorted sequences. */
 seque<V, S, P> getdifference(seque<V, S, P> const &sortedcontainerA,
                              seque<V, S, P> const &sortedcontainerB)
 {

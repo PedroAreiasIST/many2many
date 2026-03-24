@@ -1,8 +1,5 @@
 #pragma once
 
-//#include "cereal/archives/json.hpp"
-//#include "cereal/cereal.hpp"
-//#include "cereal/macros.hpp"
 #include "pfr_non_boost-master/include/pfr.hpp"
 #include <algorithm>
 #include <boost/core/demangle.hpp>
@@ -172,39 +169,14 @@ inline std::vector<std::string> commandargget(int argc, char *argv[])
     return std::vector<std::string>(argv, argv + argc);
 }
 
+/** Extracts PFR struct field names at compile time into a string vector. */
 template<typename StructType>
-/**
- * @class pfrgetallnames
- *
- * @brief This class is responsible for retrieving and managing all names associated
- *        with a specific operation or dataset within a given context.
- *
- * The pfrgetallnames class is designed to obtain, store, and potentially manipulate
- * a collection of names related to a particular source or process. This class can
- * serve as a utility for organizing and accessing the names, which might be
- * fetched from external sources such as databases, configuration files, or APIs.
- *
- * Key functionality includes:
- * -*/
 struct pfrgetallnames
 {
-    /**
-     * @brief A collection or list of names.
-     *
-     * This variable typically holds a group of strings representing individual names.
-     * It can be used for a variety of purposes, such as managing user names, identifying persons,
-     * or storing any relevant set of name-related data.
-     */
     static std::vector<std::string> names;
 
     template<int I = 0>
-    /**
-     * Adds a new item to the inventory.
-     *
-     * @param itemID An integer representing the unique identifier for the item.
-     * @param itemName A string representing the name of the item to be added.
-     * @param quantity An integer specifying the number of items to add to the inventory.
-     */
+    /** Recursively collects field names starting from index I. */
     static void item(std::vector<std::string> &lst)
     {
         lst.push_back(std::string(pfr::get_name<I, StructType>()));
@@ -216,9 +188,6 @@ struct pfrgetallnames
 };
 
 template<typename StructType>
-/**
- *
- */
 std::vector<std::string> pfrgetallnames<StructType>::names;
 
 #define PFRALLNAMES(sname, nomestodos) pfrgetallnames<sname>::item<>(nomestodos)
