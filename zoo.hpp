@@ -136,7 +136,7 @@ struct zoo
         return appendnode<N>(mesh, N{std::forward<Args>(args)...});
     }
 
-    // appendsnodets to a thing
+    // appends nodes to a thing
     template<typename E, typename N>
     /**
      * Appends node numbers to a specified `thing` instance by associating

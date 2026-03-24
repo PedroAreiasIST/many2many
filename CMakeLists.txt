@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.22)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(GCC_COVERAGE_COMPILE_FLAGS "-Wall -Wextra -Wconversion")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -std=c++20 -fopenmp -fbounds-check")
-set(CMAKE_CXX_FLAGS_RELEASE " -Ofast -std=c++20 -ffast-math -fno-trapping-math -fassociative-math -fargument-noalias-global -fomit-frame-pointer -fopenmp -march=native -mtune=native  ")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fopenmp -Wall -Wextra -Wconversion")
+set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -fno-trapping-math -fassociative-math -fargument-noalias-global -fomit-frame-pointer -fopenmp -march=native -mtune=native")
 project(ConsoleApplication1)
 
 include(FetchContent)

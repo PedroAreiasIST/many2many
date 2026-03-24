@@ -64,6 +64,7 @@ int main(int argc, char *argv[])
     mm2m matrix;
     setnumberoftypes(matrix, TypeManager::Size);
     seque<node> &nodes = getsequence<node>(mesh);
+    setsize(nodes, 3);
     nodes[2].x = 3;
     nodes[2].y = 4;
     nodes[2].z = 5;
@@ -72,6 +73,7 @@ int main(int argc, char *argv[])
     auto edgetype = getnumber<edge, TypeManager>();
     auto tettype = getnumber<tet, TypeManager>();
     auto wedgetype = getnumber<wedge, TypeManager>();
+    (void)edgetype; (void)tettype; (void)wedgetype;
     appendelement<TypeManager, tet, node>(matrix, {4, 2, 6, 0});
     appendelement<TypeManager, tet, isanelement>(matrix, {0});
     appendelement<TypeManager, edge, node>(matrix, {3, 0});
@@ -82,6 +84,7 @@ int main(int argc, char *argv[])
     appendelement<TypeManager, wedge, isanelement>(matrix, {0});
     compress(matrix);
     auto elnode3 = getallelements(matrix, nodetype, 3);
+    (void)elnode3;
     testmm2m();
     testm2m();
     testeo2m();

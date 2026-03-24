@@ -120,7 +120,7 @@ int appendelement(o2m &rel, seque<int> const &nodes)
 o2m &operator<<(o2m &rel, std::initializer_list<int> nodes)
 {
     seque<int> temp(nodes.size());
-    for (auto i = 0; i < nodes.size(); ++i)
+    for (size_t i = 0; i < nodes.size(); ++i)
     {
         temp[i] = *(nodes.begin() + i);
     }
