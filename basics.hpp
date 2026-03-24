@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cereal/cereal.hpp>
+#include <cereal/archives/json.hpp>
+#include <cereal/archives/binary.hpp>
 #include "pfr_non_boost-master/include/pfr.hpp"
 #include <algorithm>
 #include <boost/core/demangle.hpp>
