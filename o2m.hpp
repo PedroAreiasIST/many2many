@@ -132,13 +132,7 @@ o2m &operator<<(o2m &rel, std::initializer_list<int> nodes);
  */
 seque<int> getduplicates(o2m const &rel);
 
-/**
- * Calculates the sum of two integers.
- *
- * @param a The first integer to be added.
- * @param b The second integer to be added.
- * @return The sum of the two integers.
- */
+
 o2m Tr(const o2m &rel);
 
 /**

@@ -43,7 +43,7 @@ inline void testeo2m()
         switch (ntype)
         {
             case 6:
-                nel = 250;
+                nel = 400;
                 nmax = pow(nel, 3);
                 //         setsize(els, nmax);
                 std::cout << "Started" << std::endl;
@@ -106,10 +106,16 @@ inline void testeo2m()
         std::cout << "tr end\n";
         o2m om3;
         std::cout << "mult beg\n";
-        om3 = om1 * om2;
+        om3 = om2 * om1;
+        auto end_time = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+            end_time - start_time);
+        std::cout << "Duration: " << duration.count() << " milliseconds"
+                << std::endl;
         // multiplication(om1, om2, om3);
         std::cout << "mult end\n";
         std::cout << "maxnode 3=" << om3.maxnode << std::endl;
+        std::cout << "maxnode 2=" << om2.maxnode << std::endl;
         // getnodestonodes(mm, result);
         //   std::cout << "Finished the Tr stuff" << std::endl;
         //   auto start_time = std::chrono::high_resolution_clock::now();
@@ -120,11 +126,7 @@ inline void testeo2m()
         //  o2m three = one * two;
         std::cout << result.nfrome[0] << std::endl;
 
-        auto end_time = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-            end_time - start_time);
-        std::cout << "Duration: " << duration.count() << " milliseconds"
-                << std::endl;
+
         std::cout << result.nfrome.lnods[0] << std::endl;
     }
 }

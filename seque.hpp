@@ -66,7 +66,7 @@ namespace hidden
      * @note Ensure that this value is set appropriately to avoid overflow or excessive
      * memory usage.
      */
-    constexpr int STACKSIZE = 4;
+    constexpr int STACKSIZE = 7;
     /**
      * @brief The scaling factor used to determine the rate of growth in a given process.
      *
@@ -81,7 +81,7 @@ namespace hidden
      * Proper adjustment and understanding of GROWTHFACTOR can influence performance,
      * stability, and accuracy in computations that rely on this scaling mechanism.
      */
-    constexpr double GROWTHFACTOR = 1.2;
+    constexpr double GROWTHFACTOR = 1.5;
 } // namespace hidden
 
 template<typename V, int S = hidden::STACKSIZE, auto P = std::execution::par>
