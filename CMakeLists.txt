@@ -56,3 +56,22 @@ add_executable(ConsoleApplication1
 target_link_libraries(ConsoleApplication1 PRIVATE cereal::cereal)
 
 target_link_libraries(ConsoleApplication1 PUBLIC TBB::tbb)
+
+add_executable(RemeshProgram
+        remesh_main.cpp
+        remesh.cpp
+        remesh.hpp
+        meshquality.cpp
+        meshquality.hpp
+        o2m.cpp
+        o2m.hpp
+        m2m.cpp
+        m2m.hpp
+        mm2m.cpp
+        mm2m.hpp
+        seque.hpp
+        symmetries.hpp
+)
+
+target_link_libraries(RemeshProgram PRIVATE cereal::cereal)
+target_link_libraries(RemeshProgram PUBLIC TBB::tbb)
