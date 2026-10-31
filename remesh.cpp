@@ -219,7 +219,7 @@ void splitPoints(seque<int> const &mark, OriginalMesh const &mesh, RenewedMesh &
     for (int iel = 0; iel < mesh.nel; ++iel) {
         if (mesh.elem_nodes.nfrome.nnodes(iel) == 1) {
             int ing = mesh.elem_nodes.nfrome[iel][0];
-            appendelement(nm.elem_nodes, seque<int>{ing, iel});
+            appendelement(nm.elem_nodes, seque<int>{ing, mesh.nno + iel});
             ipoint++;
         }
     }
@@ -235,7 +235,7 @@ void splitPoints(seque<int> const &mark, OriginalMesh const &mesh, RenewedMesh &
         if (n1 < nodeToPoint.nelems()) {
             for (int k = 0; k < nodeToPoint.nnodes(n1); ++k) {
                 int lp = nodeToPoint[n1][k];
-                appendelement(nm.elem_nodes, seque<int>{midNode, pointElemId[lp]});
+                appendelement(nm.elem_nodes, seque<int>{midNode, mesh.nno + pointElemId[lp]});
                 ipoint++;
             }
         }
@@ -243,7 +243,7 @@ void splitPoints(seque<int> const &mark, OriginalMesh const &mesh, RenewedMesh &
         if (n2 < nodeToPoint.nelems()) {
             for (int k = 0; k < nodeToPoint.nnodes(n2); ++k) {
                 int lp = nodeToPoint[n2][k];
-                appendelement(nm.elem_nodes, seque<int>{midNode, pointElemId[lp]});
+                appendelement(nm.elem_nodes, seque<int>{midNode, mesh.nno + pointElemId[lp]});
                 ipoint++;
             }
         }
@@ -279,10 +279,10 @@ void splitBars(seque<int> const &mark, OriginalMesh const &mesh, RenewedMesh &nm
         int n2  = mesh.elem_nodes.nfrome[iel][1];
         int mid = mark[ia];
         if (mid == 0) {
-            appendelement(nm.elem_nodes, seque<int>{n1, n2, iel});
+            appendelement(nm.elem_nodes, seque<int>{n1, n2, mesh.nno + iel});
         } else {
-            appendelement(nm.elem_nodes, seque<int>{n1, mid, iel});
-            appendelement(nm.elem_nodes, seque<int>{mid, n2, iel});
+            appendelement(nm.elem_nodes, seque<int>{n1, mid, mesh.nno + iel});
+            appendelement(nm.elem_nodes, seque<int>{mid, n2, mesh.nno + iel});
         }
     }
 }
@@ -307,7 +307,7 @@ int countTriangles(seque<int> const &mark, OriginalMesh const &mesh)
 void splitTriangles(seque<int> const &mark, OriginalMesh const &mesh, RenewedMesh &nm)
 {
     auto emit = [&](int a, int b, int c, int parent) {
-        appendelement(nm.elem_nodes, seque<int>{a, b, c, parent});
+        appendelement(nm.elem_nodes, seque<int>{a, b, c, mesh.nno + parent});
     };
 
     for (int iel = 0; iel < mesh.nel; ++iel) {
@@ -608,7 +608,7 @@ void splitTets(seque<int> const &mark, OriginalMesh const &mesh, RenewedMesh &nm
         int nsub = splitTetBuild(verts, mid, subtets);
         for (int s = 0; s < nsub; ++s)
             appendelement(nm.elem_nodes,
-                seque<int>{subtets[s][0], subtets[s][1], subtets[s][2], subtets[s][3], iel});
+                seque<int>{subtets[s][0], subtets[s][1], subtets[s][2], subtets[s][3], mesh.nno + iel});
     }
 }
 

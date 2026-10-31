@@ -16,6 +16,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <chrono>
+static double tnow(){return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();}
 
 static int nnosc(int ity)
 {
@@ -37,6 +39,7 @@ static int ityFromNnodes(int nn)
 int main()
 {
     constexpr int NL = 13;
+    const double T0 = tnow();
 
     // -------------------------------------------------------
     // Read original mesh
@@ -145,10 +148,11 @@ int main()
     // -------------------------------------------------------
     // Split mesh
     // -------------------------------------------------------
+    const double T1 = tnow(); std::cout << "TIMER parse " << T1 - T0 << std::endl;
     std::cout << "Split begins" << std::endl;
     RenewedMesh nm;
     splitmesh(om, nm);
-    std::cout << "Split ends" << std::endl;
+    const double T2 = tnow(); std::cout << "Split ends" << std::endl; std::cout << "TIMER split " << T2 - T1 << std::endl;
 
     // -------------------------------------------------------
     // New coordinates
@@ -182,6 +186,7 @@ int main()
     // -------------------------------------------------------
     // Write new mesh
     // -------------------------------------------------------
+    const double T3 = tnow(); std::cout << "TIMER coords+validate " << T3 - T2 << std::endl;
     std::ofstream fout("remeshed.malha");
     for (int i = 0; i < NL; ++i) fout << "Remeshed at least once" << std::endl;
     fout << " " << nm.nno << std::endl;
@@ -199,7 +204,7 @@ int main()
         int total = nm.elem_nodes.nfrome.nnodes(iel);
         int nn = total - 1;
         int ity = ityFromNnodes(nn);
-        int ieo = nm.elem_nodes.nfrome[iel][total-1]; // parent (0-based)
+        int ieo = nm.elem_nodes.nfrome[iel][total-1] - om.nno; // parent (0-based), parent slot offset by nno
         fout << std::setw(9) << (iel+1) << std::setw(9) << ity;
         for (int k = 0; k < nn; ++k)
             fout << std::setw(9) << (nm.elem_nodes.nfrome[iel][k]+1);
@@ -252,5 +257,6 @@ int main()
     for (int i = 0; i < 10; ++i) fout << std::endl;
     fout.close();
     std::cout << "Remeshed mesh written to remeshed.malha" << std::endl;
+    const double T4 = tnow(); std::cout << "TIMER write " << T4 - T3 << std::endl << "TIMER total " << T4 - T0 << std::endl;
     return 0;
 }
