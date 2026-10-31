@@ -133,6 +133,16 @@ namespace hidden
     }
 } // namespace hidden
 
+/** True when a precedes b lexicographically (a shorter prefix precedes). */
+inline bool lexicompare(const seque<int> &a, const seque<int> &b)
+{
+    const int m = getsize(a) < getsize(b) ? getsize(a) : getsize(b);
+    for (int i = 0; i < m; ++i)
+        if (a[i] != b[i])
+            return a[i] < b[i];
+    return getsize(a) < getsize(b);
+}
+
 /**
  * Computes the canonical form of a given sequence of labels under the constraints of a group of permutations.
  *
@@ -153,6 +163,22 @@ inline seque<int> getcanonicalform(const seque<int> &labels, const hidden::Group
     if (getsize(G) == 0 || getsize(G[0]) != n)
     {
         return labels;
+    }
+    // Small groups (the standard elements): the lexicographic minimum over the images of the
+    // group, |G| k comparisons and no recursion.
+    if (getsize(G) <= 32)
+    {
+        seque<int> best = labels, image(n);
+        for (const auto &perm: G)
+        {
+            if (getsize(perm) != n)
+                continue;
+            for (int k = 0; k < n; ++k)
+                image[k] = labels[perm[k]];
+            if (lexicompare(image, best))
+                best = image;
+        }
+        return best;
     }
 
     // (1) Build sortedIndices sorted by corresponding label values in ascending order.

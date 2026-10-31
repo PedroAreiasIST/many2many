@@ -6,3 +6,12 @@ unittests
 RemeshProgram
 RemeshProgram_icpx
 *.o
+bench_graph
+bench_graph_icpx
+bench_tables_icpx
+test_graph
+test_synth
+test_synth_icpx
+*.log
+*.err
+all.done

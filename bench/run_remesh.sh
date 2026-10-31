@@ -4,7 +4,7 @@
 cd "$(dirname "$0")"
 source /opt/intel/oneapi/setvars.sh >/dev/null 2>&1
 export OMP_NUM_THREADS=16 OMP_PROC_BIND=close OMP_PLACES=cores
-OUT=${OUT:-remesh_timings_new.txt}; : > $OUT
+OUT=${OUT:-remesh_timings.txt}; : > $OUT
 for b in RemeshProgram_icpx RemeshProgram; do
   echo "== $b" >> $OUT
   for r in 1 2 3 4 5; do

@@ -185,6 +185,110 @@ struct zoo
     }
 
     /**
+     * Bulk synthesis: applies the builders (E -> C over N) to every stored element of type E at
+     * once, in parallel, and appends the distinct children to the synthesized relations with the
+     * union of their parents. Equivalent to uploadelement() per element followed by
+     * deduplicate<C, N>(), for a batch (the stored elements must already be uploaded, with
+     * their children not yet synthesized). @return the number of distinct children appended.
+     */
+    template<typename E, typename C, typename N>
+    int synthesize()
+    {
+        const int et = getnumber<E, TypeManager>();
+        const int ct = getnumber<C, TypeManager>();
+        const int nt = getnumber<N, TypeManager>();
+        auto const &builders = thingmodels[et].childrenbuilders[ct][nt];
+        auto const &group = thingmodels[ct].symmetrygroups[nt];
+        const int nb = getsize(builders);
+        o2m const &parents = lifemanager(et, nt).nfrome;
+        const int ne = parents.nelems();
+        if (nb == 0 || ne == 0)
+            return 0;
+        // candidate children: one row per (element, builder), in canonical form
+        o2m cand;
+        const int arity = getsize(builders[0]);
+        for (int b = 1; b < nb; ++b)
+            if (getsize(builders[b]) != arity)
+                throw std::runtime_error("synthesize: the builders of one child type must have the same arity");
+        setsize(cand, ne * nb);
+        setsizeexact(cand.data, static_cast<long long>(ne) * nb * arity);
+        for (int i = 0; i <= ne * nb; ++i)
+            cand.start[i] = i * arity;
+#pragma omp parallel for schedule(static)
+        for (int e = 0; e < ne; ++e)
+        {
+            crowview pn = parents[e];
+            for (int b = 0; b < nb; ++b)
+            {
+                seque<int> nodes(arity);
+                for (int k = 0; k < arity; ++k)
+                    nodes[k] = pn[builders[b][k]];
+                seque<int> canon = getcanonicalform(nodes, group);
+                int *dst = cand.data.begin() + static_cast<long long>(e * nb + b) * arity;
+                for (int k = 0; k < arity; ++k)
+                    dst[k] = canon[k];
+            }
+        }
+        cand.maxnode = parents.maxnode;
+        // distinct children and their parents
+        seque<int> order = getorder(cand);
+        seque<int> childofcand, candofchild;
+        indicesfromorder(cand, order, childofcand, candofchild);
+        const int nchild = getsize(candofchild);
+        m2m &rel = synthesized(ct, nt);
+        m2m &par = synthesized(ct, et);
+        const int first = rel.nfrome.nelems();
+        // node lists of the children (packed copy of the unique rows), appended
+        {
+            o2m rows = getrows(cand, candofchild);
+            for (int c = 0; c < nchild; ++c)
+                appendelement(rel.nfrome, rows[c]);
+            rel.isupdated = false;
+            rel.islocated = false;
+        }
+        // parents: candidates grouped by child (the order is lexicographic, so the candidates of
+        // one child are consecutive); parents appended in increasing element index
+        {
+            if (par.nfrome.nelems() < first)
+                setnumberofelements(par, first);
+            seque<int> plist;
+            int i = 0;
+            while (i < getsize(order))
+            {
+                int j = i;
+                const int child = childofcand[order[i]];
+                setsize(plist, 0);
+                while (j < getsize(order) && childofcand[order[j]] == child)
+                    append(plist, order[j] / nb), ++j;
+                setorderedandunique(plist);
+                appendelement(par.nfrome, plist);
+                i = j;
+            }
+            par.isupdated = false;
+            par.islocated = false;
+        }
+        for (int t = 0; t < TypeManager::Size; ++t)
+            if (t != ct && synthesized(ct, t).nfrome.nelems() < first + nchild)
+                setnumberofelements(synthesized(ct, t), first + nchild);
+        return nchild;
+    }
+
+    /** Synthesized children of type C with exactly one parent of type E (the boundary of the
+     *  stored elements of type E), after deduplication or synthesize(). */
+    template<typename C, typename E>
+    seque<int> getboundary()
+    {
+        const int ct = getnumber<C, TypeManager>();
+        const int et = getnumber<E, TypeManager>();
+        o2m const &par = synthesized(ct, et).nfrome;
+        seque<int> res;
+        for (int c = 0; c < par.nelems(); ++c)
+            if (par.nnodes(c) == 1)
+                append(res, c);
+        return res;
+    }
+
+    /**
      * Removes the repeated synthesized children of type C (same canonical node list of type N):
      * the first copy survives and inherits the parents of the copies that are erased.
      */

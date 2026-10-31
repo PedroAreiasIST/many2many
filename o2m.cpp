@@ -505,10 +505,139 @@ namespace
         return relc;
     }
 
+    /** Single pass: every chunk of rows is computed once into the buffer of the thread that
+     *  took it, and copied to its final place after the scan (peak memory twice the output). */
+    template<bool JA, bool JB, class MK>
+    o2m composesingle(o2m const &rela, o2m const &relb)
+    {
+        o2m relc;
+        const int na = rela.nelem;
+        relc.maxnode = relb.maxnode;
+        setsize(relc, na);
+        if (na == 0)
+            return relc;
+        const long long ncols = static_cast<long long>(relb.maxnode) + 1;
+        const int camax = relb.nelem - 1;
+        const int *as = rela.start.begin(), *az = rela.size.begin(), *ad = rela.data.begin();
+        const int *bs = relb.start.begin(), *bz = relb.size.begin(), *bd = relb.data.begin();
+        constexpr int CHUNK = 1024;
+        const int nchunks = (na + CHUNK - 1) / CHUNK;
+        const int nth = numthreads();
+        std::vector<std::vector<int>> bufs(static_cast<std::size_t>(nth));
+        struct chunkrec
+        {
+            int tid;
+            long long off;
+        };
+        std::vector<chunkrec> rec(static_cast<std::size_t>(nchunks));
+        std::unique_ptr<int[]> rowsz(new int[static_cast<std::size_t>(na)]);
+#pragma omp parallel num_threads(nth)
+        {
+            MK mark(ncols);
+            typename MK::word *mk = mark.w.get();
+            const int tid = threadnum();
+            std::vector<int> &buf = bufs[static_cast<std::size_t>(tid)];
+            buf.reserve(static_cast<std::size_t>(32) * (static_cast<std::size_t>(na) / static_cast<std::size_t>(nth) + CHUNK));
+            std::vector<int> starts(CHUNK + 1);
+#pragma omp for schedule(dynamic, 1)
+            for (int c = 0; c < nchunks; ++c)
+            {
+                const int r0 = c * CHUNK, r1 = std::min(na, r0 + CHUNK);
+                // upper bound of the chunk's output: the sum of the B rows visited
+                long long bound = 0;
+                for (int ra = r0; ra < r1; ++ra)
+                {
+                    const int *pa = ad + as[ra];
+                    const int nka = rowlen<JA>(as, az, ra);
+                    for (int ka = 0; ka < nka; ++ka)
+                        if (pa[ka] >= 0 && pa[ka] <= camax)
+                            bound += rowlen<JB>(bs, bz, pa[ka]);
+                }
+                const long long off = static_cast<long long>(buf.size());
+                buf.resize(static_cast<std::size_t>(off + bound));
+                // provisional starts inside the chunk: each row may use its full bound, then compacted
+                int *out = buf.data() + off;
+                long long pos = 0;
+                for (int ra = r0; ra < r1; ++ra)
+                {
+                    int *o = out + pos;
+                    int len = 0;
+                    const int *pa = ad + as[ra];
+                    const int nka = rowlen<JA>(as, az, ra);
+                    for (int ka = 0; ka < nka; ++ka)
+                    {
+                        const int ca = pa[ka];
+                        if (ca < 0 || ca > camax)
+                            continue;
+                        const int *pb = bd + bs[ca];
+                        const int nkb = rowlen<JB>(bs, bz, ca);
+                        for (int kb = 0; kb < nkb; ++kb)
+                        {
+                            const int cb = pb[kb];
+                            if (!MK::testandset(mk, cb, ra))
+                                o[len++] = cb;
+                        }
+                    }
+                    if constexpr (!MK::stamped)
+                        for (int k = 0; k < len; ++k)
+                            MK::clear(mk, o[k]);
+                    rowsz[ra] = len;
+                    pos += len; // rows are written back to back (o == out + pos before the row)
+                }
+                buf.resize(static_cast<std::size_t>(off + pos));
+                rec[static_cast<std::size_t>(c)] = chunkrec{tid, off};
+            }
+        }
+        const long long nnz = exclusivescan(rowsz.get(), na, relc.start.begin());
+        rowsz.reset();
+        setsizeexact(relc.data, nnz);
+        int *cd = relc.data.begin();
+        const int *cs = relc.start.begin();
+#pragma omp parallel for schedule(dynamic, 1)
+        for (int c = 0; c < nchunks; ++c)
+        {
+            const int r0 = c * CHUNK, r1 = std::min(na, r0 + CHUNK);
+            const long long n = static_cast<long long>(cs[r1]) - cs[r0];
+            if (n > 0)
+                std::memcpy(cd + cs[r0], bufs[static_cast<std::size_t>(rec[static_cast<std::size_t>(c)].tid)].data() +
+                                              rec[static_cast<std::size_t>(c)].off,
+                            static_cast<std::size_t>(n) * sizeof(int));
+        }
+        return relc;
+    }
+
     template<class MK>
     o2m composejag(o2m const &rela, o2m const &relb)
     {
         const bool ja = rela.isjagged(), jb = relb.isjagged();
+        int passes = 0; // 0: single pass while the staging buffers fit the budget, else two passes
+        if (const char *env = std::getenv("M2M_MUL_PASS"))
+            passes = std::atoi(env);
+        if (passes == 0)
+        {
+            long long budget = 8LL << 30; // bytes of staging buffers (M2M_MUL_BUDGET_GB)
+            if (const char *env = std::getenv("M2M_MUL_BUDGET_GB"))
+                budget = static_cast<long long>(std::atof(env) * (1LL << 30));
+            // upper bound of the output: the sum of the rows of B visited
+            long long bound = 0;
+            const int na = rela.nelem, camax = relb.nelem - 1;
+#pragma omp parallel for schedule(static) reduction(+ : bound) if (na > 100000)
+            for (int ra = 0; ra < na; ++ra)
+                for (int ca: rela[ra])
+                    if (ca >= 0 && ca <= camax)
+                        bound += relb.nnodes(ca);
+            passes = bound * 4 <= budget ? 1 : 2;
+        }
+        if (passes == 1)
+        {
+            if (!ja && !jb)
+                return composesingle<false, false, MK>(rela, relb);
+            if (ja && !jb)
+                return composesingle<true, false, MK>(rela, relb);
+            if (!ja && jb)
+                return composesingle<false, true, MK>(rela, relb);
+            return composesingle<true, true, MK>(rela, relb);
+        }
         if (!ja && !jb)
             return compose<false, false, MK>(rela, relb);
         if (ja && !jb)
@@ -1038,10 +1167,93 @@ namespace
         int *ts = relt.start.begin();
         int *td = relt.data.begin();
         const int nth = numthreads();
-        int mode = 0; // 0: automatic, 1: per-thread histograms, 2: atomic cursors and row sort
+        int mode = 0; // 0: automatic, 1: per-thread histograms, 2: atomic cursors and row sort, 3: staged
         if (const char *env = std::getenv("M2M_TR_MODE"))
             mode = std::atoi(env);
-        const bool histogram = mode == 1 || (mode == 0 && (nth == 1 || static_cast<long long>(nth) * ncols <= (1LL << 26)));
+        if (mode == 0)
+            mode = nth == 1 ? 1 : 3;
+        const bool histogram = mode == 1;
+        if (mode == 3)
+        {
+            // Staged counting fill: thread t owns the elements [n t/p, n (t+1)/p); pass 1 counts
+            // its incidences per block of BLK columns; the per-(thread, block) offsets place every
+            // block's incidences contiguously, threads in order, so each block holds its pairs
+            // (column, element) in ascending element order; pass 3 does, block by block in
+            // parallel, a local counting fill into the rows of the transpose. No atomics, no sort.
+            constexpr int BLK = 4096;
+            const int nblk = (ncols + BLK - 1) / BLK;
+            std::vector<long long> hist(static_cast<std::size_t>(nth) * nblk + 1, 0);
+            std::unique_ptr<int[]> scol(new int[static_cast<std::size_t>(nnz)]);
+            std::unique_ptr<int[]> sel(new int[static_cast<std::size_t>(nnz)]);
+            std::vector<long long> blockbase(static_cast<std::size_t>(nblk) + 1, 0);
+#pragma omp parallel num_threads(nth)
+            {
+                const int t = threadnum();
+                long long *h = hist.data() + static_cast<std::size_t>(t) * nblk;
+                const int e0 = static_cast<int>(static_cast<long long>(n) * t / nth);
+                const int e1 = static_cast<int>(static_cast<long long>(n) * (t + 1) / nth);
+                for (int e = e0; e < e1; ++e)
+                {
+                    const int *p = d + s[e];
+                    const int ne = rowlen<JAG>(s, z, e);
+                    for (int k = 0; k < ne; ++k)
+                        h[p[k] / BLK]++;
+                }
+#pragma omp barrier
+#pragma omp single
+                {
+                    long long acc = 0;
+                    for (int b = 0; b < nblk; ++b)
+                    {
+                        blockbase[static_cast<std::size_t>(b)] = acc;
+                        for (int tt = 0; tt < nth; ++tt)
+                        {
+                            long long *g = hist.data() + static_cast<std::size_t>(tt) * nblk + b;
+                            const long long v = *g;
+                            *g = acc;
+                            acc += v;
+                        }
+                    }
+                    blockbase[static_cast<std::size_t>(nblk)] = acc;
+                }
+                int *sc = scol.get();
+                int *se = sel.get();
+                for (int e = e0; e < e1; ++e)
+                {
+                    const int *p = d + s[e];
+                    const int ne = rowlen<JAG>(s, z, e);
+                    for (int k = 0; k < ne; ++k)
+                    {
+                        const long long pos = h[p[k] / BLK]++;
+                        sc[pos] = p[k];
+                        se[pos] = e;
+                    }
+                }
+#pragma omp barrier
+#pragma omp for schedule(dynamic, 1)
+                for (int b = 0; b < nblk; ++b)
+                {
+                    const int c0 = b * BLK, c1 = std::min(ncols, c0 + BLK);
+                    int cnt[BLK + 1];
+                    std::memset(cnt, 0, sizeof cnt);
+                    const long long p0 = blockbase[static_cast<std::size_t>(b)], p1 = blockbase[static_cast<std::size_t>(b) + 1];
+                    for (long long q = p0; q < p1; ++q)
+                        cnt[sc[q] - c0]++;
+                    long long acc = p0;
+                    for (int c = c0; c < c1; ++c)
+                    {
+                        ts[c] = static_cast<int>(acc);
+                        const int v = cnt[c - c0];
+                        cnt[c - c0] = static_cast<int>(acc);
+                        acc += v;
+                    }
+                    for (long long q = p0; q < p1; ++q)
+                        td[cnt[sc[q] - c0]++] = se[q];
+                }
+            }
+            ts[ncols] = static_cast<int>(nnz);
+            return relt;
+        }
         if (histogram)
         {
             // Counting fill with per-thread histograms: thread t owns the elements
