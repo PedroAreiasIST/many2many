@@ -40,6 +40,12 @@ void marktoerase(mm2m &m, int nodetype, int node);
 /** Finds duplicate elements (by node connectivity) and marks them for erasure. */
 void marktoeraserepeated(mm2m &m, int elementtype, int nodetype);
 
+/** Empties the rows of the given elements in every relation of the type (no cascade) and re-synchronizes. */
+void eraseelements(mm2m &m, int elementtype, seque<int> const &elements);
+
+/** The marked list closed under the depth-first search of compress(): every (type, id) that compress() will erase. */
+seque<std::pair<int, int> > getmarkedclosure(mm2m const &m);
+
 /** Returns all (type, id) element pairs connected to nodes of the given type. */
 seque<std::pair<int, int> > getallelements(mm2m const &m, int nodetype);
 seque<std::pair<int, int> > getallelements(mm2m const &m, int nodetype, int node);
@@ -57,15 +63,14 @@ namespace hidden
 void setnumberoftypes(mm2m &m, int ntypes);
 
 /** @return Index of the newly appended element. */
-int appendelement(mm2m &m, int elementtype, int nodetype,
-                  seque<int> const &nodes);
+int appendelement(mm2m &m, int elementtype, int nodetype, crowview nodes);
 
 void setnumberofelements(mm2m &m, int elementtype, int nelem);
 
 seque<int> getelementsfromnodes(mm2m &matrix, int elementtype, int nodestype,
-                                seque<int> const &nodes);
+                                crowview nodes);
 seque<int> getelementswithnodes(mm2m &matrix, int elementtype, int nodestype,
-                                seque<int> const &nodes);
+                                crowview nodes);
 
 /** Erases marked elements and their dependents (via DFS), then re-synchronizes. */
 void compress(mm2m &m);

@@ -188,7 +188,7 @@ void printmesh(mm2m &m, int number,
         if (it != typeToPartNumber.end())
         {
             const m2m &temp = m(etype, node);
-            totalConnectivity += temp.nfrome[e].size;
+            totalConnectivity += temp.nfrome.nnodes(e);
         }
     }
     std::vector<int> elni(getsize(aaa) + 1, 0);
@@ -202,10 +202,10 @@ void printmesh(mm2m &m, int number,
         if (it != typeToPartNumber.end())
         {
             const m2m &temp = m(etype, node);
-            if (temp.nfrome[e].size > 0)
+            if (temp.nfrome.nnodes(e) > 0)
             {
                 nelpr[nele] = it->second;
-                int ss = temp.nfrome[e].size;
+                int ss = temp.nfrome.nnodes(e);
                 elni[nele + 1] = elni[nele] + ss;
                 for (int j = 0; j < ss; ++j)
                 {

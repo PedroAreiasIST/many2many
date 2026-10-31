@@ -23,8 +23,8 @@ void testm2m()
     cout << "Appended above" << endl;
     synchronize(mm1);
     cout << "Cliques" << endl;
-    cout << "nodefromelem" << mm1.nfrome.lnods << endl;
-    cout << "elementfromnode" << mm1.efromn.lnods << endl;
+    cout << "nodefromelem" << mm1.nfrome << endl;
+    cout << "elementfromnode" << mm1.efromn << endl;
     auto locations = hidden::getnodepositions(mm1.nfrome, mm1.efromn);
     auto locations2 = hidden::getelementpositions(mm1.nfrome, mm1.efromn);
     auto cliques = getcliques(mm1.nfrome, mm1.efromn);
@@ -44,12 +44,12 @@ void testm2m()
     cout << "neighbours of element 0=" << getelementneighbours(mm1, 0) << endl;
     cout << "neighbours of element 1=" << getelementneighbours(mm1, 1) << endl;
     cout << "neighbours of node 3=" << getnodeneighbours(mm1, 3) << endl;
-    cout << "lexicographical order of mm1=" << mm1.nfrome.lnods(getorder(mm1))
+    cout << "lexicographical order of mm1=" << getrows(mm1.nfrome, getorder(mm1))
             << endl;
     ee1 = getelementstoelements(mm1);
     nn1 = getnodestonodes(mm1);
-    cout << "nodestonodes=" << nn1.nfrome.lnods << endl;
-    cout << "elementstoelements=" << ee1.nfrome.lnods << endl;
+    cout << "nodestonodes=" << nn1.nfrome << endl;
+    cout << "elementstoelements=" << ee1.nfrome << endl;
 
     cout << "Basics mm part 2" << endl;
     m2m mm2, mm3;
@@ -60,25 +60,25 @@ void testm2m()
     mm2.nfrome << b;
     mm2.nfrome << c;
     mm3.nfrome = mm1.nfrome + mm2.nfrome;
-    cout << "mm1+mm2=" << mm3.nfrome.lnods << endl;
+    cout << "mm1+mm2=" << mm3.nfrome << endl;
     mm3.nfrome = mm1.nfrome * mm2.nfrome;
-    cout << "mm1*mm2=" << mm3.nfrome.lnods << endl;
+    cout << "mm1*mm2=" << mm3.nfrome << endl;
     mm3.nfrome = mm2.nfrome * mm1.nfrome;
-    cout << "mm2*mm1=" << mm3.nfrome.lnods << endl;
+    cout << "mm2*mm1=" << mm3.nfrome << endl;
     mm3.nfrome = mm1.nfrome - mm2.nfrome;
-    cout << "mm1-mm2=" << mm3.nfrome.lnods << endl;
+    cout << "mm1-mm2=" << mm3.nfrome << endl;
     mm3.nfrome = mm1.nfrome && mm2.nfrome;
-    cout << "mm1&mm2=" << mm3.nfrome.lnods << endl;
+    cout << "mm1&mm2=" << mm3.nfrome << endl;
     mm3.nfrome = mm2.nfrome && mm1.nfrome;
-    cout << "mm2&mm1=" << mm3.nfrome.lnods << endl;
+    cout << "mm2&mm1=" << mm3.nfrome << endl;
     seque<int> se{0, 1, 3};
-    cout << "Before compression=" << mm1.nfrome.lnods << endl;
+    cout << "Before compression=" << mm1.nfrome << endl;
     compresselements(mm1, se);
-    cout << "After compression=" << mm1.nfrome.lnods << endl;
+    cout << "After compression=" << mm1.nfrome << endl;
     seque<int> sn{0, 2, 1, 4, 3, 5, 7, 9, 8};
     cout << "Permute beg" << endl;
     permutenodes(mm1, sn);
     cout << "Permute end" << endl;
-    cout << "After node compression" << mm1.nfrome.lnods << endl;
+    cout << "After node compression" << mm1.nfrome << endl;
 }
 #endif // TESTMM_HPP

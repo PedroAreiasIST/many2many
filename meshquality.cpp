@@ -94,7 +94,7 @@ int validateMeshPostSplit(RenewedMesh &nm, std::vector<Vec3> const &coords)
         double sv = signedVolumeTet(x);
 
         if (sv < 0.0) {
-            auto &lnods = nm.elem_nodes.nfrome.lnods[iel];
+            auto lnods = nm.elem_nodes.nfrome[iel];
             std::swap(lnods[2], lnods[3]);
             nm.elem_nodes.isupdated = false; // topology changed
             getTetNodes(nm, iel, nodes);
@@ -206,7 +206,7 @@ static int smoothInteriorNodes(RenewedMesh &nm,
 
             // Min quality of adjacent tets BEFORE move (via efromn)
             double qOldMin = 1e30;
-            seque<int> const &adjElems = nm.elem_nodes.efromn[ino];
+            auto adjElems = nm.elem_nodes.efromn[ino];
             for (int k = 0; k < getsize(adjElems); ++k) {
                 int jel = adjElems[k];
                 if (!isTet(nm, jel)) continue;

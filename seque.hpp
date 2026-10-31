@@ -66,7 +66,7 @@ namespace hidden
      * @note Ensure that this value is set appropriately to avoid overflow or excessive
      * memory usage.
      */
-    constexpr int STACKSIZE = 7;
+    constexpr int STACKSIZE = 8;
     /**
      * @brief The scaling factor used to determine the rate of growth in a given process.
      *
@@ -311,7 +311,7 @@ struct seque
     /** Fills all elements with the given value. */
     seque &operator=(V const &value)
     {
-        std::fill(std::execution::par, actual, actual + size, value);
+        std::fill(actual, actual + size, value);
         return *this;
     }
 
@@ -354,7 +354,7 @@ struct seque
         if (size > 0)
         {
             setsize(result, indexContainer.size);
-            std::transform(std::execution::par, indexContainer.actual,
+            std::transform(indexContainer.actual,
                            indexContainer.actual + indexContainer.size, result.actual,
                            [&](int idx)
                            {
@@ -382,8 +382,7 @@ struct seque
             std::memcpy(actual, other.actual, other.size * sizeof(V));
         } else
         {
-            std::copy(std::execution::par, other.actual, other.actual + other.size,
-                      actual);
+            std::copy(other.actual, other.actual + other.size, actual);
         }
     }
 
@@ -487,7 +486,7 @@ public:
                 std::memcpy(tempArray, heapdata, size * sizeof(V));
             } else
             {
-                std::move(std::execution::par, heapdata, heapdata + size, tempArray);
+                std::move(heapdata, heapdata + size, tempArray);
             }
             arraydestroy(heapdata);
             heapdata = tempArray;
@@ -537,6 +536,30 @@ void setsize(seque<V, S, P> &container, int newSize)
         }
     }
     container.size = newSize;
+}
+
+/** Resizes to exactly newSize entries, allocating no growth slack (bulk kernels
+ *  whose output size is known). Contents are not preserved. */
+template<typename V, int S, auto P>
+void setsizeexact(seque<V, S, P> &container, long long newSize)
+{
+    if (newSize > 2147483647LL)
+        throw std::length_error("seque: more than 2^31-1 entries requested");
+    const int n = static_cast<int>(newSize);
+    if (container.actual != container.stackdata)
+    {
+        arraydestroy(container.heapdata);
+        container.heapsize = 0;
+        container.actual = container.stackdata;
+    }
+    container.size = 0;
+    if (n > container.stacksize)
+    {
+        arraycreate(container.heapdata, n);
+        container.heapsize = n;
+        container.actual = container.heapdata;
+    }
+    container.size = n;
 }
 
 
@@ -713,7 +736,7 @@ void addinplace(seque<V, S, P> &destContainer, int insertIndex,
     std::move_backward(destContainer.actual + insertIndex,
                        destContainer.actual + oldSize,
                        destContainer.actual + destContainer.size);
-    std::copy(destContainer.parallel, sourceContainer.actual,
+    std::copy(sourceContainer.actual,
               sourceContainer.actual + sourceContainer.size,
               destContainer.actual + insertIndex);
 }
@@ -747,7 +770,7 @@ int append(seque<V, S, P> &destContainer,
 {
     const int oldSize = destContainer.size;
     setsize(destContainer, destContainer.size + sourceContainer.size);
-    std::copy(destContainer.parallel, sourceContainer.actual,
+    std::copy(sourceContainer.actual,
               sourceContainer.actual + sourceContainer.size,
               destContainer.actual + oldSize);
     return oldSize;
@@ -790,8 +813,7 @@ bool operator==(seque<V, S, P> const &lhs, seque<V, S, P> const &rhs)
 {
     if (lhs.size != rhs.size)
         return false;
-    return std::equal(lhs.parallel, lhs.actual, lhs.actual + lhs.size,
-                      rhs.actual);
+    return std::equal(lhs.actual, lhs.actual + lhs.size, rhs.actual);
 }
 
 template<typename V, int S, auto P>
@@ -849,7 +871,7 @@ seque<int, S, P> indicesfromcondition(seque<V, S, P> const &container,
                                       auto predicate)
 {
     seque<int, S, P> indices;
-    auto matchCount = std::count_if(container.parallel, container.actual,
+    auto matchCount = std::count_if(container.actual,
                                     container.actual + container.size, predicate);
     setsize(indices, matchCount);
     int currentIndex = 0;
@@ -1024,8 +1046,7 @@ template<typename V, int S, auto P>
  */
 void applyfunction(seque<V, S, P> const &container, auto func)
 {
-    std::for_each(container.parallel, container.actual,
-                  container.actual + container.size, func);
+    std::for_each(container.actual, container.actual + container.size, func);
 }
 
 template<typename V, int S, auto P>
@@ -1039,9 +1060,8 @@ auto getmapped(seque<V, S, P> const &container, auto func)
 {
     using ReturnType = decltype(func(std::declval<V>()));
     seque<ReturnType, S, P> mappedContainer(container.size);
-    std::transform(container.parallel, container.actual,
-                   container.actual + container.size, mappedContainer.actual,
-                   func);
+    std::transform(container.actual, container.actual + container.size,
+                   mappedContainer.actual, func);
     return mappedContainer;
 }
 
@@ -1063,9 +1083,8 @@ auto getmapped(seque<V, S, P> const &containerA,
     const int minSize = (std::min)(containerA.size, containerB.size);
     using ReturnType = decltype(func(std::declval<V>(), std::declval<V>()));
     seque<ReturnType, S, P> mappedContainer(minSize);
-    std::transform(containerA.parallel, containerA.actual,
-                   containerA.actual + minSize, containerB.actual,
-                   mappedContainer.actual, func);
+    std::transform(containerA.actual, containerA.actual + minSize,
+                   containerB.actual, mappedContainer.actual, func);
     return mappedContainer;
 }
 
@@ -1080,8 +1099,8 @@ template<typename V, int S, auto P>
  */
 auto reduce(seque<V, S, P> const &container, auto init, auto binaryFunc)
 {
-    return std::reduce(container.parallel, container.actual,
-                       container.actual + container.size, init, binaryFunc);
+    return std::reduce(container.actual, container.actual + container.size,
+                       init, binaryFunc);
 }
 
 template<typename V, int S, auto P>

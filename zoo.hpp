@@ -165,16 +165,141 @@ struct zoo
      * @param defined The `thing` object to be uploaded. It serves as the initial element whose
      *        data will be processed and uploaded, along with its child elements.
      */
-    void uploadelement(thing const &defined)
+    int uploadelement(thing const &defined)
     {
-        uploadathing(lifemanager, defined, thingmodels[defined.typenumber]);
+        const int id = uploadathing(lifemanager, defined, thingmodels[defined.typenumber]);
         seque<thing> allstuff =
                 getallchildren(defined, thingmodels[defined.typenumber]);
         for (int e = 0; e < getsize(allstuff); ++e)
         {
             auto athing = allstuff[e];
-            uploadathing(synthesized, athing, thingmodels[athing.typenumber]);
+            const int cid = uploadathing(synthesized, athing, thingmodels[athing.typenumber]);
+            // the child records its parent: row cid of the synthesized (child type, parent type) relation
+            m2m &parents = synthesized(athing.typenumber, defined.typenumber);
+            if (parents.nfrome.nelems() < cid + 1)
+                setnumberofelements(parents, cid + 1);
+            setrow(parents.nfrome, cid, {id});
+            parents.isupdated = false;
         }
+        return id;
+    }
+
+    /**
+     * Removes the repeated synthesized children of type C (same canonical node list of type N):
+     * the first copy survives and inherits the parents of the copies that are erased.
+     */
+    template<typename C, typename N>
+    void deduplicate()
+    {
+        const int ct = getnumber<C, TypeManager>();
+        const int nt = getnumber<N, TypeManager>();
+        m2m &rel = synthesized(ct, nt);
+        seque<int> order = getorder(rel.nfrome);
+        seque<int> repeated;
+        int rep = -1;
+        for (int i = 0; i < getsize(order); ++i)
+        {
+            const int e = order[i];
+            if (rel.nfrome.nnodes(e) == 0)
+                continue;
+            if (rep >= 0 && rel.nfrome[e] == rel.nfrome[rep])
+            {
+                for (int t = 0; t < TypeManager::Size; ++t)
+                {
+                    if (t == nt || t == ct)
+                        continue;
+                    m2m &other = synthesized(ct, t);
+                    if (e < other.nfrome.nelems() && rep < other.nfrome.nelems() && other.nfrome.nnodes(e) != 0)
+                    {
+                        seque<int> a = other.nfrome[rep], b = other.nfrome[e];
+                        setordered(a);
+                        setordered(b);
+                        setrow(other.nfrome, rep, getunion(a, b));
+                        other.isupdated = false;
+                    }
+                }
+                append(repeated, e);
+            } else
+                rep = e;
+        }
+        eraseelements(synthesized, ct, repeated);
+    }
+
+    /** True when type pt declares builders for children of type ct (so synthesized(ct, pt) holds parent links). */
+    bool isparenttype(int ct, int pt) const
+    {
+        auto const &builders = thingmodels[pt].childrenbuilders;
+        if (ct >= getsize(builders))
+            return false;
+        for (int nt = 0; nt < getsize(builders[ct]); ++nt)
+            if (getsize(builders[ct][nt]) != 0)
+                return true;
+        return false;
+    }
+
+    /** Marks a stored element for removal (its children lose it as a parent at compress()). */
+    template<typename E>
+    void removeelement(int element)
+    {
+        marktoerase(lifemanager, getnumber<E, TypeManager>(), element);
+    }
+
+    /** Marks a node for removal: the elements and children containing it go with it at compress(). */
+    template<typename N>
+    void removenode(int node)
+    {
+        marktoerase(lifemanager, getnumber<N, TypeManager>(), node);
+        marktoerase(synthesized, getnumber<N, TypeManager>(), node);
+    }
+
+    /**
+     * Compresses both matrices: the stored elements reached by the depth-first search from the
+     * marked entities are erased; every synthesized child loses them as parents, and a child
+     * left without parents is erased as well (a shared face survives while one of its
+     * volumes does).
+     */
+    void compress()
+    {
+        seque<std::pair<int, int> > gone = getmarkedclosure(lifemanager);
+        for (int i = 0; i < getsize(gone); ++i)
+        {
+            const int et = gone[i].first, id = gone[i].second;
+            for (int ct = 0; ct < TypeManager::Size; ++ct)
+            {
+                if (ct == et)
+                    continue; // the diagonal relation is the identity, not a parent link
+                m2m &parents = synthesized(ct, et);
+                if (parents.nfrome.nelems() == 0)
+                    continue;
+                synchronize(parents);
+                if (id >= parents.efromn.nelems())
+                    continue;
+                seque<int> children = parents.efromn[id];
+                for (int k = 0; k < getsize(children); ++k)
+                {
+                    const int child = children[k];
+                    seque<int> row = parents.nfrome[child];
+                    setordered(row);
+                    seque<int> rest = getdifference(row, seque<int>{id});
+                    setrow(parents.nfrome, child, rest);
+                    parents.isupdated = false;
+                    // a child is erased only when no parent of any type is left
+                    bool hasparent = false;
+                    for (int pt = 0; pt < TypeManager::Size && !hasparent; ++pt)
+                    {
+                        if (pt == ct)
+                            continue;
+                        m2m const &other = synthesized(ct, pt);
+                        hasparent = child < other.nfrome.nelems() && other.nfrome.nnodes(child) != 0 &&
+                                    isparenttype(ct, pt);
+                    }
+                    if (!hasparent)
+                        marktoerase(synthesized, ct, child);
+                }
+            }
+        }
+        ::compress(lifemanager);
+        ::compress(synthesized);
     }
 
     template<typename E>

@@ -106,7 +106,7 @@ inline void testeo2m()
         std::cout << "mult end\n";
         std::cout << "maxnode 3=" << om3.maxnode << std::endl;
         std::cout << "maxnode 2=" << om2.maxnode << std::endl;
-        std::cout << result.nfrome[0] << std::endl;
-        std::cout << result.nfrome.lnods[0] << std::endl;
+        std::cout << om3[0] << std::endl;
+        std::cout << om2[0] << std::endl;
     }
 }

@@ -1,18 +1,21 @@
 #include "m2m.hpp"
 #include "o2m.hpp"
+#include <algorithm>
 #include <cassert>
 
-int appendelement(m2m &rel, seque<int> const &nodes)
+int appendelement(m2m &rel, crowview nodes)
 {
-    int newel = appendelement(rel.nfrome, nodes);
+    const int newel = appendelement(rel.nfrome, nodes);
     rel.isupdated = false;
+    rel.islocated = false;
     return newel;
 }
 
 void setnumberofelements(m2m &rel, int nelem)
 {
-    setsize(rel.nfrome.lnods, nelem);
+    setsize(rel.nfrome, nelem);
     rel.isupdated = false;
+    rel.islocated = false;
     rel.efromn.maxnode = nelem - 1;
 }
 
@@ -21,32 +24,76 @@ void synchronize(m2m &rel)
     if (!rel.isupdated)
     {
         rel.efromn = Tr(rel.nfrome);
-        rel.nodeloc = hidden::getnodepositions(rel.nfrome, rel.efromn);
-        rel.elementloc = hidden::getelementpositions(rel.nfrome, rel.efromn);
         rel.isupdated = true;
+        rel.islocated = false;
     }
 }
 
-seque<int> getelementswithnodes(m2m &rel, seque<int> const &nodes)
+void synchronizelocations(m2m &rel)
+{
+    synchronize(rel);
+    if (!rel.islocated)
+    {
+        hidden::getlocations(rel.nfrome, rel.efromn, rel.nodeloc, rel.elementloc);
+        rel.islocated = true;
+    }
+}
+
+seque<int> getelementswithnodes(m2m &rel, crowview nodes)
 {
     if (!rel.isupdated)
-    {
         synchronize(rel);
-    }
     seque<int> elems;
-    if (getsize(nodes) == 0)
+    const int n = nodes.n;
+    if (n == 0)
         return elems;
-    elems = rel.efromn.lnods[nodes[0]];
-    for (int i = 1; i < getsize(nodes); ++i)
-        elems = getintersection(elems, rel.efromn.lnods[nodes[i]]);
+    const int nn = rel.efromn.nelem;
+    // the shortest list seeds the intersection
+    int first = 0;
+    int best = -1;
+    for (int i = 0; i < n; ++i)
+    {
+        const int v = nodes.p[i];
+        const int len = (v >= 0 && v < nn) ? rel.efromn.nnodes(v) : 0;
+        if (best < 0 || len < best)
+        {
+            best = len;
+            first = i;
+        }
+    }
+    if (best <= 0)
+        return elems;
+    elems = rel.efromn[nodes.p[first]];
+    for (int i = 0; i < n && elems.size > 0; ++i)
+    {
+        if (i == first)
+            continue;
+        crowview other = rel.efromn[nodes.p[i]];
+        // in-place sorted merge (both lists ascending)
+        int a = 0, b = 0, k = 0;
+        while (a < elems.size && b < other.n)
+        {
+            if (elems[a] < other.p[b])
+                ++a;
+            else if (other.p[b] < elems[a])
+                ++b;
+            else
+            {
+                elems[k++] = elems[a];
+                ++a;
+                ++b;
+            }
+        }
+        setsize(elems, k);
+    }
     return elems;
 }
 
-seque<int> getelementsfromnodes(m2m &rel, seque<int> const &nodes)
+seque<int> getelementsfromnodes(m2m &rel, crowview nodes)
 {
     seque<int> elems = getelementswithnodes(rel, nodes), ret;
-    for (int i = 0; i < getsize(elems); ++i)
-        if (getsize(rel.nfrome.lnods[elems[i]]) == getsize(nodes))
+    for (int i = 0; i < elems.size; ++i)
+        if (rel.nfrome.nnodes(elems[i]) == nodes.n)
             append(ret, elems[i]);
     return ret;
 }
@@ -54,23 +101,12 @@ seque<int> getelementsfromnodes(m2m &rel, seque<int> const &nodes)
 seque<int> getelementneighbours(m2m &rel, int element)
 {
     if (!rel.isupdated)
-    {
         synchronize(rel);
-    }
     seque<int> neighbours;
-    setsize(neighbours, 0);
-    const seque<int> &elementNodes = rel.nfrome.lnods[element];
-    for (int i = 0; i < getsize(elementNodes); ++i)
-    {
-        int node = elementNodes[i];
-        const seque<int> &nodeElements = rel.efromn.lnods[node];
-        for (int j = 0; j < getsize(nodeElements); ++j)
-        {
-            int other = nodeElements[j];
+    for (int node: rel.nfrome[element])
+        for (int other: rel.efromn[node])
             if (other != element)
                 append(neighbours, other);
-        }
-    }
     setorderedandunique(neighbours);
     return neighbours;
 }
@@ -78,23 +114,12 @@ seque<int> getelementneighbours(m2m &rel, int element)
 seque<int> getnodeneighbours(m2m &rel, int node)
 {
     if (!rel.isupdated)
-    {
         synchronize(rel);
-    }
     seque<int> neighbours;
-    setsize(neighbours, 0);
-    const seque<int> &elements = rel.efromn.lnods[node];
-    for (int i = 0; i < getsize(elements); ++i)
-    {
-        int elem = elements[i];
-        const seque<int> &nodes = rel.nfrome.lnods[elem];
-        for (int j = 0; j < getsize(nodes); ++j)
-        {
-            int other = nodes[j];
+    for (int elem: rel.efromn[node])
+        for (int other: rel.nfrome[elem])
             if (other != node)
                 append(neighbours, other);
-        }
-    }
     setorderedandunique(neighbours);
     return neighbours;
 }
@@ -104,6 +129,7 @@ void compresselements(m2m &rel, seque<int> const &oldelementfromnew)
     if (rel.nfrome.nelem > 0)
     {
         hidden::compresselements(rel.nfrome, oldelementfromnew);
+        rel.isupdated = false;
         synchronize(rel);
     }
 }
@@ -111,13 +137,15 @@ void compresselements(m2m &rel, seque<int> const &oldelementfromnew)
 void permutenodes(m2m &rel, seque<int> const &newnodefromold)
 {
     hidden::permutenodes(rel.nfrome, newnodefromold);
+    rel.isupdated = false;
     synchronize(rel);
 }
 
 m2m getelementstoelements(m2m &rel)
 {
     m2m elementstoelements;
-    if (!rel.isupdated)synchronize(rel);
+    if (!rel.isupdated)
+        synchronize(rel);
     elementstoelements.nfrome = rel.nfrome * rel.efromn;
     elementstoelements.isupdated = false;
     return elementstoelements;
@@ -126,15 +154,17 @@ m2m getelementstoelements(m2m &rel)
 m2m getnodestonodes(m2m &rel)
 {
     m2m nodestonodes;
-    if (!rel.isupdated)synchronize(rel);
+    if (!rel.isupdated)
+        synchronize(rel);
     nodestonodes.nfrome = rel.efromn * rel.nfrome;
     nodestonodes.isupdated = false;
     return nodestonodes;
 }
 
-seque<seque<int> > getcliques(m2m &rel)
+o2m getcliques(m2m &rel)
 {
-    if (!rel.isupdated)synchronize(rel);
+    if (!rel.isupdated)
+        synchronize(rel);
     return getcliques(rel.nfrome, rel.efromn);
 }
 

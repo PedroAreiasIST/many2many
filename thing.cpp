@@ -1,4 +1,5 @@
 #include "thing.hpp"
+#include <algorithm>
 
 // Appends the provided symmetry group to the specified element type and node
 // type
@@ -79,12 +80,25 @@ seque<thing> getallchildren(thing const &element,
 // Uploads a thing into an mm2m matrix.
 // For each node type of the thing, compute the canonical form using the model's
 // symmetry groups, then append the element to the matrix.
-void uploadathing(mm2m &m, thing const &e, thingmodel const &model)
+int uploadathing(mm2m &m, thing const &e, thingmodel const &model)
 {
+    const int etype = e.typenumber;
+    int id = 0;
+    for (int i = 0; i < m.ntypes; ++i)
+        if (i != etype)
+            id = std::max(id, m(etype, i).nfrome.nelems());
     for (int i = 0; i < getsize(e.typesandnodes); ++i)
     {
+        if (i == etype)
+            continue;
         auto canon = getcanonicalform(e.typesandnodes[i],
                                       model.symmetrygroups[i]);
-        appendelement(m, e.typenumber, i, canon);
+        if (m(etype, i).nfrome.nelems() < id)
+            setnumberofelements(m(etype, i), id);
+        appendelement(m, etype, i, canon);
     }
+    for (int i = 0; i < m.ntypes; ++i)
+        if (i != etype && m(etype, i).nfrome.nelems() < id + 1)
+            setnumberofelements(m(etype, i), id + 1);
+    return id;
 }

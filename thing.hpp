@@ -129,12 +129,15 @@ seque<thing> getallchildren(thing const &element,
 /**
  * Uploads a thing into the provided mm2m structure, processes its types and nodes,
  * and appends the canonical forms to the structure based on the given model.
+ * Every relation of the thing's type receives the new row (empty for node types
+ * the thing does not use), so the row index identifies the element in all of them.
+ * @return the row index of the uploaded element.
  *
  * @param m The mm2m data structure where the processed elements will be appended.
  * @param e The input `thing` containing the types and nodes to be processed.
  * @param model The `thingmodel` containing the symmetry groups required for canonical form calculation.
  */
-void uploadathing(mm2m &m, thing const &e, thingmodel const &model);
+int uploadathing(mm2m &m, thing const &e, thingmodel const &model);
 
 
 #endif // RELATIONMANAGER_HPP

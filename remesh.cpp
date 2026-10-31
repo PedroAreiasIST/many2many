@@ -14,8 +14,10 @@
 #include "remesh.hpp"
 #include <algorithm>
 #include <cassert>
+#include <chrono>
 #include <iostream>
-#include <map>
+#include <numeric>
+#include <vector>
 #include <stdexcept>
 
 // =====================================================================
@@ -83,42 +85,64 @@ void buildEdgeRelations(OriginalMesh &mesh)
         switch(nn) { case 2: return BAR_EDGE; case 3: return TRI_EDGE; case 4: return TET_EDGE; default: return nullptr; }
     };
 
-    // Discover unique edges via sorted-pair map
-    std::map<std::pair<int,int>, int> pairToEdge;
+    // 1. Candidate edges: one row per element-local edge, in the canonical form of
+    //    the undirected edge (the smaller node first); the rows of elem_edges have the
+    //    same layout (one slot per local edge), so a candidate index is also a slot.
+    o2m cand;
     setsize(mesh.elem_edges, mesh.nel);
-    int nextEdge = 0;
-
-    for (int iel = 0; iel < mesh.nel; ++iel) {
-        int nn = mesh.elem_nodes.nfrome.nnodes(iel);
-        int ne = nedgesForNnodes(nn);
-        auto et = getEdgeTable(nn);
-        seque<int> edgeList;
-        setsize(edgeList, ne);
-        for (int le = 0; le < ne; ++le) {
-            int gn1 = mesh.elem_nodes.nfrome[iel][et[le][0]];
-            int gn2 = mesh.elem_nodes.nfrome[iel][et[le][1]];
-            auto key = std::make_pair(std::min(gn1,gn2), std::max(gn1,gn2));
-            auto it = pairToEdge.find(key);
-            int eidx;
-            if (it == pairToEdge.end()) { eidx = nextEdge++; pairToEdge[key] = eidx; }
-            else { eidx = it->second; }
-            edgeList[le] = eidx;
+    {
+        std::vector<int> ne(mesh.nel);
+        long long ncand = 0;
+        for (int iel = 0; iel < mesh.nel; ++iel) {
+            ne[iel] = nedgesForNnodes(mesh.elem_nodes.nfrome.nnodes(iel));
+            ncand += ne[iel];
         }
-        mesh.elem_edges.lnods[iel] = edgeList;
+        setsize(cand, (int) ncand);
+        setsizeexact(cand.data, 2 * ncand);
+        setsizeexact(mesh.elem_edges.data, ncand);
+        int c = 0;
+        for (int iel = 0; iel < mesh.nel; ++iel) {
+            auto et = getEdgeTable(mesh.elem_nodes.nfrome.nnodes(iel));
+            auto nodes = mesh.elem_nodes.nfrome[iel];
+            mesh.elem_edges.start[iel] = c;
+            for (int le = 0; le < ne[iel]; ++le, ++c) {
+                const int a = nodes[et[le][0]], b = nodes[et[le][1]];
+                cand.start[c] = 2 * c;
+                cand.data[2 * c] = std::min(a, b);
+                cand.data[2 * c + 1] = std::max(a, b);
+            }
+        }
+        cand.start[c] = 2 * c;
+        mesh.elem_edges.start[mesh.nel] = c;
+        cand.maxnode = mesh.nno - 1;
     }
-    mesh.elem_edges.nelem = mesh.nel;
-    mesh.elem_edges.maxnode = (nextEdge > 0) ? nextEdge - 1 : 0;
-    mesh.nar = nextEdge;
 
-    // Build edge_nodes as m2m: each "element" is an edge with 2 nodes
-    setnumberofelements(mesh.edge_nodes, mesh.nar);
-    for (auto &[key, idx] : pairToEdge)
-        mesh.edge_nodes.nfrome.lnods[idx] = {key.first, key.second};
-    mesh.edge_nodes.nfrome.nelem = mesh.nar;
+    // 2. Lexicographic order of the canonical rows and the index maps of the unique
+    //    rows (Section 2.5): edgeofcand[c] is the edge of candidate c, candofedge[e] the
+    //    first candidate of edge e. Edges are numbered in order of first appearance.
+    seque<int> order = getorder(cand);
+    seque<int> edgeofcand, candofedge;
+    indicesfromorder(cand, order, edgeofcand, candofedge);
+    {
+        // renumber the unique rows by their first candidate (traversal order)
+        const int nu = getsize(candofedge);
+        seque<int> byfirst(nu);
+        std::iota(byfirst.begin(), byfirst.end(), 0);
+        std::sort(byfirst.begin(), byfirst.end(), [&](int a, int b) { return candofedge[a] < candofedge[b]; });
+        seque<int> rank(nu), firstcand(nu);
+        for (int r = 0; r < nu; ++r) { rank[byfirst[r]] = r; firstcand[r] = candofedge[byfirst[r]]; }
+        for (int c = 0; c < getsize(edgeofcand); ++c)
+            mesh.elem_edges.data[c] = rank[edgeofcand[c]];
+        candofedge = firstcand;
+    }
+    mesh.nar = getsize(candofedge);
+    mesh.elem_edges.maxnode = (mesh.nar > 0) ? mesh.nar - 1 : 0;
+
+    // 3. The edge -> node relation is the set of unique rows; its transpose gives
+    //    node -> edges for the lookups of markEdges.
+    mesh.edge_nodes.nfrome = getrows(cand, candofedge);
     mesh.edge_nodes.nfrome.maxnode = mesh.nno - 1;
     mesh.edge_nodes.isupdated = false;
-
-    // Synchronize: builds efromn = node→edges (via Tr), nodeloc, elementloc
     synchronize(mesh.edge_nodes);
 }
 
@@ -618,13 +642,12 @@ void splitTets(seque<int> const &mark, OriginalMesh const &mesh, RenewedMesh &nm
 
 void splitmesh(OriginalMesh &mesh, RenewedMesh &newmesh)
 {
-    std::cout << "Building edge relations..." << std::endl;
+    auto tnow = [] { return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count(); };
+    const double t0 = tnow();
     buildEdgeRelations(mesh);
-
-    std::cout << "Marking edges..." << std::endl;
+    const double t1 = tnow();
     seque<int> mark = markEdges(mesh);
-
-    std::cout << "Creating edge nodes..." << std::endl;
+    const double t2 = tnow();
     createEdgeNodes(mesh, newmesh, mark);
 
     newmesh.npoint  = countPoints(mark, mesh);
@@ -632,21 +655,29 @@ void splitmesh(OriginalMesh &mesh, RenewedMesh &newmesh)
     newmesh.ntria3  = countTriangles(mark, mesh);
     newmesh.ntetra4 = countTets(mark, mesh);
     newmesh.nel = newmesh.npoint + newmesh.nbar2 + newmesh.ntria3 + newmesh.ntetra4;
+    const double t3 = tnow();
 
     std::cout << "New mesh: " << newmesh.npoint << " points, "
               << newmesh.nbar2 << " bars, "
               << newmesh.ntria3 << " tris, "
               << newmesh.ntetra4 << " tets" << std::endl;
 
+    // the renewed element-node relation is built by appends: reserve its pool once
+    reserve(newmesh.elem_nodes.nfrome, newmesh.nel,
+            2L * newmesh.npoint + 3L * newmesh.nbar2 + 4L * newmesh.ntria3 + 5L * newmesh.ntetra4);
     splitPoints(mark, mesh, newmesh);
     splitBars(mark, mesh, newmesh);
     splitTriangles(mark, mesh, newmesh);
     splitTets(mark, mesh, newmesh);
+    const double t4 = tnow();
 
     newmesh.nel = newmesh.elem_nodes.nfrome.nelems();
 
     // Synchronize: builds node→element, enabling adjacency queries for quality improvement
     synchronize(newmesh.elem_nodes);
+    const double t5 = tnow();
 
     std::cout << "Split complete. nel=" << newmesh.nel << std::endl;
+    std::cout << "TIMER split.edges " << t1 - t0 << "\nTIMER split.mark " << t2 - t1 << "\nTIMER split.count " << t3 - t2
+              << "\nTIMER split.subdivide " << t4 - t3 << "\nTIMER split.synchronize " << t5 - t4 << std::endl;
 }

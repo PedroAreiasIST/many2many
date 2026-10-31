@@ -22,21 +22,20 @@ int mm2m::nnodes(int elementType, int element, int nodeType) const
 {
     assert(elementType >= 0 && elementType < ntypes);
     assert(nodeType >= 0 && nodeType < ntypes);
-    assert(element >= 0 &&
-        element < getsize(operator()(elementType, nodeType).nfrome.lnods));
-    return getsize(operator()(elementType, nodeType).nfrome.lnods[element]);
+    if (element < 0 || element >= operator()(elementType, nodeType).nfrome.nelems())
+        return 0;
+    return operator()(elementType, nodeType).nfrome.nnodes(element);
 }
 
 int mm2m::nelems(int nodeType, int node, int elementType) const
 {
     assert(nodeType >= 0 && nodeType < ntypes);
     assert(elementType >= 0 && elementType < ntypes);
-    if (node < 0 ||
-        node >= getsize(operator()(elementType, nodeType).efromn.lnods))
+    if (node < 0 || node >= operator()(elementType, nodeType).efromn.nelems())
     {
         return 0;
     } else
-        return getsize(operator()(elementType, nodeType).efromn.lnods[node]);
+        return operator()(elementType, nodeType).efromn.nnodes(node);
 }
 
 int mm2m::nelems(int elementtype) const
@@ -50,7 +49,7 @@ int mm2m::nactiveelements(int elementtype) const
     for (int element = 0; element < m[elementtype][elementtype].nfrome.nelems();
          ++element)
     {
-        if (getsize(m[elementtype][elementtype].nfrome[element]) != 0)
+        if (m[elementtype][elementtype].nfrome.nnodes(element) != 0)
             nactive++;
     }
     return nactive;
@@ -65,7 +64,7 @@ void marktoeraserepeated(mm2m &m, int elementtype, int nodetype)
 {
     auto const &mm = m(elementtype, nodetype);
     auto order = getorder(mm);
-    auto dupindices = getindicesofduplicates(mm.nfrome.lnods, order);
+    auto dupindices = getindicesofduplicates(mm.nfrome, order);
     for (int i = 0; i < getsize(dupindices); ++i)
         marktoerase(m, elementtype, dupindices[i]);
 }
@@ -95,7 +94,7 @@ seque<std::pair<int, int> > getallelements(mm2m const &m, int nodetype,
             {
                 ret[pos++] = std::make_pair(
                     elementType,
-                    m(elementType, nodetype).efromn.lnods[node][localelem]);
+                    m(elementType, nodetype).efromn[node][localelem]);
             }
         }
     }
@@ -136,7 +135,7 @@ seque<std::pair<int, int> > getallnodes(mm2m const &m, int elementType,
         {
             ret[pos++] = std::make_pair(
                 nodeType,
-                m(elementType, nodeType).nfrome.lnods[elementNumber][localnode]);
+                m(elementType, nodeType).nfrome[elementNumber][localnode]);
         }
     }
     setorderedandunique(ret);
@@ -194,8 +193,7 @@ void setnumberoftypes(mm2m &m, int ntypes)
     }
 }
 
-int appendelement(mm2m &m, int elementType, int nodeType,
-                  seque<int> const &nodes)
+int appendelement(mm2m &m, int elementType, int nodeType, crowview nodes)
 {
     int newelement = appendelement(m(elementType, nodeType), nodes);
     return newelement;
@@ -213,20 +211,47 @@ void setnumberofelements(mm2m &m, int elementtype, int nelem)
     }
 }
 
-void compress(mm2m &m)
+seque<std::pair<int, int> > getmarkedclosure(mm2m const &m)
 {
-    setorderedandunique(m.listofmarked);
-    int markedSize = getsize(m.listofmarked);
+    seque<std::pair<int, int> > marked = m.listofmarked;
+    setorderedandunique(marked);
+    const int markedSize = getsize(marked);
     for (int counter = 0; counter < markedSize; ++counter)
     {
-        seque<std::pair<int, int> > dfsResult =
-                hidden::depthfirstsearchfromanode(m, m.listofmarked[counter]);
+        seque<std::pair<int, int> > dfsResult = hidden::depthfirstsearchfromanode(m, marked[counter]);
         for (int i = 0; i < getsize(dfsResult); ++i)
+            append(marked, dfsResult[i]);
+    }
+    setorderedandunique(marked);
+    return marked;
+}
+
+void eraseelements(mm2m &m, int elementtype, seque<int> const &elements)
+{
+    for (int otype = 0; otype < m.ntypes; ++otype)
+    {
+        m2m &rel = m(elementtype, otype);
+        bool changed = false;
+        for (int i = 0; i < getsize(elements); ++i)
         {
-            append(m.listofmarked, dfsResult[i]);
+            const int e = elements[i];
+            if (e >= 0 && e < rel.nfrome.nelems() && rel.nfrome.nnodes(e) != 0)
+            {
+                clearrow(rel.nfrome, e);
+                changed = true;
+            }
+        }
+        if (changed)
+        {
+            rel.isupdated = false;
+            synchronize(rel);
         }
     }
-    setorderedandunique(m.listofmarked);
+}
+
+void compress(mm2m &m)
+{
+    m.listofmarked = getmarkedclosure(m);
 
     seque<seque<int> > nodes(m.ntypes);
     for (int counter = 0; counter < getsize(m.listofmarked); ++counter)
@@ -246,10 +271,16 @@ void compress(mm2m &m)
             nnmax = std::max(nnmax, m(otherType, type).efromn.nelems());
             nnmax = std::max(nnmax, m(otherType, type).nfrome.maxnode + 1);
         }
-        setnumberofelements(m(type, type), nnmax);
-        for (int i = 0; i < nnmax; ++i)
+        // the diagonal relation of a type is the identity: rows beyond the current
+        // count are created as {i}; existing rows (possibly emptied by an earlier
+        // compression) are left as they are, so repeated calls are idempotent
+        m2m &diag = m(type, type);
+        const int n0 = diag.nfrome.nelems();
+        if (nnmax > n0)
         {
-            appendelement(m(type, type), {i});
+            setnumberofelements(diag, nnmax);
+            for (int i = n0; i < nnmax; ++i)
+                setrow(diag.nfrome, i, {i});
         }
     }
     for (int type = 0; type < m.ntypes; ++type)
@@ -259,7 +290,8 @@ void compress(mm2m &m)
             auto element = nodes[type][lelement];
             for (int otype = 0; otype < m.ntypes; ++otype)
             {
-                erase(m(type, otype).nfrome[element]);
+                clearrow(m(type, otype).nfrome, element);
+                m(type, otype).isupdated = false;
             }
         }
         for (int otype = 0; otype < m.ntypes; ++otype)
@@ -281,7 +313,7 @@ seque<int> gettypetoporder(mm2m const &m)
             {
                 if (m(elementType, nodeType).nfrome.nelem != 0)
                 {
-                    append(typeDeps.lnods[elementType], nodeType);
+                    appendtorow(typeDeps, elementType, nodeType);
                 }
             }
         }
@@ -290,13 +322,13 @@ seque<int> gettypetoporder(mm2m const &m)
 }
 
 seque<int> getelementsfromnodes(mm2m &matrix, int elementType, int nodeType,
-                                seque<int> const &nodes)
+                                crowview nodes)
 {
     return getelementsfromnodes(matrix(elementType, nodeType), nodes);
 }
 
 seque<int> getelementswithnodes(mm2m &matrix, int elementtype, int nodestype,
-                                seque<int> const &nodes)
+                                crowview nodes)
 {
     return getelementswithnodes(matrix(elementtype, nodestype), nodes);
 }
