@@ -1,0 +1,45 @@
+{"group": "order", "kind": "H8", "threads": 16, "nee": 100, "nel": 1000000, "nn": 1030301, "t_lexiorder": 0.0267634, "t_indicesfromorder": 0.0220804, "t_compression": 0.0202754, "nunique": 1000000}
+{"group": "cliques", "kind": "H8", "threads": 16, "nee": 100, "nel": 1000000, "nn": 1030301, "t_cliques": 0.0622788, "nnz_cliques": 64000000}
+{"group": "search", "kind": "H8", "threads": 16, "nee": 100, "nel": 1000000, "nn": 1030301, "t_lookup_us": 0.350525, "found": 100000, "t_unordered_map_build": 0.268777, "t_map_build": 1.12385}
+{"group": "order", "kind": "H8", "threads": 16, "nee": 200, "nel": 8000000, "nn": 8120601, "t_lexiorder": 0.16698, "t_indicesfromorder": 0.208058, "t_compression": 0.2422, "nunique": 8000000}
+{"group": "cliques", "kind": "H8", "threads": 16, "nee": 200, "nel": 8000000, "nn": 8120601, "t_cliques": 0.634467, "nnz_cliques": 512000000}
+{"group": "search", "kind": "H8", "threads": 16, "nee": 200, "nel": 8000000, "nn": 8120601, "t_lookup_us": 0.578403, "found": 100000, "t_unordered_map_build": 2.98885, "t_map_build": 13.7382}
+{"group": "order", "kind": "H8", "threads": 16, "nee": 300, "nel": 27000000, "nn": 27270901, "t_lexiorder": 0.690814, "t_indicesfromorder": 0.872901, "t_compression": 0.755557, "nunique": 27000000}
+{"group": "cliques", "kind": "H8", "threads": 16, "nee": 300, "nel": 27000000, "nn": 27270901, "t_cliques": 2.29511, "nnz_cliques": 1728000000}
+{"group": "search", "kind": "H8", "threads": 16, "nee": 300, "nel": 27000000, "nn": 27270901, "t_lookup_us": 0.653923, "found": 100000, "t_unordered_map_build": 11.11, "t_map_build": 47.9016}
+{"group": "order", "kind": "H8", "threads": 16, "nee": 400, "nel": 64000000, "nn": 64481201, "t_lexiorder": 1.962, "t_indicesfromorder": 2.55946, "t_compression": 1.8866, "nunique": 64000000}
+{"group": "search", "kind": "H8", "threads": 16, "nee": 400, "nel": 64000000, "nn": 64481201, "t_lookup_us": 0.691489, "found": 100000, "t_unordered_map_build": 26.2216, "t_map_build": 147.868}
+{"group": "order", "kind": "H8", "threads": 16, "nee": 500, "nel": 125000000, "nn": 125751501, "t_lexiorder": 4.20279, "t_indicesfromorder": 5.71288, "t_compression": 3.51502, "nunique": 125000000}
+{"group": "search", "kind": "H8", "threads": 16, "nee": 500, "nel": 125000000, "nn": 125751501, "t_lookup_us": 0.75829, "found": 100000, "t_unordered_map_build": 55.6298, "t_map_build": 338.94}
+{"group": "ops", "kind": "H8", "threads": 16, "nee": 100, "nel": 1000000, "nn": 1030301, "t_minus": 0.0103268, "t_plus": 0.0101576, "t_times": 0.0316708, "t_and": 0.00955772, "nnz_times": 27270901}
+{"group": "assembly", "kind": "H8", "threads": 16, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.0171018, "t_product": 0.0324527, "t_assembling": 0.0495545, "nnz_product": 27270901}
+{"group": "ops", "kind": "H8", "threads": 16, "nee": 200, "nel": 8000000, "nn": 8120601, "t_minus": 0.0990185, "t_plus": 0.0955904, "t_times": 0.355542, "t_and": 0.0974605, "nnz_times": 217081801}
+{"group": "assembly", "kind": "H8", "threads": 16, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.177832, "t_product": 0.35537, "t_assembling": 0.533203, "nnz_product": 217081801}
+{"group": "ops", "kind": "H8", "threads": 16, "nee": 300, "nel": 27000000, "nn": 27270901, "t_minus": 0.351532, "t_plus": 0.338622, "t_times": 1.33724, "t_and": 0.347888, "nnz_times": 731432701}
+{"group": "assembly", "kind": "H8", "threads": 16, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 0.619453, "t_product": 1.36422, "t_assembling": 1.98368, "nnz_product": 731432701}
+{"group": "ops", "kind": "H8", "threads": 16, "nee": 400, "nel": 64000000, "nn": 64481201, "t_minus": 0.84629, "t_plus": 0.83059, "t_times": 3.5062, "t_and": 0.83567, "nnz_times": 1732323601}
+{"group": "assembly", "kind": "H8", "threads": 16, "nee": 400, "nel": 64000000, "nn": 64481201, "t_transpose": 1.74331, "t_product": 3.60721, "t_assembling": 5.35052, "nnz_product": 1732323601}
+{"group": "assembly", "kind": "Q4", "threads": 16, "nee": 1000, "nel": 1000000, "nn": 1002001, "t_transpose": 0.0140416, "t_product": 0.0102567, "t_assembling": 0.0242983, "nnz_product": 9006001}
+{"group": "cliques", "kind": "Q4", "threads": 16, "nee": 1000, "nel": 1000000, "nn": 1002001, "t_cliques": 0.0215565, "nnz_cliques": 16000000}
+{"group": "assembly", "kind": "Q4", "threads": 16, "nee": 2000, "nel": 4000000, "nn": 4004001, "t_transpose": 0.0712771, "t_product": 0.0551013, "t_assembling": 0.126378, "nnz_product": 36012001}
+{"group": "cliques", "kind": "Q4", "threads": 16, "nee": 2000, "nel": 4000000, "nn": 4004001, "t_cliques": 0.11002, "nnz_cliques": 64000000}
+{"group": "assembly", "kind": "Q4", "threads": 16, "nee": 4000, "nel": 16000000, "nn": 16008001, "t_transpose": 0.21723, "t_product": 0.33599, "t_assembling": 0.55322, "nnz_product": 144024001}
+{"group": "cliques", "kind": "Q4", "threads": 16, "nee": 4000, "nel": 16000000, "nn": 16008001, "t_cliques": 0.590629, "nnz_cliques": 256000000}
+{"group": "assembly", "kind": "Q4", "threads": 16, "nee": 8000, "nel": 64000000, "nn": 64016001, "t_transpose": 0.911831, "t_product": 1.9506, "t_assembling": 2.86243, "nnz_product": 576048001}
+{"group": "cliques", "kind": "Q4", "threads": 16, "nee": 8000, "nel": 64000000, "nn": 64016001, "t_cliques": 2.73483, "nnz_cliques": 1024000000}
+{"group": "assembly", "kind": "Q4", "threads": 16, "nee": 12000, "nel": 144000000, "nn": 144024001, "t_transpose": 2.18162, "t_product": 5.29054, "t_assembling": 7.47216, "nnz_product": 1296072001}
+{"group": "assembly", "kind": "H8", "threads": 1, "nee": 400, "nel": 64000000, "nn": 64481201, "t_transpose": 4.47652, "t_product": 30.5683, "t_assembling": 35.0448, "nnz_product": 1732323601}
+{"group": "assembly", "kind": "Q4", "threads": 1, "nee": 12000, "nel": 144000000, "nn": 144024001, "t_transpose": 4.79157, "t_product": 16.429, "t_assembling": 21.2206, "nnz_product": 1296072001}
+{"group": "assembly", "kind": "H8", "threads": 2, "nee": 400, "nel": 64000000, "nn": 64481201, "t_transpose": 4.63999, "t_product": 14.5207, "t_assembling": 19.1607, "nnz_product": 1732323601}
+{"group": "assembly", "kind": "Q4", "threads": 2, "nee": 12000, "nel": 144000000, "nn": 144024001, "t_transpose": 5.74386, "t_product": 7.92572, "t_assembling": 13.6696, "nnz_product": 1296072001}
+{"group": "assembly", "kind": "H8", "threads": 4, "nee": 400, "nel": 64000000, "nn": 64481201, "t_transpose": 2.66925, "t_product": 8.19564, "t_assembling": 10.8649, "nnz_product": 1732323601}
+{"group": "assembly", "kind": "Q4", "threads": 4, "nee": 12000, "nel": 144000000, "nn": 144024001, "t_transpose": 3.50435, "t_product": 5.9957, "t_assembling": 9.50005, "nnz_product": 1296072001}
+{"group": "assembly", "kind": "H8", "threads": 8, "nee": 400, "nel": 64000000, "nn": 64481201, "t_transpose": 1.71011, "t_product": 4.61943, "t_assembling": 6.32955, "nnz_product": 1732323601}
+{"group": "assembly", "kind": "Q4", "threads": 8, "nee": 12000, "nel": 144000000, "nn": 144024001, "t_transpose": 2.2206, "t_product": 6.4472, "t_assembling": 8.6678, "nnz_product": 1296072001}
+{"group": "assembly", "kind": "H8", "threads": 16, "nee": 400, "nel": 64000000, "nn": 64481201, "t_transpose": 1.81619, "t_product": 3.67186, "t_assembling": 5.48805, "nnz_product": 1732323601}
+{"group": "assembly", "kind": "Q4", "threads": 16, "nee": 12000, "nel": 144000000, "nn": 144024001, "t_transpose": 2.12304, "t_product": 5.06954, "t_assembling": 7.19258, "nnz_product": 1296072001}
+{"group": "assembly", "kind": "H8", "threads": 24, "nee": 400, "nel": 64000000, "nn": 64481201, "t_transpose": 1.39679, "t_product": 3.15542, "t_assembling": 4.55221, "nnz_product": 1732323601}
+{"group": "assembly", "kind": "Q4", "threads": 24, "nee": 12000, "nel": 144000000, "nn": 144024001, "t_transpose": 1.78036, "t_product": 3.63446, "t_assembling": 5.41482, "nnz_product": 1296072001}
+{"group": "assembly", "kind": "H8", "threads": 32, "nee": 400, "nel": 64000000, "nn": 64481201, "t_transpose": 1.33497, "t_product": 2.53886, "t_assembling": 3.87384, "nnz_product": 1732323601}
+{"group": "assembly", "kind": "Q4", "threads": 32, "nee": 12000, "nel": 144000000, "nn": 144024001, "t_transpose": 1.67064, "t_product": 3.25554, "t_assembling": 4.92617, "nnz_product": 1296072001}
+DONE

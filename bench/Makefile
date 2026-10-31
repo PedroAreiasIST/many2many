@@ -1,7 +1,7 @@
 # Benchmark and test builds of the library (same flags as CMakeLists.txt Release, plus the test drivers).
 CXX ?= g++
 R := ..
-CEREAL_INC ?= /tmp/claude-1000/-home-pedro-Desktop-NovosPapers-remesh-tosendijnme/1f833e97-2ab4-4f0c-81f4-5620added823/scratchpad/ext/many2many/bld/_deps/cereal-src/include
+CEREAL_INC ?= $(R)/build/_deps/cereal-src/include
 CXXFLAGS ?= -O3 -std=c++20 -march=native -fopenmp -DNDEBUG
 INC := -I$(R) -I$(R)/pfr_non_boost-master/include -I$(CEREAL_INC) -I/usr/local/include
 LIBS := -ltbb

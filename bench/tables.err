@@ -1,0 +1,6 @@
+terminate called after throwing an instance of 'std::length_error'
+  what():  o2m: more than 2^31-1 entries
+terminate called after throwing an instance of 'std::length_error'
+  what():  o2m: more than 2^31-1 entries
+terminate called after throwing an instance of 'std::length_error'
+  what():  o2m: more than 2^31-1 entries

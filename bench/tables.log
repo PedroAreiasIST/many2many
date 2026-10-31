@@ -1,0 +1,3 @@
+./run_tables.sh: line 12: 1534222 Aborted                 (core dumped) OMP_NUM_THREADS=16 $PIN $B cliques H8 $nee $REPS >> $OUT 2>> tables.err
+./run_tables.sh: line 12: 1534725 Aborted                 (core dumped) OMP_NUM_THREADS=16 $PIN $B cliques H8 $nee $REPS >> $OUT 2>> tables.err
+./run_tables.sh: line 22: 1540670 Aborted                 (core dumped) OMP_NUM_THREADS=16 $PIN $B cliques Q4 $nee $REPS >> $OUT 2>> tables.err

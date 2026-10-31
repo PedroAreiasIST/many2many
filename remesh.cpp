@@ -76,8 +76,11 @@ static int splitNode(int i1, int i2, std::array<int,6> const &midnodes)
 // Edge relations — builds edge_nodes as m2m, then synchronizes
 // =====================================================================
 
+static double tnow() { return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count(); }
+
 void buildEdgeRelations(OriginalMesh &mesh)
 {
+    const double tstart = tnow();
     auto nedgesForNnodes = [](int nn) -> int {
         switch(nn) { case 1: return 0; case 2: return 1; case 3: return 3; case 4: return 6; default: return 0; }
     };
@@ -120,21 +123,25 @@ void buildEdgeRelations(OriginalMesh &mesh)
     // 2. Lexicographic order of the canonical rows and the index maps of the unique
     //    rows (Section 2.5): edgeofcand[c] is the edge of candidate c, candofedge[e] the
     //    first candidate of edge e. Edges are numbered in order of first appearance.
+    const double te0 = tnow();
     seque<int> order = getorder(cand);
+    const double te1 = tnow();
     seque<int> edgeofcand, candofedge;
     indicesfromorder(cand, order, edgeofcand, candofedge);
+    const double te2 = tnow();
     {
-        // renumber the unique rows by their first candidate (traversal order)
+        // renumber the unique rows in order of first appearance (traversal order): one pass
         const int nu = getsize(candofedge);
-        seque<int> byfirst(nu);
-        std::iota(byfirst.begin(), byfirst.end(), 0);
-        std::sort(byfirst.begin(), byfirst.end(), [&](int a, int b) { return candofedge[a] < candofedge[b]; });
-        seque<int> rank(nu), firstcand(nu);
-        for (int r = 0; r < nu; ++r) { rank[byfirst[r]] = r; firstcand[r] = candofedge[byfirst[r]]; }
-        for (int c = 0; c < getsize(edgeofcand); ++c)
-            mesh.elem_edges.data[c] = rank[edgeofcand[c]];
+        seque<int> rank(nu, -1), firstcand(nu);
+        int next = 0;
+        for (int c = 0; c < getsize(edgeofcand); ++c) {
+            const int u = edgeofcand[c];
+            if (rank[u] < 0) { rank[u] = next; firstcand[next] = c; ++next; }
+            mesh.elem_edges.data[c] = rank[u];
+        }
         candofedge = firstcand;
     }
+    const double te3 = tnow();
     mesh.nar = getsize(candofedge);
     mesh.elem_edges.maxnode = (mesh.nar > 0) ? mesh.nar - 1 : 0;
 
@@ -144,6 +151,10 @@ void buildEdgeRelations(OriginalMesh &mesh)
     mesh.edge_nodes.nfrome.maxnode = mesh.nno - 1;
     mesh.edge_nodes.isupdated = false;
     synchronize(mesh.edge_nodes);
+    const double te4 = tnow();
+    std::cout << "TIMER edges.candidates " << te0 - tstart << "\nTIMER edges.order " << te1 - te0
+              << "\nTIMER edges.indices " << te2 - te1 << "\nTIMER edges.renumber " << te3 - te2
+              << "\nTIMER edges.rows+transpose " << te4 - te3 << std::endl;
 }
 
 // =====================================================================
@@ -642,7 +653,6 @@ void splitTets(seque<int> const &mark, OriginalMesh const &mesh, RenewedMesh &nm
 
 void splitmesh(OriginalMesh &mesh, RenewedMesh &newmesh)
 {
-    auto tnow = [] { return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count(); };
     const double t0 = tnow();
     buildEdgeRelations(mesh);
     const double t1 = tnow();
