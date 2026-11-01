@@ -51,8 +51,8 @@ seque<int> getelementswithnodes(m2m &rel, crowview nodes);
 /** Elements whose node set is exactly the given list. */
 seque<int> getelementsfromnodes(m2m &rel, crowview nodes);
 
-seque<int> getelementneighbours(m2m &rel, int element);
-seque<int> getnodeneighbours(m2m &rel, int node);
+seque<int> getelementneighbors(m2m &rel, int element);
+seque<int> getnodeneighbors(m2m &rel, int node);
 
 /** Lexicographic ordering permutation of the elements. */
 seque<int> getorder(m2m const &rel);

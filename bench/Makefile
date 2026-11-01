@@ -33,7 +33,7 @@ bench_tables: bench_tables.cpp $(CORE) $(R)/o2m.hpp $(R)/m2m.hpp $(R)/seque.hpp
 bench_graph: bench_graph.cpp $(CORE) $(R)/graph.hpp $(R)/o2m.hpp $(R)/m2m.hpp
 	$(CXX) $(CXXFLAGS) $(INC) bench_graph.cpp $(CORE) $(LIBS) -o $@
 
-test_synth: test_synth.cpp $(ALL) $(R)/catalogue.hpp $(R)/zoo.hpp $(R)/graph.hpp
+test_synth: test_synth.cpp $(ALL) $(R)/catalog.hpp $(R)/zoo.hpp $(R)/graph.hpp
 	$(CXX) $(CXXFLAGS) $(INC) test_synth.cpp $(ALL) $(LIBS) -o $@
 
 test_order: test_order.cpp $(CORE) $(R)/o2m.hpp $(R)/seque.hpp

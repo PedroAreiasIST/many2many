@@ -1,14 +1,14 @@
 #ifndef M2M_CATALOGUE_HPP
 #define M2M_CATALOGUE_HPP
-// Catalogue of the standard elements: symmetry groups (the rotations that keep the element's
+// Catalog of the standard elements: symmetry groups (the rotations that keep the element's
 // orientation) and builders of their faces and edges, as local node positions. Declared on a
-// zoo with declare<E, N, F, G>(garden, catalogue::tet4()) and the like.
+// zoo with declare<E, N, F, G>(garden, catalog::tet4()) and the like.
 #include "seque.hpp"
 #include <type_traits>
 
-namespace catalogue
+namespace catalog
 {
-    /** One element type of the catalogue. */
+    /** One element type of the catalog. */
     struct element
     {
         seque<seque<int> > group;   ///< symmetry group (permutations of the local positions)
@@ -91,14 +91,14 @@ namespace catalogue
                 {{0, 1, 5, 4}, {1, 2, 6, 5}, {2, 3, 7, 6}, {3, 0, 4, 7}, {4, 5, 6, 7}, {1, 0, 3, 2}},
                 {{0, 1}, {1, 2}, {2, 3}, {3, 0}, {4, 5}, {5, 6}, {6, 7}, {7, 4}, {0, 4}, {1, 5}, {2, 6}, {3, 7}}};
     }
-} // namespace catalogue
+} // namespace catalog
 
 /** Declares on \p garden the symmetry group of E over N and, for the child types given (void to
  *  skip), the builders of its triangular faces (T), quadrilateral faces (Q) and edges (G). The
- *  groups of the catalogue preserve orientation (rotations); a face type that is shared between
+ *  groups of the catalog preserve orientation (rotations); a face type that is shared between
  *  volumes must be declared with the dihedral group, definesymmetrygroup<F, N>(dihedral(k)). */
 template<typename E, typename N, typename T = void, typename Q = void, typename G = void, typename Z>
-void declare(Z &garden, catalogue::element const &def)
+void declare(Z &garden, catalog::element const &def)
 {
     garden.template definesymmetrygroup<E, N>(def.group);
     if constexpr (!std::is_void_v<T>)

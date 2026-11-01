@@ -17,11 +17,11 @@ and Dependencies in Computational Mechanics" (Areias, Rabczuk, Vaz; IJNME, revis
 |---|---|
 | `seque.hpp` | small-buffer-optimized sequence for short lists (node lists, query results) |
 | `o2m.hpp/.cpp` | one-to-many relation in compressed row storage with zero-copy row views; transpose, composition, set algebra, ordering, index maps, compression, local positions, cliques |
-| `m2m.hpp/.cpp` | a relation and its transpose kept synchronized; lookup by node list; neighbours |
+| `m2m.hpp/.cpp` | a relation and its transpose kept synchronized; lookup by node list; neighbors |
 | `mm2m.hpp/.cpp` | the matrix of relations over types; cascade deletion |
 | `zoo.hpp`, `thing.hpp/.cpp`, `symmetries.hpp` | typed layer: symmetry groups, builders, synthesis with parent tracking (per element or in bulk: `synthesize<E,C,N>()`), deduplication, boundary (`getboundary<C,E>()`), reference-counted removal |
-| `graph.hpp/.cpp` | derived queries: dual graphs by shared count (single-pass counting composition), node graph, components (by subgraph sampling in the manner of Afforest), breadth-first levels (parallel, level-synchronous), k-hop neighbourhoods, reverse Cuthill-McKee (parallel pseudo-peripheral search, prefetching numbering), bandwidth, greedy colouring, synchronized append |
-| `catalogue.hpp` | the standard elements (bar2, tri3, quad4, tet4, wedge6, hex8): rotation groups, faces and edges as builders; cyclic and dihedral groups |
+| `graph.hpp/.cpp` | derived queries: dual graphs by shared count (single-pass counting composition), node graph, components (by subgraph sampling in the manner of Afforest), breadth-first levels (parallel, level-synchronous), k-hop neighborhoods, reverse Cuthill-McKee (parallel pseudo-peripheral search, prefetching numbering), bandwidth, greedy coloring, synchronized append |
+| `catalog.hpp` | the standard elements (bar2, tri3, quad4, tet4, wedge6, hex8): rotation groups, faces and edges as builders; cyclic and dihedral groups |
 | `typseque.hpp`, `superstruct.hpp` | compile-time type lists and the heterogeneous data container |
 | `remesh*.cpp/.hpp`, `meshquality.*` | the simplex mesh splitter ported from Fortran (SimPlas) |
 

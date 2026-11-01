@@ -5,7 +5,7 @@
 //
 // Uses m2m relational algebra:
 //   - getelementswithnodes() for face-neighbor detection (boundary nodes)
-//   - getnodeneighbours()   for Laplacian smoothing stencil
+//   - getnodeneighbors()   for Laplacian smoothing stencil
 //   - efromn (node→element) for adjacent-tet quality checks
 //
 // Pedro Areias / IST

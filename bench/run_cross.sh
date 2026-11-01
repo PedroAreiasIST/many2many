@@ -22,7 +22,7 @@ SGDIR=${SGDIR:-.}
 LIB_ICPX=${LIB_ICPX:-$( [ -x ./bench_lib_icpx ] && echo ./bench_lib_icpx )}
 GRAPH_BIN=${GRAPH_BIN:-$( [ -x ./bench_graph_icpx ] && echo ./bench_graph_icpx || echo ./bench_graph )}
 DUMP=${DUMP:-$( [ -x ./dump_sg_icpx ] && echo ./dump_sg_icpx || echo ./dump_sg )}
-F90BINS=${F90BINS:-"$( [ -x ./bench_f90_ifx ] && echo ./bench_f90_ifx ) $( [ -x ./bench_f90 ] && echo ./bench_f90 )"}   # ifx and gfortran builds, labelled fortran-ifx / fortran-gfortran
+F90BINS=${F90BINS:-"$( [ -x ./bench_f90_ifx ] && echo ./bench_f90_ifx ) $( [ -x ./bench_f90 ] && echo ./bench_f90 )"}   # ifx and gfortran builds, labeled fortran-ifx / fortran-gfortran
 export OMP_PROC_BIND=close OMP_PLACES=cores
 ERR=cross_$LABEL.err; : > $ERR
 {

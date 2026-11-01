@@ -315,12 +315,12 @@ seque<int> getelementssharing(m2m &rel, int element, int minshared, seque<int> *
     return res;
 }
 
-seque<int> getkhopneighbourhood(m2m &rel, int element, int k, int minshared)
+seque<int> getkhopneighborhood(m2m &rel, int element, int k, int minshared)
 {
     synchronize(rel);
     seque<int> visited{element}, frontier{element};
     std::vector<unsigned char> seen;
-    // a small open hash would do; the neighbourhoods are tiny, so sorted sequences suffice
+    // a small open hash would do; the neighborhoods are tiny, so sorted sequences suffice
     for (int hop = 0; hop < k && frontier.size > 0; ++hop)
     {
         seque<int> next;
@@ -342,12 +342,12 @@ namespace
 {
     // ------------------------------------------------------------------ components by subgraph sampling
     /** Connected components in the manner of Afforest (Sutton, Ben-Nun and Barak, IPDPS 2018): every
-     *  vertex first hooks to its first two neighbours only, which on a mesh already joins almost
+     *  vertex first hooks to its first two neighbors only, which on a mesh already joins almost
      *  everything into one component; that component is identified from a sample, and only the
-     *  vertices outside it visit their remaining neighbours. Hooking is by compare-and-swap of the
+     *  vertices outside it visit their remaining neighbors. Hooking is by compare-and-swap of the
      *  larger root under the smaller, so the root of every component ends as its smallest vertex
-     *  whichever thread wins, and the labels are deterministic. The neighbour access is a pair of
-     *  callables (degree, k-th neighbour) so that the bipartite element-node graph needs no copy. */
+     *  whichever thread wins, and the labels are deterministic. The neighbor access is a pair of
+     *  callables (degree, k-th neighbor) so that the bipartite element-node graph needs no copy. */
     inline void hook(int u, int v, std::atomic<int> *M2M_RESTRICT comp) noexcept
     {
         int p1 = comp[u].load(std::memory_order_relaxed), p2 = comp[v].load(std::memory_order_relaxed);
@@ -409,8 +409,8 @@ namespace
         return best;
     }
 
-    template<class Degree, class Neighbour>
-    std::unique_ptr<std::atomic<int>[]> afforest(int n, Degree degree, Neighbour neighbour)
+    template<class Degree, class Neighbor>
+    std::unique_ptr<std::atomic<int>[]> afforest(int n, Degree degree, Neighbor neighbor)
     {
         std::unique_ptr<std::atomic<int>[]> comp(new std::atomic<int>[static_cast<std::size_t>(std::max(n, 1))]);
 #pragma omp parallel for schedule(static)
@@ -424,7 +424,7 @@ namespace
 #pragma omp parallel for schedule(dynamic, 16384)
             for (int v = 0; v < n; ++v)
                 if (r < degree(v))
-                    hook(v, neighbour(v, r), comp.get());
+                    hook(v, neighbor(v, r), comp.get());
             shortcut(n, comp.get());
         }
         const int c = frequentroot(n, comp.get());
@@ -435,7 +435,7 @@ namespace
                 continue;
             const int d = degree(v);
             for (int k = rounds; k < d; ++k)
-                hook(v, neighbour(v, k), comp.get());
+                hook(v, neighbor(v, k), comp.get());
         }
         shortcut(n, comp.get());
         return comp;
@@ -516,8 +516,8 @@ int getcomponents(m2m &rel, seque<int> &elementlabel, seque<int> &nodelabel)
     auto degree = [=](int v) {
         return v < nel ? (az ? az[v] : as[v + 1] - as[v]) : (tz ? tz[v - nel] : ts[v - nel + 1] - ts[v - nel]);
     };
-    auto neighbour = [=](int v, int k) { return v < nel ? nel + ad[as[v] + k] : td[ts[v - nel] + k]; };
-    auto comp = afforest(nel + nn, degree, neighbour);
+    auto neighbor = [=](int v, int k) { return v < nel ? nel + ad[as[v] + k] : td[ts[v - nel] + k]; };
+    auto comp = afforest(nel + nn, degree, neighbor);
     seque<int> all;
     const int ncomp = compactlabels(nel + nn, comp.get(), all);
     setsize(elementlabel, nel);
@@ -678,7 +678,7 @@ seque<int> getrcmorder(o2m const &graph)
         if (visited[static_cast<std::size_t>(s0)])
             continue;
         const int s = pseudoperipheral(graph, s0, level.data(), last);
-        // Cuthill-McKee from s: the unvisited neighbours of every dequeued vertex are appended
+        // Cuthill-McKee from s: the unvisited neighbors of every dequeued vertex are appended
         // in increasing degree (ties by index). The queue is known ahead of the head, so the
         // rows of the vertices that follow are prefetched while the current one is sorted.
         const int first = pos;
@@ -748,27 +748,27 @@ int getbandwidth(o2m const &graph, seque<int> const &oldfromnew)
     return bw;
 }
 
-int getcolouring(o2m const &graph, seque<int> &colour)
+int getcoloring(o2m const &graph, seque<int> &color)
 {
     const int n = graph.nelem;
-    setsize(colour, n);
+    setsize(color, n);
     for (int i = 0; i < n; ++i)
-        colour[i] = -1;
+        color[i] = -1;
     std::vector<int> used;
-    int ncolours = 0;
+    int ncolors = 0;
     for (int u = 0; u < n; ++u)
     {
-        used.assign(static_cast<std::size_t>(ncolours) + 1, 0);
+        used.assign(static_cast<std::size_t>(ncolors) + 1, 0);
         for (int v: graph[u])
-            if (colour[v] >= 0)
-                used[static_cast<std::size_t>(colour[v])] = 1;
+            if (color[v] >= 0)
+                used[static_cast<std::size_t>(color[v])] = 1;
         int c = 0;
         while (used[static_cast<std::size_t>(c)])
             ++c;
-        colour[u] = c;
-        ncolours = std::max(ncolours, c + 1);
+        color[u] = c;
+        ncolors = std::max(ncolors, c + 1);
     }
-    return ncolours;
+    return ncolors;
 }
 
 int appendelementsynchronized(m2m &rel, crowview nodes)

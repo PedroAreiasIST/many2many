@@ -1,6 +1,6 @@
-// Bulk synthesis with the element catalogue: the running example (counts and parents must equal
+// Bulk synthesis with the element catalog: the running example (counts and parents must equal
 // the incremental path), an H8 grid (face and edge counts, boundary) and the throughput at scale.
-#include "catalogue.hpp"
+#include "catalog.hpp"
 #include "graph.hpp"
 #include "zoo.hpp"
 #include <chrono>
@@ -18,16 +18,16 @@ int main(int argc, char **argv)
     using Z = zoo<MeshTypes>;
     using TM = Z::TypeManager;
     const int ntype = getnumber<node, TM>(), etype = getnumber<edge, TM>(), ttype = getnumber<tri, TM>(), qtype = getnumber<quad, TM>();
-    // --- running example through the catalogue and bulk synthesis
+    // --- running example through the catalog and bulk synthesis
     {
         Z g;
         g.definesymmetrygroup<isanelement, isanelement>({{}});
         g.definesymmetrygroup<node, node>({{}});
-        declare<edge, node>(g, catalogue::bar2());
-        declare<tri, node, void, void, edge>(g, catalogue::tri3());
-        declare<quad, node, void, void, edge>(g, catalogue::quad4());
-        declare<tet, node, tri, void, edge>(g, catalogue::tet4());
-        declare<wedge, node, tri, quad, edge>(g, catalogue::wedge6());
+        declare<edge, node>(g, catalog::bar2());
+        declare<tri, node, void, void, edge>(g, catalog::tri3());
+        declare<quad, node, void, void, edge>(g, catalog::quad4());
+        declare<tet, node, tri, void, edge>(g, catalog::tet4());
+        declare<wedge, node, tri, quad, edge>(g, catalog::wedge6());
         g.definesymmetrygroup<edge, isanelement>({{0}});
         g.definesymmetrygroup<tri, isanelement>({{0}});
         g.definesymmetrygroup<quad, isanelement>({{0}});
@@ -63,9 +63,9 @@ int main(int argc, char **argv)
         Z g;
         g.definesymmetrygroup<node, node>({{}});
         g.definesymmetrygroup<isanelement, isanelement>({{}});
-        g.definesymmetrygroup<quad, node>(catalogue::dihedral(4)); // faces are seen from both sides
-        declare<edge, node>(g, catalogue::bar2());
-        declare<hex, node, void, quad, edge>(g, catalogue::hex8());
+        g.definesymmetrygroup<quad, node>(catalog::dihedral(4)); // faces are seen from both sides
+        declare<edge, node>(g, catalog::bar2());
+        declare<hex, node, void, quad, edge>(g, catalog::hex8());
         const int s1 = nee + 1, s2 = s1 * s1;
         const double t0 = now();
         m2m &st = g.lifemanager(getnumber<hex, TM>(), ntype);
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
     }
     // the lex-min over the group (fast path) agrees with the backtracking search for large groups
     {
-        seque<seque<int> > big = catalogue::hex8().group;
+        seque<seque<int> > big = catalog::hex8().group;
         seque<seque<int> > bigger = big;
         for (int i = 0; i < 9; ++i) append(bigger, big[i]); // 33 entries: forces the backtracking path (duplicates are harmless)
         // node lists have distinct entries (the uniqueness rule); with repeated labels the two

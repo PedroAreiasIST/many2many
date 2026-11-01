@@ -1,6 +1,6 @@
 // Writes the node graph of the H8 mesh of nee^3 elements (the one bench_graph.cpp traverses) in the
 // serialized format of the GAP benchmark suite (.sg: directed flag, edge count, node count, 64-bit
-// offsets, 32-bit neighbours), so that GAP's bfs and cc run on exactly the same graph.
+// offsets, 32-bit neighbors), so that GAP's bfs and cc run on exactly the same graph.
 // Usage: dump_sg <nee> <file.sg>
 #include "graph.hpp"
 #include "m2m.hpp"

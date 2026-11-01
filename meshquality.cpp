@@ -3,7 +3,7 @@
 //
 // Uses m2m relational algebra:
 //   - getelementswithnodes() for face-neighbor queries (boundary detection)
-//   - getnodeneighbours()   for Laplacian smoothing stencil
+//   - getnodeneighbors()   for Laplacian smoothing stencil
 //   - efromn (node→element) for iterating adjacent tets
 //
 // Pedro Areias / IST
@@ -165,9 +165,9 @@ static std::vector<bool> detectBoundaryNodes(RenewedMesh &nm, int nno)
 }
 
 // ------------------------------------------------------------------
-// Laplacian smoothing using getnodeneighbours() and efromn
+// Laplacian smoothing using getnodeneighbors() and efromn
 //
-// getnodeneighbours(m2m, node) returns all nodes connected to `node`
+// getnodeneighbors(m2m, node) returns all nodes connected to `node`
 // through shared elements — exactly the Laplacian stencil.
 //
 // efromn[node] gives all elements touching `node` — used to check
@@ -190,7 +190,7 @@ static int smoothInteriorNodes(RenewedMesh &nm,
             if (isBoundary[ino]) continue;
 
             // Get Laplacian stencil via m2m relational query
-            seque<int> neighbors = getnodeneighbours(nm.elem_nodes, ino);
+            seque<int> neighbors = getnodeneighbors(nm.elem_nodes, ino);
             if (getsize(neighbors) == 0) continue;
 
             Vec3 xold = coords[ino];
@@ -262,7 +262,7 @@ void improveMeshQuality(RenewedMesh &nm, std::vector<Vec3> &coords, int maxSmoot
     for (auto b : isBoundary) if (b) nBnd++;
     std::cout << "  Boundary nodes: " << nBnd << " / " << coords.size() << std::endl;
 
-    std::cout << "Step 3: Laplacian smoothing (via getnodeneighbours, max "
+    std::cout << "Step 3: Laplacian smoothing (via getnodeneighbors, max "
               << maxSmoothIter << " iterations)..." << std::endl;
     int nmoved = smoothInteriorNodes(nm, coords, isBoundary, maxSmoothIter);
     std::cout << "  Total node moves accepted: " << nmoved << std::endl;

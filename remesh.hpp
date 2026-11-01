@@ -5,7 +5,7 @@
 //
 // All connectivity uses m2m (bidirectional) or o2m relations.
 // After synchronize(), the reverse mappings and adjacency queries
-// (getelementswithnodes, getnodeneighbours, getelementneighbours)
+// (getelementswithnodes, getnodeneighbors, getelementneighbors)
 // become available — replacing hand-coded CSR traversals.
 //
 // Pedro Areias / IST — GPLv3
@@ -53,8 +53,8 @@ struct RenewedMesh
 
     /// Element↔node.  After synchronize():
     ///   - getelementswithnodes(elem_nodes, {a,b,c}) finds face neighbors
-    ///   - getnodeneighbours(elem_nodes, node)       gives Laplacian stencil
-    ///   - getelementneighbours(elem_nodes, iel)     gives element adjacency
+    ///   - getnodeneighbors(elem_nodes, node)       gives Laplacian stencil
+    ///   - getelementneighbors(elem_nodes, iel)     gives element adjacency
     /// Last entry per element = parent element (0-based).
     m2m elem_nodes;
 

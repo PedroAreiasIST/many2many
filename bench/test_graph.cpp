@@ -61,19 +61,19 @@ int main()
         int nf = 0;
         for (auto &kv: brute)
             nf += kv.second >= 4;
-        CHECK(faces.nnodes(e) == nf, "face-neighbour count");
+        CHECK(faces.nnodes(e) == nf, "face-neighbor count");
         nface += nf;
         seque<int> sc, sh = getelementssharing(mm, e, 4, &sc);
         CHECK(sh.size == nf, "getelementssharing count");
     }
     CHECK(nface == 2 * 3 * 6 * 6 * 5, "total face adjacencies of a 6x6x6 grid");
 
-    // k-hop: hop 1 through faces = 1 + face neighbours; interior element has 6
+    // k-hop: hop 1 through faces = 1 + face neighbors; interior element has 6
     {
-        seque<int> h1 = getkhopneighbourhood(mm, 6 * 6 * 2 + 6 * 2 + 2, 1, 4);
-        CHECK(h1.size == 7, "1-hop face neighbourhood of an interior element");
-        seque<int> h2 = getkhopneighbourhood(mm, 6 * 6 * 2 + 6 * 2 + 2, 2, 4);
-        CHECK(h2.size == 25, "2-hop face neighbourhood (octahedral ball of radius 2)");
+        seque<int> h1 = getkhopneighborhood(mm, 6 * 6 * 2 + 6 * 2 + 2, 1, 4);
+        CHECK(h1.size == 7, "1-hop face neighborhood of an interior element");
+        seque<int> h2 = getkhopneighborhood(mm, 6 * 6 * 2 + 6 * 2 + 2, 2, 4);
+        CHECK(h2.size == 25, "2-hop face neighborhood (octahedral ball of radius 2)");
     }
 
     // components: one, then two after dropping a slab of elements
@@ -98,7 +98,7 @@ int main()
         CHECK(*std::max_element(el.begin(), el.end()) == 1, "labels compact");
     }
 
-    // components of random sparse graphs with many islands against a breadth-first labelling
+    // components of random sparse graphs with many islands against a breadth-first labeling
     for (int trial = 0; trial < 6; ++trial)
     {
         std::mt19937 rng(100 + trial);
@@ -124,7 +124,7 @@ int main()
             setrow(g, v, crowview(row.data(), static_cast<int>(row.size())));
         }
         g.maxnode = n - 1;
-        // reference: breadth-first labelling in order of the smallest member
+        // reference: breadth-first labeling in order of the smallest member
         std::vector<int> ref(static_cast<std::size_t>(n), -1);
         int nref = 0;
         std::vector<int> stack;
@@ -152,7 +152,7 @@ int main()
         bool same = nc == nref;
         for (int v = 0; v < n && same; ++v)
             same = lab[v] == ref[static_cast<std::size_t>(v)];
-        CHECK(same, "components of a random graph match the breadth-first labelling");
+        CHECK(same, "components of a random graph match the breadth-first labeling");
         // the bipartite version on a relation whose rows are the edges (two nodes each): islands of nodes
         o2m edges;
         setsize(edges, 0);
@@ -183,7 +183,7 @@ int main()
             sameb = nl[v] == id;
         }
         const int isolated = static_cast<int>(std::count_if(adj.begin(), adj.end(), [](auto const &r) { return r.empty(); }));
-        CHECK(sameb && ncb == nrefedges + isolated, "bipartite components of a random edge relation match the breadth-first labelling");
+        CHECK(sameb && ncb == nrefedges + isolated, "bipartite components of a random edge relation match the breadth-first labeling");
     }
 
     // node graph, RCM and bandwidth on a randomly renumbered mesh
@@ -217,18 +217,18 @@ int main()
         CHECK(lev[nn - 1] == 6, "bfs level of the far corner node (27-point stencil: Chebyshev distance)");
     }
 
-    // colouring: no two adjacent elements share a colour
+    // coloring: no two adjacent elements share a color
     {
         seque<int> col;
-        const int nc = getcolouring(dual, col);
+        const int nc = getcoloring(dual, col);
         bool ok = true;
         for (int e = 0; e < nel && ok; ++e)
             for (int f: dual[e])
                 if (col[e] == col[f])
                     ok = false;
-        CHECK(ok, "proper colouring");
-        std::printf("colours used: %d\n", nc);
-        CHECK(nc <= 27, "at most 27 colours for an H8 grid");
+        CHECK(ok, "proper coloring");
+        std::printf("colors used: %d\n", nc);
+        CHECK(nc <= 27, "at most 27 colors for an H8 grid");
     }
 
     // synchronized append equals a rebuild

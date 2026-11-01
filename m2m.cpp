@@ -98,30 +98,30 @@ seque<int> getelementsfromnodes(m2m &rel, crowview nodes)
     return ret;
 }
 
-seque<int> getelementneighbours(m2m &rel, int element)
+seque<int> getelementneighbors(m2m &rel, int element)
 {
     if (!rel.isupdated)
         synchronize(rel);
-    seque<int> neighbours;
+    seque<int> neighbors;
     for (int node: rel.nfrome[element])
         for (int other: rel.efromn[node])
             if (other != element)
-                append(neighbours, other);
-    setorderedandunique(neighbours);
-    return neighbours;
+                append(neighbors, other);
+    setorderedandunique(neighbors);
+    return neighbors;
 }
 
-seque<int> getnodeneighbours(m2m &rel, int node)
+seque<int> getnodeneighbors(m2m &rel, int node)
 {
     if (!rel.isupdated)
         synchronize(rel);
-    seque<int> neighbours;
+    seque<int> neighbors;
     for (int elem: rel.efromn[node])
         for (int other: rel.nfrome[elem])
             if (other != node)
-                append(neighbours, other);
-    setorderedandunique(neighbours);
-    return neighbours;
+                append(neighbors, other);
+    setorderedandunique(neighbors);
+    return neighbors;
 }
 
 void compresselements(m2m &rel, seque<int> const &oldelementfromnew)

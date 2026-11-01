@@ -1,8 +1,8 @@
 // Library side of the derived-query comparison (SciPy side: bench_graph.py) on the H8 mesh of
 // nee^3 elements: node-to-node graph, reverse Cuthill-McKee on a deterministically shuffled
 // numbering, connected components (bipartite and on the node graph), breadth-first levels,
-// plus the operations SciPy does not offer (face-neighbour dual graph, greedy colouring,
-// k-hop neighbourhoods). Usage: bench_graph <nee> [reps]
+// plus the operations SciPy does not offer (face-neighbor dual graph, greedy coloring,
+// k-hop neighborhoods). Usage: bench_graph <nee> [reps]
 #include "graph.hpp"
 #include "m2m.hpp"
 #include "o2m.hpp"
@@ -107,20 +107,20 @@ int main(int argc, char **argv)
     seque<int> lev;
     const double tbfs = timed(reps, [&] { lev = getbfslevels(ng, 0); });
     std::cout << ", \"t_bfs\": " << tbfs << ", \"eccentricity\": " << *std::max_element(lev.begin(), lev.end());
-    // face-neighbour dual graph, colouring, k-hop
+    // face-neighbor dual graph, coloring, k-hop
     o2m dual;
     const double tdual = timed(reps, [&] { dual = getdualgraph(mm, 4); });
     seque<int> col;
     int ncol = 0;
-    const double tcol = timed(reps, [&] { ncol = getcolouring(dual, col); });
+    const double tcol = timed(reps, [&] { ncol = getcoloring(dual, col); });
     const int probe = (int) (nel / 2 + nee / 2);
     seque<int> hop;
     const double tk = timed(reps, [&] {
         for (int i = 0; i < 1000; ++i)
-            hop = getkhopneighbourhood(mm, (probe + i) % (int) nel, 2, 4);
+            hop = getkhopneighborhood(mm, (probe + i) % (int) nel, 2, 4);
     }) / 1000;
-    std::cout << ", \"t_dual_faces\": " << tdual << ", \"nnz_dual_faces\": " << getnnz(dual) << ", \"t_colouring\": " << tcol
-              << ", \"ncolours\": " << ncol << ", \"t_khop2_us\": " << 1e6 * tk << ", \"khop2_size\": " << hop.size << "}"
+    std::cout << ", \"t_dual_faces\": " << tdual << ", \"nnz_dual_faces\": " << getnnz(dual) << ", \"t_coloring\": " << tcol
+              << ", \"ncolors\": " << ncol << ", \"t_khop2_us\": " << 1e6 * tk << ", \"khop2_size\": " << hop.size << "}"
               << std::endl;
     return 0;
 }

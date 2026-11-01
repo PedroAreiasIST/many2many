@@ -46,7 +46,7 @@ def run_scipy(nee, reps):
     A = sp.csr_matrix((data, indices, indptr), shape=(nel, nn))
     del conn
 
-    # 1. symbolic transpose (node -> element), materialised as CSR
+    # 1. symbolic transpose (node -> element), materialized as CSR
     t_tr, AT = median(lambda: A.transpose().tocsr(), reps)
     # 2. node-to-node composition (assembly sparsity pattern)
     t_mul, P = median(lambda: AT @ A, reps)
