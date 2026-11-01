@@ -1,0 +1,4 @@
+{"backend": "scatter-icpx", "threads": 16, "nee": 300, "n_scatter": 216000000, "t_copy_1gb": 0.0300, "copy_gbs": 71.5, "t_scatter": 0.4694, "scatter_m_per_s": 460, "check": 1}
+{"backend": "scatter-gcc", "threads": 16, "nee": 300, "n_scatter": 216000000, "t_copy_1gb": 0.0310, "copy_gbs": 69.2, "t_scatter": 0.4734, "scatter_m_per_s": 456, "check": 1}
+{"backend": "scatter-icpx", "threads": 1, "nee": 300, "n_scatter": 216000000, "t_copy_1gb": 0.0572, "copy_gbs": 37.6, "t_scatter": 1.6648, "scatter_m_per_s": 130, "check": 1}
+{"backend": "scatter-gcc", "threads": 1, "nee": 300, "n_scatter": 216000000, "t_copy_1gb": 0.0800, "copy_gbs": 26.8, "t_scatter": 1.6531, "scatter_m_per_s": 131, "check": 1}

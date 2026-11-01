@@ -5,8 +5,9 @@
 #include <cereal/archives/binary.hpp>
 #include "pfr_non_boost-master/include/pfr.hpp"
 #include <algorithm>
-#include <boost/core/demangle.hpp>
+#include <cxxabi.h>
 #include <cstddef>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <random>
@@ -62,6 +63,18 @@ inline void pointerdestroy(T *&p) noexcept
     }
 }
 
+/**
+ * @brief Demangles a type name of the Itanium ABI (the only use of the ABI library).
+ */
+inline std::string demanglename(const char *name)
+{
+    int status = 0;
+    char *d = abi::__cxa_demangle(name, nullptr, nullptr, &status);
+    std::string s = (status == 0 && d) ? d : name;
+    std::free(d);
+    return s;
+}
+
 template<typename T>
 /**
  * @brief Retrieves the demangled name of the type T.
@@ -71,7 +84,7 @@ template<typename T>
 inline std::string typetoname()
 {
     const char *name = typeid(T).name();
-    return boost::core::demangle(name);
+    return demanglename(name);
 }
 
 template<typename T>
@@ -84,7 +97,7 @@ template<typename T>
 inline std::string typetoname(const T &obj)
 {
     const char *name = typeid(obj).name();
-    return boost::core::demangle(name);
+    return demanglename(name);
 }
 
 template<typename TupleT, typename Fn>

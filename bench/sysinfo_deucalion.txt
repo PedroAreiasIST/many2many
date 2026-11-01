@@ -1,0 +1,19 @@
+label: deucalion  date: 2026-11-01T05:33:23+00:00  host: cnx001.deucalion.macc.fccn.pt
+CPU(s):              128
+Thread(s) per core:  1
+Core(s) per socket:  64
+Socket(s):           2
+NUMA node(s):        8
+Model name:          AMD EPYC 7742 64-Core Processor
+L2 cache:            512K
+L3 cache:            16384K
+governor: performance
+              total        used        free      shared  buff/cache   available
+Mem:            251           4         246           0           0         245
+pin: taskset -c 0-127  threads chain: 128 64 16 1  threads graph: 16 1  reps: 5
+g++ (GCC) 14.3.0
+Intel(R) oneAPI DPC++/C++ Compiler 2025.2.0 (2025.2.0.20250605)
+GNU Fortran (GCC) 14.3.0
+ifx (IFX) 2025.2.0 20250605
+python 3.12.16 numpy 2.2.6 scipy 1.15.3 python-graphblas 2025.2.0 suitesparse-graphblas 9.4.5.0
+./run_cross.sh: line 36: cd: /home/pedroareias/gapbs: No such file or directory

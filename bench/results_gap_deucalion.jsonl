@@ -1,0 +1,17 @@
+{"backend": "gapbs", "threads": 128, "nee": 100, "nel": 1000000, "nn": 1030301, "t_bfs": 0.02842, "t_cc": 0.01388}
+{"backend": "gapbs", "threads": 64, "nee": 100, "nel": 1000000, "nn": 1030301, "t_bfs": 0.01650, "t_cc": 0.00704}
+{"backend": "gapbs", "threads": 16, "nee": 100, "nel": 1000000, "nn": 1030301, "t_bfs": 0.01761, "t_cc": 0.00752}
+{"backend": "gapbs", "threads": 1, "nee": 100, "nel": 1000000, "nn": 1030301, "t_bfs": 0.09504, "t_cc": 0.01965}
+{"backend": "gapbs", "threads": 128, "nee": 200, "nel": 8000000, "nn": 8120601, "t_bfs": 0.21883, "t_cc": 0.06023}
+{"backend": "gapbs", "threads": 64, "nee": 200, "nel": 8000000, "nn": 8120601, "t_bfs": 0.13350, "t_cc": 0.04633}
+{"backend": "gapbs", "threads": 16, "nee": 200, "nel": 8000000, "nn": 8120601, "t_bfs": 0.13985, "t_cc": 0.04963}
+{"backend": "gapbs", "threads": 1, "nee": 200, "nel": 8000000, "nn": 8120601, "t_bfs": 0.81806, "t_cc": 0.13321}
+{"backend": "gapbs", "threads": 128, "nee": 300, "nel": 27000000, "nn": 27270901, "t_bfs": 0.58750, "t_cc": 0.15578}
+{"backend": "gapbs", "threads": 64, "nee": 300, "nel": 27000000, "nn": 27270901, "t_bfs": 0.35563, "t_cc": 0.15231}
+{"backend": "gapbs", "threads": 16, "nee": 300, "nel": 27000000, "nn": 27270901, "t_bfs": 0.43619, "t_cc": 0.16372}
+{"backend": "gapbs", "threads": 1, "nee": 300, "nel": 27000000, "nn": 27270901, "t_bfs": 2.84862, "t_cc": 0.42876}
+{"backend": "gapbs", "threads": 128, "nee": 400, "nel": 64000000, "nn": 64481201, "t_bfs": 1.09773, "t_cc": 0.36140}
+{"backend": "gapbs", "threads": 64, "nee": 400, "nel": 64000000, "nn": 64481201, "t_bfs": 0.73434, "t_cc": 0.35488}
+{"backend": "gapbs", "threads": 16, "nee": 400, "nel": 64000000, "nn": 64481201, "t_bfs": 1.04554, "t_cc": 0.38233}
+{"backend": "gapbs", "threads": 1, "nee": 400, "nel": 64000000, "nn": 64481201, "t_bfs": 6.65611, "t_cc": 0.99859}
+DONE

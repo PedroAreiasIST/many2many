@@ -8,10 +8,24 @@ LIBS := -ltbb
 CORE := $(R)/o2m.cpp $(R)/m2m.cpp $(R)/graph.cpp
 ALL := $(CORE) $(R)/mm2m.cpp $(R)/thing.cpp
 
-all: bench_lib bench_tables bench_graph running_example unittests RemeshProgram test_graph test_synth test_order
+F90 ?= gfortran
+F90FLAGS ?= -O3 -march=native -fopenmp
+
+all: bench_lib bench_tables bench_graph dump_sg running_example unittests RemeshProgram test_graph test_synth test_order
 
 bench_lib: bench_lib.cpp $(CORE) $(R)/o2m.hpp $(R)/m2m.hpp $(R)/seque.hpp
 	$(CXX) $(CXXFLAGS) $(INC) bench_lib.cpp $(CORE) $(LIBS) -o $@
+
+dump_sg: dump_sg.cpp $(CORE) $(R)/graph.hpp $(R)/o2m.hpp $(R)/m2m.hpp
+	$(CXX) $(CXXFLAGS) $(INC) dump_sg.cpp $(CORE) $(LIBS) -o $@
+
+# the Fortran side of the chain (SimPlas routines extracted into basfun_bench.f90); ifx: F90=ifx F90FLAGS="-O3 -xHost -qopenmp"
+bench_f90: bench_f90.f90 basfun_bench.f90
+	$(F90) $(F90FLAGS) basfun_bench.f90 bench_f90.f90 -o $@
+
+# memory-system reference (copy bandwidth, random scatter of 8 nee^3 integers)
+scatter: scatter.cpp
+	$(CXX) $(CXXFLAGS) scatter.cpp -o $@
 
 bench_tables: bench_tables.cpp $(CORE) $(R)/o2m.hpp $(R)/m2m.hpp $(R)/seque.hpp
 	$(CXX) $(CXXFLAGS) $(INC) bench_tables.cpp $(CORE) $(LIBS) -o $@
@@ -38,4 +52,4 @@ RemeshProgram: $(R)/remesh_main.cpp $(R)/remesh.cpp $(R)/meshquality.cpp $(ALL) 
 	$(CXX) $(CXXFLAGS) $(INC) $(R)/remesh_main.cpp $(R)/remesh.cpp $(R)/meshquality.cpp $(ALL) $(LIBS) -o $@
 
 clean:
-	rm -f bench_lib bench_tables bench_graph running_example unittests RemeshProgram test_graph test_synth test_order
+	rm -f bench_lib bench_tables bench_graph dump_sg bench_f90 bench_f90_ifx basfun.mod scatter running_example unittests RemeshProgram test_graph test_synth test_order

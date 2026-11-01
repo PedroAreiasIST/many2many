@@ -257,73 +257,6 @@ namespace
         return copy;
     }
 
-    // ------------------------------------------------------------------ union-find
-    struct unionfind
-    {
-        std::unique_ptr<std::atomic<int>[]> parent;
-        int n;
-
-        explicit unionfind(int size) : parent(new std::atomic<int>[static_cast<std::size_t>(size)]), n(size)
-        {
-#pragma omp parallel for schedule(static)
-            for (int i = 0; i < n; ++i)
-                parent[static_cast<std::size_t>(i)].store(i, std::memory_order_relaxed);
-        }
-
-        int find(int x) noexcept
-        {
-            int p = parent[static_cast<std::size_t>(x)].load(std::memory_order_relaxed);
-            while (p != x)
-            {
-                const int gp = parent[static_cast<std::size_t>(p)].load(std::memory_order_relaxed);
-                parent[static_cast<std::size_t>(x)].store(gp, std::memory_order_relaxed); // path halving
-                x = p;
-                p = gp;
-            }
-            return x;
-        }
-
-        /** Links the roots, the larger index under the smaller (deterministic roots). */
-        void unite(int a, int b) noexcept
-        {
-            for (;;)
-            {
-                int ra = find(a), rb = find(b);
-                if (ra == rb)
-                    return;
-                if (ra < rb)
-                    std::swap(ra, rb);
-                int expected = ra;
-                if (parent[static_cast<std::size_t>(ra)].compare_exchange_weak(expected, rb, std::memory_order_relaxed))
-                    return;
-            }
-        }
-
-        /** Full compression, then component ids in order of the smallest member. */
-        int labels(seque<int> &label)
-        {
-            setsize(label, n);
-#pragma omp parallel for schedule(static)
-            for (int i = 0; i < n; ++i)
-                label[i] = find(i);
-            int ncomp = 0;
-            for (int i = 0; i < n; ++i)
-            {
-                if (label[i] == i)
-                    label[i] = -(++ncomp); // root: provisional negative id
-            }
-            // every root has a smaller index than its members (links go to the smaller index)
-            for (int i = 0; i < n; ++i)
-                if (label[i] >= 0)
-                    label[i] = label[label[i]];
-            for (int i = 0; i < n; ++i)
-                label[i] = -label[i] - 1;
-            return ncomp;
-        }
-    };
-
-    /** Rows of a symmetric adjacency as a view. */
-    inline crowview rowof(o2m const &g, int v) { return g[v]; }
 } // namespace
 
 o2m getdualgraph(m2m &rel, int minshared, o2m *counts)
@@ -405,35 +338,198 @@ seque<int> getkhopneighbourhood(m2m &rel, int element, int k, int minshared)
     return visited;
 }
 
+namespace
+{
+    // ------------------------------------------------------------------ components by subgraph sampling
+    /** Connected components in the manner of Afforest (Sutton, Ben-Nun and Barak, IPDPS 2018): every
+     *  vertex first hooks to its first two neighbours only, which on a mesh already joins almost
+     *  everything into one component; that component is identified from a sample, and only the
+     *  vertices outside it visit their remaining neighbours. Hooking is by compare-and-swap of the
+     *  larger root under the smaller, so the root of every component ends as its smallest vertex
+     *  whichever thread wins, and the labels are deterministic. The neighbour access is a pair of
+     *  callables (degree, k-th neighbour) so that the bipartite element-node graph needs no copy. */
+    inline void hook(int u, int v, std::atomic<int> *M2M_RESTRICT comp) noexcept
+    {
+        int p1 = comp[u].load(std::memory_order_relaxed), p2 = comp[v].load(std::memory_order_relaxed);
+        while (p1 != p2)
+        {
+            const int high = std::max(p1, p2), low = std::min(p1, p2);
+            const int phigh = comp[high].load(std::memory_order_relaxed);
+            if (phigh == low)
+                break;
+            int expected = high;
+            if (phigh == high && comp[high].compare_exchange_strong(expected, low, std::memory_order_relaxed))
+                break;
+            p1 = comp[comp[high].load(std::memory_order_relaxed)].load(std::memory_order_relaxed);
+            p2 = comp[low].load(std::memory_order_relaxed);
+        }
+    }
+
+    inline void shortcut(int n, std::atomic<int> *M2M_RESTRICT comp) noexcept
+    {
+#pragma omp parallel for schedule(dynamic, 16384)
+        for (int v = 0; v < n; ++v)
+        {
+            int p = comp[v].load(std::memory_order_relaxed);
+            int gp = comp[p].load(std::memory_order_relaxed);
+            while (p != gp)
+            {
+                comp[v].store(gp, std::memory_order_relaxed);
+                p = gp;
+                gp = comp[p].load(std::memory_order_relaxed);
+            }
+        }
+    }
+
+    /** The most frequent root among 1024 vertices drawn with a fixed linear congruential sequence. */
+    inline int frequentroot(int n, std::atomic<int> const *M2M_RESTRICT comp) noexcept
+    {
+        std::vector<std::pair<int, int>> s;
+        s.reserve(1024);
+        std::uint64_t x = 88172645463325252ULL;
+        for (int i = 0; i < 1024; ++i)
+        {
+            x = x * 6364136223846793005ULL + 1442695040888963407ULL;
+            s.emplace_back(comp[static_cast<int>((x >> 33) % static_cast<std::uint64_t>(n))].load(std::memory_order_relaxed), 0);
+        }
+        std::sort(s.begin(), s.end());
+        int best = s[0].first, bestcount = 0;
+        for (std::size_t i = 0; i < s.size();)
+        {
+            std::size_t j = i;
+            while (j < s.size() && s[j].first == s[i].first)
+                ++j;
+            if (static_cast<int>(j - i) > bestcount)
+            {
+                bestcount = static_cast<int>(j - i);
+                best = s[i].first;
+            }
+            i = j;
+        }
+        return best;
+    }
+
+    template<class Degree, class Neighbour>
+    std::unique_ptr<std::atomic<int>[]> afforest(int n, Degree degree, Neighbour neighbour)
+    {
+        std::unique_ptr<std::atomic<int>[]> comp(new std::atomic<int>[static_cast<std::size_t>(std::max(n, 1))]);
+#pragma omp parallel for schedule(static)
+        for (int v = 0; v < n; ++v)
+            comp[v].store(v, std::memory_order_relaxed);
+        if (n == 0)
+            return comp;
+        const int rounds = 2;
+        for (int r = 0; r < rounds; ++r)
+        {
+#pragma omp parallel for schedule(dynamic, 16384)
+            for (int v = 0; v < n; ++v)
+                if (r < degree(v))
+                    hook(v, neighbour(v, r), comp.get());
+            shortcut(n, comp.get());
+        }
+        const int c = frequentroot(n, comp.get());
+#pragma omp parallel for schedule(dynamic, 16384)
+        for (int v = 0; v < n; ++v)
+        {
+            if (comp[v].load(std::memory_order_relaxed) == c)
+                continue;
+            const int d = degree(v);
+            for (int k = rounds; k < d; ++k)
+                hook(v, neighbour(v, k), comp.get());
+        }
+        shortcut(n, comp.get());
+        return comp;
+    }
+
+    /** Component ids in order of the smallest member, from a root array whose roots are minima. */
+    int compactlabels(int n, std::atomic<int> const *M2M_RESTRICT comp, seque<int> &label)
+    {
+        setsize(label, n);
+        int *M2M_RESTRICT lab = label.begin();
+        // roots get provisional negative ids in index order: counted per chunk, then numbered in parallel
+        const int chunk = 1 << 16;
+        const int nchunks = (n + chunk - 1) / chunk;
+        std::vector<int> first(static_cast<std::size_t>(nchunks) + 1, 0);
+#pragma omp parallel for schedule(static)
+        for (int c = 0; c < nchunks; ++c)
+        {
+            int cnt = 0;
+            const int e = std::min(n, (c + 1) * chunk);
+            for (int i = c * chunk; i < e; ++i)
+            {
+                lab[i] = comp[i].load(std::memory_order_relaxed);
+                cnt += lab[i] == i;
+            }
+            first[static_cast<std::size_t>(c) + 1] = cnt;
+        }
+        for (int c = 0; c < nchunks; ++c)
+            first[static_cast<std::size_t>(c) + 1] += first[static_cast<std::size_t>(c)];
+        const int ncomp = first[static_cast<std::size_t>(nchunks)];
+#pragma omp parallel for schedule(static)
+        for (int c = 0; c < nchunks; ++c)
+        {
+            int id = first[static_cast<std::size_t>(c)];
+            const int e = std::min(n, (c + 1) * chunk);
+            for (int i = c * chunk; i < e; ++i)
+                if (lab[i] == i)
+                    lab[i] = -(++id);
+        }
+        // members read their root's id (roots stay negative in this pass, so the reads race with nothing)
+#pragma omp parallel for schedule(static)
+        for (int i = 0; i < n; ++i)
+            if (lab[i] >= 0)
+                lab[i] = -lab[lab[i]] - 1;
+#pragma omp parallel for schedule(static)
+        for (int i = 0; i < n; ++i)
+            if (lab[i] < 0)
+                lab[i] = -lab[i] - 1;
+        return ncomp;
+    }
+} // namespace
+
 int getcomponents(o2m const &graph, seque<int> &label)
 {
     const int n = graph.nelem;
-    unionfind uf(n);
-#pragma omp parallel for schedule(dynamic, 4096)
-    for (int u = 0; u < n; ++u)
-        for (int v: graph[u])
-            if (v > u)
-                uf.unite(u, v);
-    return uf.labels(label);
+    const int *M2M_RESTRICT gs = graph.start.begin();
+    const int *M2M_RESTRICT gd = graph.data.begin();
+    if (graph.size.size > 0)
+    {
+        const int *M2M_RESTRICT gz = graph.size.begin();
+        auto comp = afforest(n, [gz](int v) { return gz[v]; }, [gs, gd](int v, int k) { return gd[gs[v] + k]; });
+        return compactlabels(n, comp.get(), label);
+    }
+    auto comp = afforest(n, [gs](int v) { return gs[v + 1] - gs[v]; }, [gs, gd](int v, int k) { return gd[gs[v] + k]; });
+    return compactlabels(n, comp.get(), label);
 }
 
 int getcomponents(m2m &rel, seque<int> &elementlabel, seque<int> &nodelabel)
 {
+    synchronize(rel);
     const int nel = rel.nfrome.nelem;
     const int nn = rel.nfrome.maxnode + 1;
-    unionfind uf(nel + nn);
-#pragma omp parallel for schedule(dynamic, 4096)
-    for (int e = 0; e < nel; ++e)
-        for (int node: rel.nfrome[e])
-            uf.unite(e, nel + node);
+    o2m const &a = rel.nfrome, &t = rel.efromn;
+    // bipartite graph: vertices 0..nel-1 are the elements, nel..nel+nn-1 the nodes
+    const int *M2M_RESTRICT as = a.start.begin(), *M2M_RESTRICT ad = a.data.begin();
+    const int *M2M_RESTRICT ts = t.start.begin(), *M2M_RESTRICT td = t.data.begin();
+    const int *M2M_RESTRICT az = a.size.size > 0 ? a.size.begin() : nullptr;
+    const int *M2M_RESTRICT tz = t.size.size > 0 ? t.size.begin() : nullptr;
+    auto degree = [=](int v) {
+        return v < nel ? (az ? az[v] : as[v + 1] - as[v]) : (tz ? tz[v - nel] : ts[v - nel + 1] - ts[v - nel]);
+    };
+    auto neighbour = [=](int v, int k) { return v < nel ? nel + ad[as[v] + k] : td[ts[v - nel] + k]; };
+    auto comp = afforest(nel + nn, degree, neighbour);
     seque<int> all;
-    const int ncomp = uf.labels(all);
+    const int ncomp = compactlabels(nel + nn, comp.get(), all);
     setsize(elementlabel, nel);
     setsize(nodelabel, nn);
+    int *M2M_RESTRICT el = elementlabel.begin(), *M2M_RESTRICT nl = nodelabel.begin();
+    const int *M2M_RESTRICT al = all.begin();
+#pragma omp parallel for schedule(static)
     for (int e = 0; e < nel; ++e)
-        elementlabel[e] = all[e];
+        el[e] = al[e];
+#pragma omp parallel for schedule(static)
     for (int v = 0; v < nn; ++v)
-        nodelabel[v] = all[nel + v];
+        nl[v] = al[nel + v];
     return ncomp;
 }
 

@@ -1,0 +1,7 @@
+{"backend": "gapbs", "threads": 16, "nee": 100, "nel": 1000000, "nn": 1030301, "t_bfs": 0.00979, "t_cc": 0.00259}
+{"backend": "gapbs", "threads": 1, "nee": 100, "nel": 1000000, "nn": 1030301, "t_bfs": 0.05243, "t_cc": 0.01332}
+{"backend": "gapbs", "threads": 16, "nee": 200, "nel": 8000000, "nn": 8120601, "t_bfs": 0.08576, "t_cc": 0.02442}
+{"backend": "gapbs", "threads": 1, "nee": 200, "nel": 8000000, "nn": 8120601, "t_bfs": 0.44125, "t_cc": 0.10502}
+{"backend": "gapbs", "threads": 16, "nee": 300, "nel": 27000000, "nn": 27270901, "t_bfs": 0.38308, "t_cc": 0.08728}
+{"backend": "gapbs", "threads": 1, "nee": 300, "nel": 27000000, "nn": 27270901, "t_bfs": 1.70625, "t_cc": 0.36748}
+DONE

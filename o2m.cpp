@@ -15,6 +15,7 @@
 #include <vector>
 #ifdef _OPENMP
 #include <omp.h>
+#include <unistd.h>
 #endif
 
 // The bulk kernels are out-of-line functions on raw CSR arrays declared __restrict:
@@ -523,7 +524,16 @@ namespace
         constexpr int CHUNK = 1024;
         const int nchunks = (na + CHUNK - 1) / CHUNK;
         const int nth = numthreads();
-        std::vector<std::vector<int>> bufs(static_cast<std::size_t>(nth));
+        struct raw
+        {
+            int v;
+            raw() noexcept {} // no value-initialization: the staging buffers are written before they are read
+        };
+        std::vector<std::vector<raw>> bufs(static_cast<std::size_t>(nth));
+        int maxlenb = 0;
+#pragma omp parallel for schedule(static) reduction(max : maxlenb) if (relb.nelem > 100000)
+        for (int cb = 0; cb <= camax; ++cb)
+            maxlenb = std::max(maxlenb, rowlen<JB>(bs, bz, cb));
         struct chunkrec
         {
             int tid;
@@ -531,32 +541,40 @@ namespace
         };
         std::vector<chunkrec> rec(static_cast<std::size_t>(nchunks));
         std::unique_ptr<int[]> rowsz(new int[static_cast<std::size_t>(na)]);
+        const bool timing = std::getenv("M2M_TIMING") != nullptr;
+        double t0 = 0, t1 = 0, t2 = 0, t3 = 0;
+#ifdef _OPENMP
+        if (timing) t0 = omp_get_wtime();
+#endif
+        // Dynamic chunks by default (M2M_MUL_SCHED=1 gives every thread one static band of rows instead:
+        // measured slower on a 128-core node, 0.72 s against 0.65 s at 27M elements, and equal elsewhere).
+        int dynamicchunks = 1;
+        if (const char *env = std::getenv("M2M_MUL_SCHED"))
+            dynamicchunks = std::atoi(env) == 0;
+        omp_sched_t prevsched;
+        int prevmod = 0;
+        omp_get_schedule(&prevsched, &prevmod);
+        omp_set_schedule(dynamicchunks ? omp_sched_dynamic : omp_sched_static, dynamicchunks ? 1 : 0);
 #pragma omp parallel num_threads(nth)
         {
             MK mark(ncols);
             typename MK::word *mk = mark.w.get();
             const int tid = threadnum();
-            std::vector<int> &buf = bufs[static_cast<std::size_t>(tid)];
+            std::vector<raw> &buf = bufs[static_cast<std::size_t>(tid)];
             buf.reserve(static_cast<std::size_t>(32) * (static_cast<std::size_t>(na) / static_cast<std::size_t>(nth) + CHUNK));
-            std::vector<int> starts(CHUNK + 1);
-#pragma omp for schedule(dynamic, 1)
+#pragma omp for schedule(runtime)
             for (int c = 0; c < nchunks; ++c)
             {
                 const int r0 = c * CHUNK, r1 = std::min(na, r0 + CHUNK);
-                // upper bound of the chunk's output: the sum of the B rows visited
+                // upper bound of the chunk's output: its entries of A times the longest row of B
                 long long bound = 0;
                 for (int ra = r0; ra < r1; ++ra)
-                {
-                    const int *pa = ad + as[ra];
-                    const int nka = rowlen<JA>(as, az, ra);
-                    for (int ka = 0; ka < nka; ++ka)
-                        if (pa[ka] >= 0 && pa[ka] <= camax)
-                            bound += rowlen<JB>(bs, bz, pa[ka]);
-                }
+                    bound += rowlen<JA>(as, az, ra);
+                bound *= maxlenb;
                 const long long off = static_cast<long long>(buf.size());
                 buf.resize(static_cast<std::size_t>(off + bound));
-                // provisional starts inside the chunk: each row may use its full bound, then compacted
-                int *out = buf.data() + off;
+                // rows are written back to back inside the chunk, then the buffer is trimmed to what was used
+                int *out = reinterpret_cast<int *>(buf.data()) + off;
                 long long pos = 0;
                 for (int ra = r0; ra < r1; ++ra)
                 {
@@ -588,21 +606,38 @@ namespace
                 rec[static_cast<std::size_t>(c)] = chunkrec{tid, off};
             }
         }
+#ifdef _OPENMP
+        if (timing) t1 = omp_get_wtime();
+#endif
         const long long nnz = exclusivescan(rowsz.get(), na, relc.start.begin());
         rowsz.reset();
         setsizeexact(relc.data, nnz);
         int *cd = relc.data.begin();
         const int *cs = relc.start.begin();
-#pragma omp parallel for schedule(dynamic, 1)
+#ifdef _OPENMP
+        if (timing) t2 = omp_get_wtime();
+#endif
+#pragma omp parallel for schedule(runtime) num_threads(nth)
         for (int c = 0; c < nchunks; ++c)
         {
             const int r0 = c * CHUNK, r1 = std::min(na, r0 + CHUNK);
             const long long n = static_cast<long long>(cs[r1]) - cs[r0];
             if (n > 0)
-                std::memcpy(cd + cs[r0], bufs[static_cast<std::size_t>(rec[static_cast<std::size_t>(c)].tid)].data() +
-                                              rec[static_cast<std::size_t>(c)].off,
+                std::memcpy(cd + cs[r0],
+                            reinterpret_cast<const int *>(bufs[static_cast<std::size_t>(rec[static_cast<std::size_t>(c)].tid)].data()) +
+                                rec[static_cast<std::size_t>(c)].off,
                             static_cast<std::size_t>(n) * sizeof(int));
         }
+        omp_set_schedule(prevsched, prevmod);
+#ifdef _OPENMP
+        if (timing)
+        {
+            t3 = omp_get_wtime();
+            std::fprintf(stderr, "composesingle: stage %.3f s, scan+alloc %.3f s, copy %.3f s (marker %s, %d threads, %s)\n", t1 - t0,
+                         t2 - t1, t3 - t2, MK::stamped ? "stamp" : (sizeof(typename MK::word) == 1 ? "byte" : "bit"), nth,
+                         dynamicchunks ? "dynamic chunks" : "static bands");
+        }
+#endif
         return relc;
     }
 
@@ -615,17 +650,34 @@ namespace
             passes = std::atoi(env);
         if (passes == 0)
         {
-            long long budget = 8LL << 30; // bytes of staging buffers (M2M_MUL_BUDGET_GB)
+            // bytes of staging buffers: an eighth of the physical memory, at least 1 GB (M2M_MUL_BUDGET_GB overrides)
+            long long budget = 8LL << 30;
+#if defined(_SC_PHYS_PAGES) && defined(_SC_PAGESIZE)
+            {
+                const long pages = sysconf(_SC_PHYS_PAGES), pagesize = sysconf(_SC_PAGESIZE);
+                if (pages > 0 && pagesize > 0)
+                    budget = std::max(1LL << 30, static_cast<long long>(pages) * pagesize / 8);
+            }
+#endif
             if (const char *env = std::getenv("M2M_MUL_BUDGET_GB"))
                 budget = static_cast<long long>(std::atof(env) * (1LL << 30));
-            // upper bound of the output: the sum of the rows of B visited
-            long long bound = 0;
-            const int na = rela.nelem, camax = relb.nelem - 1;
+            // upper bound of the output: nnz(A) times the longest row of B (no random access), and only
+            // when that exceeds the budget the exact sum of the rows of B visited
+            const int na = rela.nelem, nb = relb.nelem, camax = nb - 1;
+            int maxlenb = 0;
+#pragma omp parallel for schedule(static) reduction(max : maxlenb) if (nb > 100000)
+            for (int cb = 0; cb < nb; ++cb)
+                maxlenb = std::max(maxlenb, relb.nnodes(cb));
+            long long bound = getnnz(rela) * static_cast<long long>(maxlenb);
+            if (bound * 4 > budget)
+            {
+                bound = 0;
 #pragma omp parallel for schedule(static) reduction(+ : bound) if (na > 100000)
-            for (int ra = 0; ra < na; ++ra)
-                for (int ca: rela[ra])
-                    if (ca >= 0 && ca <= camax)
-                        bound += relb.nnodes(ca);
+                for (int ra = 0; ra < na; ++ra)
+                    for (int ca: rela[ra])
+                        if (ca >= 0 && ca <= camax)
+                            bound += relb.nnodes(ca);
+            }
             passes = bound * 4 <= budget ? 1 : 2;
         }
         if (passes == 1)

@@ -14,3 +14,11 @@ bench/test_order
 bench/output.*
 bench/matrix*.txt
 bench/*.done
+bench/dump_sg
+bench/bench_f90
+bench/bench_f90_ifx
+bench/scatter
+bench/*.mod
+bench/*.sg
+bench/cross_*.log
+bench/cross_*.err

@@ -98,6 +98,94 @@ int main()
         CHECK(*std::max_element(el.begin(), el.end()) == 1, "labels compact");
     }
 
+    // components of random sparse graphs with many islands against a breadth-first labelling
+    for (int trial = 0; trial < 6; ++trial)
+    {
+        std::mt19937 rng(100 + trial);
+        const int n = trial < 3 ? 2000 : 300000;
+        const int m = trial % 3 == 0 ? n / 4 : (trial % 3 == 1 ? n : 3 * n); // sparse, critical, dense
+        std::vector<std::vector<int>> adj(static_cast<std::size_t>(n));
+        std::uniform_int_distribution<int> pick(0, n - 1);
+        for (int i = 0; i < m; ++i)
+        {
+            const int u = pick(rng), v = pick(rng);
+            if (u == v)
+                continue;
+            adj[static_cast<std::size_t>(u)].push_back(v);
+            adj[static_cast<std::size_t>(v)].push_back(u);
+        }
+        o2m g;
+        setsize(g, n);
+        for (int v = 0; v < n; ++v)
+        {
+            std::vector<int> &row = adj[static_cast<std::size_t>(v)];
+            std::sort(row.begin(), row.end());
+            row.erase(std::unique(row.begin(), row.end()), row.end());
+            setrow(g, v, crowview(row.data(), static_cast<int>(row.size())));
+        }
+        g.maxnode = n - 1;
+        // reference: breadth-first labelling in order of the smallest member
+        std::vector<int> ref(static_cast<std::size_t>(n), -1);
+        int nref = 0;
+        std::vector<int> stack;
+        for (int s = 0; s < n; ++s)
+        {
+            if (ref[static_cast<std::size_t>(s)] >= 0)
+                continue;
+            ref[static_cast<std::size_t>(s)] = nref;
+            stack.assign(1, s);
+            while (!stack.empty())
+            {
+                const int u = stack.back();
+                stack.pop_back();
+                for (int v: adj[static_cast<std::size_t>(u)])
+                    if (ref[static_cast<std::size_t>(v)] < 0)
+                    {
+                        ref[static_cast<std::size_t>(v)] = nref;
+                        stack.push_back(v);
+                    }
+            }
+            ++nref;
+        }
+        seque<int> lab;
+        const int nc = getcomponents(g, lab);
+        bool same = nc == nref;
+        for (int v = 0; v < n && same; ++v)
+            same = lab[v] == ref[static_cast<std::size_t>(v)];
+        CHECK(same, "components of a random graph match the breadth-first labelling");
+        // the bipartite version on a relation whose rows are the edges (two nodes each): islands of nodes
+        o2m edges;
+        setsize(edges, 0);
+        for (int u = 0; u < n; ++u)
+            for (int v: adj[static_cast<std::size_t>(u)])
+                if (v > u)
+                {
+                    int pair[2] = {u, v};
+                    appendelement(edges, crowview(pair, 2));
+                }
+        edges.maxnode = n - 1;
+        m2m me;
+        me.nfrome = edges;
+        me.isupdated = false;
+        seque<int> el, nl;
+        const int ncb = getcomponents(me, el, nl);
+        // isolated vertices are components of the graph but not nodes of any edge: compare the edge-bearing ones
+        std::vector<int> refid(static_cast<std::size_t>(nref), -1);
+        int nrefedges = 0;
+        bool sameb = true;
+        for (int v = 0; v < n && sameb; ++v)
+        {
+            if (adj[static_cast<std::size_t>(v)].empty())
+                continue;
+            int &id = refid[static_cast<std::size_t>(ref[static_cast<std::size_t>(v)])];
+            if (id < 0)
+                id = nrefedges++;
+            sameb = nl[v] == id;
+        }
+        const int isolated = static_cast<int>(std::count_if(adj.begin(), adj.end(), [](auto const &r) { return r.empty(); }));
+        CHECK(sameb && ncb == nrefedges + isolated, "bipartite components of a random edge relation match the breadth-first labelling");
+    }
+
     // node graph, RCM and bandwidth on a randomly renumbered mesh
     {
         o2m ng = getnodegraph(mm);

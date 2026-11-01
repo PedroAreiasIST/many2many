@@ -1,0 +1,19 @@
+label: laptop  date: 2026-11-01T03:51:54+00:00  host: pedro-P7xxTM1-G
+CPU(s):                                  32
+Model name:                              13th Gen Intel(R) Core(TM) i9-13900HX
+Thread(s) per core:                      2
+Core(s) per socket:                      24
+Socket(s):                               1
+L2 cache:                                32 MiB (12 instances)
+L3 cache:                                36 MiB (1 instance)
+NUMA node(s):                            1
+governor: powersave
+               total        used        free      shared  buff/cache   available
+Mem:              62           2          41           0          18          59
+pin: taskset -c 0-15  threads chain: 16 1  threads graph: 16 1  reps: 5
+g++ (Ubuntu 11.5.0-10ubuntu1~22~ppa1) 11.5.0
+Intel(R) oneAPI DPC++/C++ Compiler 2026.2.0 (2026.2.0.20261001)
+GNU Fortran (Ubuntu 11.5.0-10ubuntu1~22~ppa1) 11.5.0
+ifx (IFX) 2026.2.0 20261001
+python 3.10.13 numpy 2.2.6 scipy 1.15.3 python-graphblas 2025.2.0 suitesparse-graphblas 9.4.5.0
+./run_cross.sh: line 36: cd: /home/pedro/gapbs: No such file or directory
