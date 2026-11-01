@@ -773,6 +773,64 @@ int appendelement(o2m &rel, crowview nodes)
     return e;
 }
 
+void appendelements(o2m &rel, o2m const &rows)
+{
+    const int m = rows.nelem;
+    if (m == 0)
+        return;
+    if (rows.isjagged())
+    {
+        o2m packed = rows;
+        pack(packed);
+        appendelements(rel, packed);
+        return;
+    }
+    if (rel.isjagged())
+        pack(rel);
+    bool repeated = false;
+#pragma omp parallel for schedule(static) reduction(|| : repeated) if (m > 100000)
+    for (int e = 0; e < m; ++e)
+    {
+        crowview r = rows[e];
+        if (r.n <= 16)
+        {
+            for (int i = 1; i < r.n; ++i)
+                for (int j = 0; j < i; ++j)
+                    repeated = repeated || r.p[i] == r.p[j];
+        } else
+        {
+            seque<int> temp = r;
+            sortrow(temp.begin(), r.n);
+            for (int i = 1; i < r.n; ++i)
+                repeated = repeated || temp[i] == temp[i - 1];
+        }
+    }
+    if (repeated)
+        throw std::runtime_error("Repeated nodes detected in the input.");
+    const int e0 = rel.nelem;
+    const long long pos = rel.data.size;
+    const int first = rows.start[0];
+    const long long nnz = static_cast<long long>(rows.start[m]) - first;
+    checkentries(pos + nnz);
+    setsize(rel.data, static_cast<int>(pos + nnz));
+    if (nnz > 0)
+        std::memcpy(rel.data.begin() + pos, rows.data.begin() + first, static_cast<std::size_t>(nnz) * sizeof(int));
+    setsize(rel.start, e0 + m + 1);
+    const int base = static_cast<int>(pos) - first;
+    int *dst = rel.start.begin() + e0;
+    const int *src = rows.start.begin();
+#pragma omp parallel for schedule(static) if (m > 100000)
+    for (int e = 0; e <= m; ++e)
+        dst[e] = base + src[e];
+    rel.nelem = e0 + m;
+    int mx = rel.maxnode;
+    const int *d = rows.data.begin() + first;
+#pragma omp parallel for schedule(static) reduction(max : mx) if (nnz > 100000)
+    for (long long k = 0; k < nnz; ++k)
+        mx = std::max(mx, d[k]);
+    rel.maxnode = mx;
+}
+
 void setrow(o2m &rel, int element, crowview nodes)
 {
     assert(element >= 0 && element < rel.nelem);
@@ -1016,13 +1074,65 @@ namespace
         int i;
     };
 
-    inline std::uint64_t packpair(crowview r, int a, int b) noexcept
+    /** Two entries of a row as one key, x * m + y with m above every entry + 1: lexicographic
+     *  order of the pair and as few bits as the entries need. Entries are non-negative; a
+     *  missing entry (shorter row) packs as 0 and the length decides, so a shorter prefix
+     *  sorts first. */
+    inline std::uint64_t packpair(crowview r, int a, int b, std::uint64_t m) noexcept
     {
-        // entries are non-negative; a missing entry (shorter row) packs as 0 and
-        // the length decides, so a shorter prefix sorts first
         const std::uint64_t x = a < r.n ? static_cast<std::uint64_t>(r.p[a]) + 1 : 0;
         const std::uint64_t y = b < r.n ? static_cast<std::uint64_t>(r.p[b]) + 1 : 0;
-        return (x << 32) | y;
+        return x * m + y;
+    }
+
+    /** Parallel least-significant-digit radix sort of the records by the 64-bit key that
+     *  \p key extracts (stable; 11-bit digits over the bits below \p maxkey only). A sort by
+     *  two words is two calls, low word first. */
+    template<class T, class Key>
+    T *radixsort(T *a, T *b, std::size_t n, std::uint64_t maxkey, Key key)
+    {
+        constexpr int DIG = 11;
+        constexpr int NB = 1 << DIG;
+        int bits = 0;
+        while (bits < 64 && (maxkey >> bits) != 0)
+            ++bits;
+        const int passes = (bits + DIG - 1) / DIG;
+        if (passes == 0 || n < 2)
+            return a;
+        const int nth = n > 50000 ? numthreads() : 1;
+        std::vector<std::size_t> hist(static_cast<std::size_t>(nth) * NB);
+        T *src = a, *dst = b;
+        for (int p = 0; p < passes; ++p)
+        {
+            const int shift = p * DIG;
+#pragma omp parallel num_threads(nth)
+            {
+                const int tid = threadnum();
+                const std::size_t lo = n * static_cast<std::size_t>(tid) / static_cast<std::size_t>(nth);
+                const std::size_t hi = n * static_cast<std::size_t>(tid + 1) / static_cast<std::size_t>(nth);
+                std::size_t *M2M_RESTRICT h = hist.data() + static_cast<std::size_t>(tid) * NB;
+                std::fill(h, h + NB, std::size_t{0});
+                for (std::size_t i = lo; i < hi; ++i)
+                    ++h[(key(src[i]) >> shift) & (NB - 1)];
+#pragma omp barrier
+#pragma omp single
+                {
+                    std::size_t run = 0;
+                    for (int d = 0; d < NB; ++d)
+                        for (int t = 0; t < nth; ++t)
+                        {
+                            std::size_t &c = hist[static_cast<std::size_t>(t) * NB + static_cast<std::size_t>(d)];
+                            const std::size_t v = c;
+                            c = run;
+                            run += v;
+                        }
+                }
+                for (std::size_t i = lo; i < hi; ++i)
+                    dst[h[(key(src[i]) >> shift) & (NB - 1)]++] = src[i];
+            }
+            std::swap(src, dst);
+        }
+        return src;
     }
 } // namespace
 
@@ -1034,6 +1144,7 @@ seque<int> getorder(o2m const &rel)
         return idx;
     int maxlen = 0;
     bool nonneg = true;
+#pragma omp parallel for schedule(static) reduction(max : maxlen) reduction(&& : nonneg) if (n > 50000)
     for (int i = 0; i < n; ++i)
     {
         crowview r = rel[i];
@@ -1042,42 +1153,114 @@ seque<int> getorder(o2m const &rel)
             nonneg = nonneg && r.p[k] >= 0 && r.p[k] < INT_MAX;
     }
     const bool par = n > 50000 && numthreads() > 1;
+    const bool radix = n > 50000; // radix sort of the packed keys (parallel; stable, so ties keep the index order)
     if (nonneg && maxlen <= 2)
     {
         // packed 64-bit keys (edges): one comparison per pair
-        std::vector<key2> keys(static_cast<std::size_t>(n));
+        int mx = -1;
+#pragma omp parallel for schedule(static) reduction(max : mx) if (par)
+        for (int i = 0; i < n; ++i)
+            for (int v: rel[i])
+                mx = std::max(mx, v);
+        const std::uint64_t m = static_cast<std::uint64_t>(mx) + 2;
+        std::unique_ptr<key2[]> keys(new key2[static_cast<std::size_t>(n)]), tmp(radix ? new key2[static_cast<std::size_t>(n)] : nullptr);
 #pragma omp parallel for schedule(static) if (par)
         for (int i = 0; i < n; ++i)
-            keys[static_cast<std::size_t>(i)] = key2{packpair(rel[i], 0, 1), i};
-        auto cmp = [](key2 const &a, key2 const &b) { return a.k < b.k || (a.k == b.k && a.i < b.i); };
-        if (par)
-            std::sort(std::execution::par, keys.begin(), keys.end(), cmp);
+            keys[static_cast<std::size_t>(i)] = key2{packpair(rel[i], 0, 1, m), i};
+        key2 *sorted = keys.get();
+        if (radix)
+            sorted = radixsort(keys.get(), tmp.get(), static_cast<std::size_t>(n), m * m - 1, [](key2 const &a) { return a.k; });
         else
-            std::sort(keys.begin(), keys.end(), cmp);
+            std::sort(sorted, sorted + n, [](key2 const &a, key2 const &b) { return a.k < b.k || (a.k == b.k && a.i < b.i); });
+#pragma omp parallel for schedule(static) if (par)
         for (int i = 0; i < n; ++i)
-            idx[i] = keys[static_cast<std::size_t>(i)].i;
+            idx[i] = sorted[i].i;
         return idx;
     }
     if (nonneg && maxlen <= 4)
     {
-        std::vector<key4> keys(static_cast<std::size_t>(n));
+        int mx = -1;
+#pragma omp parallel for schedule(static) reduction(max : mx) if (par)
+        for (int i = 0; i < n; ++i)
+            for (int v: rel[i])
+                mx = std::max(mx, v);
+        const std::uint64_t m = static_cast<std::uint64_t>(mx) + 2;
+        std::unique_ptr<key4[]> keys(new key4[static_cast<std::size_t>(n)]), tmp(radix ? new key4[static_cast<std::size_t>(n)] : nullptr);
 #pragma omp parallel for schedule(static) if (par)
         for (int i = 0; i < n; ++i)
-            keys[static_cast<std::size_t>(i)] = key4{packpair(rel[i], 0, 1), packpair(rel[i], 2, 3), i};
-        auto cmp = [](key4 const &a, key4 const &b)
+            keys[static_cast<std::size_t>(i)] = key4{packpair(rel[i], 0, 1, m), packpair(rel[i], 2, 3, m), i};
+        key4 *sorted = keys.get();
+        if (radix)
         {
-            if (a.k0 != b.k0)
-                return a.k0 < b.k0;
-            if (a.k1 != b.k1)
-                return a.k1 < b.k1;
-            return a.i < b.i;
-        };
-        if (par)
-            std::sort(std::execution::par, keys.begin(), keys.end(), cmp);
-        else
-            std::sort(keys.begin(), keys.end(), cmp);
+            sorted = radixsort(keys.get(), tmp.get(), static_cast<std::size_t>(n), m * m - 1, [](key4 const &a) { return a.k1; });
+            key4 *other = sorted == keys.get() ? tmp.get() : keys.get();
+            sorted = radixsort(sorted, other, static_cast<std::size_t>(n), m * m - 1, [](key4 const &a) { return a.k0; });
+        } else
+            std::sort(sorted, sorted + n, [](key4 const &a, key4 const &b) {
+                if (a.k0 != b.k0)
+                    return a.k0 < b.k0;
+                if (a.k1 != b.k1)
+                    return a.k1 < b.k1;
+                return a.i < b.i;
+            });
+#pragma omp parallel for schedule(static) if (par)
         for (int i = 0; i < n; ++i)
-            idx[i] = keys[static_cast<std::size_t>(i)].i;
+            idx[i] = sorted[i].i;
+        return idx;
+    }
+    if (nonneg && radix)
+    {
+        // longer rows: radix sort on the first two entries, then every run of rows with the
+        // same two entries is sorted by comparison on the rest (parallel over the runs; the
+        // runs are short, a few elements around an edge); ties keep the index order
+        int mx = -1;
+#pragma omp parallel for schedule(static) reduction(max : mx) if (par)
+        for (int i = 0; i < n; ++i)
+            for (int v: rel[i])
+                mx = std::max(mx, v);
+        const std::uint64_t m = static_cast<std::uint64_t>(mx) + 2;
+        std::unique_ptr<key2[]> keys(new key2[static_cast<std::size_t>(n)]), tmp(new key2[static_cast<std::size_t>(n)]);
+#pragma omp parallel for schedule(static) if (par)
+        for (int i = 0; i < n; ++i)
+            keys[static_cast<std::size_t>(i)] = key2{packpair(rel[i], 0, 1, m), i};
+        key2 *sorted = radixsort(keys.get(), tmp.get(), static_cast<std::size_t>(n), m * m - 1, [](key2 const &a) { return a.k; });
+        const int nth = par ? numthreads() : 1;
+        std::vector<std::vector<int>> local(static_cast<std::size_t>(nth));
+#pragma omp parallel num_threads(nth)
+        {
+            const int tid = threadnum();
+            const int lo = static_cast<int>(static_cast<long long>(n) * tid / nth);
+            const int hi = static_cast<int>(static_cast<long long>(n) * (tid + 1) / nth);
+            std::vector<int> &v = local[static_cast<std::size_t>(tid)];
+            for (int i = lo; i < hi; ++i)
+                if (i == 0 || sorted[i].k != sorted[i - 1].k)
+                    v.push_back(i);
+        }
+        std::vector<int> runstart;
+        for (auto const &v: local)
+            runstart.insert(runstart.end(), v.begin(), v.end());
+        runstart.push_back(n);
+        const int nruns = static_cast<int>(runstart.size()) - 1;
+        auto cmp = [&rel](key2 const &x, key2 const &y) {
+            crowview a = rel[x.i], b = rel[y.i];
+            const int na = a.n, nb = b.n, nc = std::min(na, nb);
+            for (int k = 2; k < nc; ++k)
+                if (a.p[k] != b.p[k])
+                    return a.p[k] < b.p[k];
+            if (na != nb)
+                return na < nb;
+            return x.i < y.i;
+        };
+#pragma omp parallel for schedule(dynamic, 4096) if (par)
+        for (int r = 0; r < nruns; ++r)
+        {
+            const int a = runstart[static_cast<std::size_t>(r)], b = runstart[static_cast<std::size_t>(r) + 1];
+            if (b - a > 1)
+                std::sort(sorted + a, sorted + b, cmp);
+        }
+#pragma omp parallel for schedule(static) if (par)
+        for (int i = 0; i < n; ++i)
+            idx[i] = sorted[i].i;
         return idx;
     }
     std::iota(idx.begin(), idx.end(), 0);
@@ -1115,16 +1298,42 @@ void indicesfromorder(o2m const &rel, seque<int> const &order, seque<int> &newfr
     setsize(oldfromnew, 0);
     if (n == 0)
         return;
+    if (n < 100000 || numthreads() == 1)
+    {
+        int unique = -1;
+        for (int i = 0; i < n; ++i)
+        {
+            const int e = order[i];
+            if (i == 0 || rel[e] != rel[order[i - 1]])
+            {
+                ++unique;
+                append(oldfromnew, e);
+            }
+            newfromold[e] = unique;
+        }
+        return;
+    }
+    // the first row of every run of equal rows, in parallel; then the run ids by a scan
+    std::vector<int> id(static_cast<std::size_t>(n));
+#pragma omp parallel for schedule(static)
+    for (int i = 0; i < n; ++i)
+        id[static_cast<std::size_t>(i)] = i == 0 || rel[order[i]] != rel[order[i - 1]];
     int unique = -1;
     for (int i = 0; i < n; ++i)
     {
-        const int e = order[i];
-        if (i == 0 || rel[e] != rel[order[i - 1]])
-        {
-            ++unique;
-            append(oldfromnew, e);
-        }
-        newfromold[e] = unique;
+        const int flag = id[static_cast<std::size_t>(i)];
+        unique += flag;
+        id[static_cast<std::size_t>(i)] = flag ? ~unique : unique; // the first of a run keeps a marked id
+    }
+    setsize(oldfromnew, unique + 1);
+#pragma omp parallel for schedule(static)
+    for (int i = 0; i < n; ++i)
+    {
+        const int v = id[static_cast<std::size_t>(i)];
+        const int u = v < 0 ? ~v : v;
+        newfromold[order[i]] = u;
+        if (v < 0)
+            oldfromnew[u] = order[i];
     }
 }
 

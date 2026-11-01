@@ -1,2 +1,16 @@
 build/
 cmake-build-*/
+# benchmark binaries and scratch outputs (build with bench/Makefile and bench/build_icpx.sh)
+bench/*_icpx
+bench/bench_lib
+bench/bench_tables
+bench/bench_graph
+bench/running_example
+bench/unittests
+bench/RemeshProgram
+bench/test_graph
+bench/test_synth
+bench/test_order
+bench/output.*
+bench/matrix*.txt
+bench/*.done

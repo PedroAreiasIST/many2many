@@ -159,6 +159,10 @@ void reserve(o2m &rel, int nelem, long long nentries);
 /** Appends a row; throws if the node list has repeated entries. @return its index. */
 int appendelement(o2m &rel, crowview nodes);
 
+/** Appends every row of \p rows (the relation becomes packed first if it was jagged);
+ *  rows with repeated nodes are an error, as in appendelement. */
+void appendelements(o2m &rel, o2m const &rows);
+
 /** Replaces row \p element (in place when it does not grow, else relocated to the pool end). */
 void setrow(o2m &rel, int element, crowview nodes);
 

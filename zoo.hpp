@@ -1,5 +1,8 @@
 #pragma once
 #include "mm2m.hpp"
+#include <chrono>
+#include <cstdio>
+#include <cstdlib>
 #include "superstruct.hpp"
 #include "thing.hpp"
 #include "typseque.hpp"
@@ -204,6 +207,10 @@ struct zoo
         const int ne = parents.nelems();
         if (nb == 0 || ne == 0)
             return 0;
+        const bool timing = std::getenv("M2M_TIMING") != nullptr;
+        auto tnow = [] { return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count(); };
+        double tphase = tnow();
+        auto lap = [&](const char *what) { if (timing) { const double t = tnow(); std::fprintf(stderr, "synthesize %s %.4f\n", what, t - tphase); tphase = t; } };
         // candidate children: one row per (element, builder), in canonical form
         o2m cand;
         const int arity = getsize(builders[0]);
@@ -230,46 +237,89 @@ struct zoo
             }
         }
         cand.maxnode = parents.maxnode;
+        lap("candidates");
         // distinct children and their parents
         seque<int> order = getorder(cand);
+        lap("order");
         seque<int> childofcand, candofchild;
         indicesfromorder(cand, order, childofcand, candofchild);
+        lap("indices");
         const int nchild = getsize(candofchild);
+        const int ncand = getsize(order);
         m2m &rel = synthesized(ct, nt);
         m2m &par = synthesized(ct, et);
         const int first = rel.nfrome.nelems();
-        // node lists of the children (packed copy of the unique rows), appended
+        // node lists of the children (packed copy of the unique rows), appended in bulk
         {
             o2m rows = getrows(cand, candofchild);
-            for (int c = 0; c < nchild; ++c)
-                appendelement(rel.nfrome, rows[c]);
+            appendelements(rel.nfrome, rows);
             rel.isupdated = false;
             rel.islocated = false;
         }
-        // parents: candidates grouped by child (the order is lexicographic, so the candidates of
-        // one child are consecutive); parents appended in increasing element index
+        lap("children");
+        // parents: the candidates of one child are consecutive in the order (it is lexicographic
+        // and the children are numbered along it), so child k owns the run runstart[k]..runstart[k+1)
         {
             if (par.nfrome.nelems() < first)
                 setnumberofelements(par, first);
-            seque<int> plist;
-            int i = 0;
-            while (i < getsize(order))
+            seque<int> runstart(nchild + 1);
+#pragma omp parallel for schedule(static)
+            for (int j = 0; j < ncand; ++j)
+                if (j == 0 || childofcand[order[j]] != childofcand[order[j - 1]])
+                    runstart[childofcand[order[j]]] = j;
+            runstart[nchild] = ncand;
+            // parents of a child: the elements of its run, each once, increasing
+            auto parentsof = [&](int k, int *out) {
+                int n = 0;
+                for (int j = runstart[k]; j < runstart[k + 1]; ++j)
+                {
+                    const int e = order[j] / nb;
+                    int i = n;
+                    while (i > 0 && out[i - 1] > e)
+                        --i;
+                    if (i > 0 && out[i - 1] == e)
+                        continue;
+                    for (int q = n; q > i; --q)
+                        out[q] = out[q - 1];
+                    out[i] = e;
+                    ++n;
+                }
+                return n;
+            };
+            o2m parrows;
+            setsize(parrows, nchild);
+            seque<int> psize(nchild);
+#pragma omp parallel
             {
-                int j = i;
-                const int child = childofcand[order[i]];
-                setsize(plist, 0);
-                while (j < getsize(order) && childofcand[order[j]] == child)
-                    append(plist, order[j] / nb), ++j;
-                setorderedandunique(plist);
-                appendelement(par.nfrome, plist);
-                i = j;
+                seque<int> tmp;
+#pragma omp for schedule(static)
+                for (int k = 0; k < nchild; ++k)
+                {
+                    setsize(tmp, runstart[k + 1] - runstart[k]);
+                    psize[k] = parentsof(k, tmp.begin());
+                }
             }
+            long long total = 0;
+            for (int k = 0; k < nchild; ++k)
+            {
+                parrows.start[k] = static_cast<int>(total);
+                total += psize[k];
+            }
+            parrows.start[nchild] = static_cast<int>(total);
+            setsizeexact(parrows.data, total);
+#pragma omp parallel for schedule(static)
+            for (int k = 0; k < nchild; ++k)
+                parentsof(k, parrows.data.begin() + parrows.start[k]);
+            parrows.maxnode = ne - 1;
+            appendelements(par.nfrome, parrows);
             par.isupdated = false;
             par.islocated = false;
         }
+        lap("parents");
         for (int t = 0; t < TypeManager::Size; ++t)
             if (t != ct && synthesized(ct, t).nfrome.nelems() < first + nchild)
                 setnumberofelements(synthesized(ct, t), first + nchild);
+        lap("resize");
         return nchild;
     }
 

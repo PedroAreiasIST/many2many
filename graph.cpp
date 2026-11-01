@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <atomic>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <memory>
 #include <numeric>
@@ -24,6 +25,15 @@ namespace
 #endif
     }
 
+    inline int threadnum()
+    {
+#ifdef _OPENMP
+        return omp_get_thread_num();
+#else
+        return 0;
+#endif
+    }
+
     long long scan(const int *sizes, int n, int *start)
     {
         long long acc = 0;
@@ -41,21 +51,19 @@ namespace
     // ------------------------------------------------------------------ counting composition
     // Row r of A, columns through B: multiplicity of every column c (counter per column,
     // cleared through the touched list); keeps c with multiplicity >= minshared, c != self.
+    // The rows r0..r1 are written back to back at out (and their counts at oc); returns the
+    // number of entries written. The kernel reads and writes pure CSR arrays that do not alias.
     template<class CNT>
-    void dualcount(int r0, int r1, const int *M2M_RESTRICT as, const int *M2M_RESTRICT ad,
-                   const int *M2M_RESTRICT bs, const int *M2M_RESTRICT bd, int minshared, bool excludeself,
-                   CNT *M2M_RESTRICT cnt, int *M2M_RESTRICT rowsz, std::vector<int> &scratch)
+    long long dualchunk(int r0, int r1, const int *M2M_RESTRICT as, const int *M2M_RESTRICT ad,
+                        const int *M2M_RESTRICT bs, const int *M2M_RESTRICT bd, int minshared, bool excludeself,
+                        CNT *M2M_RESTRICT cnt, int *M2M_RESTRICT rowsz, int *M2M_RESTRICT out, int *M2M_RESTRICT oc,
+                        int *M2M_RESTRICT t)
     {
+        long long pos = 0;
         for (int ra = r0; ra < r1; ++ra)
         {
             const int *pa = ad + as[ra];
             const int nka = as[ra + 1] - as[ra];
-            int bound = 0;
-            for (int ka = 0; ka < nka; ++ka)
-                bound += bs[pa[ka] + 1] - bs[pa[ka]];
-            if (static_cast<std::size_t>(bound) > scratch.size())
-                scratch.resize(static_cast<std::size_t>(2 * bound));
-            int *M2M_RESTRICT t = scratch.data();
             int nt = 0;
             for (int ka = 0; ka < nka; ++ka)
             {
@@ -65,70 +73,34 @@ namespace
                 for (int kb = 0; kb < nkb; ++kb)
                 {
                     const int cb = pb[kb];
-                    t[nt] = cb;
-                    nt += (cnt[cb] == 0);
-                    cnt[cb]++;
+                    if (cnt[cb]++ == 0) // branchy: faster than the unconditional store, as the markers
+                        t[nt++] = cb;
                 }
             }
-            int n = 0;
-            for (int k = 0; k < nt; ++k)
-            {
-                const int c = t[k];
-                n += (cnt[c] >= minshared) && !(excludeself && c == ra);
-                cnt[c] = 0;
-            }
-            rowsz[ra] = n;
-        }
-    }
-
-    template<class CNT>
-    void dualfill(int r0, int r1, const int *M2M_RESTRICT as, const int *M2M_RESTRICT ad,
-                  const int *M2M_RESTRICT bs, const int *M2M_RESTRICT bd, int minshared, bool excludeself,
-                  CNT *M2M_RESTRICT cnt, const int *M2M_RESTRICT cs, int *M2M_RESTRICT cd, int *M2M_RESTRICT cc,
-                  std::vector<int> &scratch)
-    {
-        for (int ra = r0; ra < r1; ++ra)
-        {
-            const int *pa = ad + as[ra];
-            const int nka = as[ra + 1] - as[ra];
-            int bound = 0;
-            for (int ka = 0; ka < nka; ++ka)
-                bound += bs[pa[ka] + 1] - bs[pa[ka]];
-            if (static_cast<std::size_t>(bound) > scratch.size())
-                scratch.resize(static_cast<std::size_t>(2 * bound));
-            int *M2M_RESTRICT t = scratch.data();
-            int nt = 0;
-            for (int ka = 0; ka < nka; ++ka)
-            {
-                const int ca = pa[ka];
-                const int *pb = bd + bs[ca];
-                const int nkb = bs[ca + 1] - bs[ca];
-                for (int kb = 0; kb < nkb; ++kb)
-                {
-                    const int cb = pb[kb];
-                    t[nt] = cb;
-                    nt += (cnt[cb] == 0);
-                    cnt[cb]++;
-                }
-            }
-            int *out = cd + cs[ra];
-            int *oc = cc ? cc + cs[ra] : nullptr;
+            int *o = out + pos;
+            int *c2 = oc ? oc + pos : nullptr;
             int n = 0;
             for (int k = 0; k < nt; ++k)
             {
                 const int c = t[k];
                 if (cnt[c] >= minshared && !(excludeself && c == ra))
                 {
-                    out[n] = c;
-                    if (oc)
-                        oc[n] = static_cast<int>(cnt[c]);
+                    o[n] = c;
+                    if (c2)
+                        c2[n] = static_cast<int>(cnt[c]);
                     ++n;
                 }
                 cnt[c] = 0;
             }
+            rowsz[ra] = n;
+            pos += n;
         }
+        return pos;
     }
 
+    /** Single pass, as the product: every chunk of 1024 rows is counted once into the buffer of
+     *  the thread that took it (columns and, if asked, multiplicities) and copied to its final
+     *  place after the scan of the row sizes. Peak memory: the bound of the output, twice. */
     template<class CNT>
     o2m countingcomposition(o2m const &a, o2m const &b, int minshared, bool excludeself, o2m *counts)
     {
@@ -138,22 +110,78 @@ namespace
         res.maxnode = b.maxnode;
         setsize(res, na);
         if (na == 0)
+        {
+            if (counts)
+                *counts = o2m();
             return res;
+        }
         const int *as = a.start.begin(), *ad = a.data.begin(), *bs = b.start.begin(), *bd = b.data.begin();
         constexpr int CHUNK = 1024;
         const int nchunks = (na + CHUNK - 1) / CHUNK;
+        const int nth = numthreads();
+        struct chunkrec
+        {
+            int tid;
+            long long off;
+        };
+        // staging budget, as the product (M2M_MUL_BUDGET_GB, 8 GB): beyond it the rows are
+        // counted twice, the second time straight into the output
+        long long budget = 8LL << 30;
+        if (const char *env = std::getenv("M2M_MUL_BUDGET_GB"))
+            budget = static_cast<long long>(std::atof(env) * (1LL << 30));
+        long long totalbound = 0;
+#pragma omp parallel for schedule(static) reduction(+ : totalbound) if (na > 100000)
+        for (int ra = 0; ra < na; ++ra)
+            for (int ka = as[ra]; ka < as[ra + 1]; ++ka)
+                totalbound += bs[ad[ka] + 1] - bs[ad[ka]];
+        const bool single = totalbound * (counts ? 8 : 4) <= budget;
+        std::vector<chunkrec> rec(static_cast<std::size_t>(nchunks));
+        std::vector<std::vector<int>> bufs(static_cast<std::size_t>(nth)), cbufs(counts ? static_cast<std::size_t>(nth) : 0);
         std::unique_ptr<int[]> rowsz(new int[static_cast<std::size_t>(na)]);
-#pragma omp parallel
+#pragma omp parallel num_threads(nth)
         {
             std::unique_ptr<CNT[]> cnt(new CNT[static_cast<std::size_t>(ncols) + 1]());
+            const int tid = threadnum();
+            std::vector<int> &buf = bufs[static_cast<std::size_t>(tid)];
+            std::vector<int> *cbuf = counts ? &cbufs[static_cast<std::size_t>(tid)] : nullptr;
+            buf.reserve(static_cast<std::size_t>(32) * (static_cast<std::size_t>(na) / static_cast<std::size_t>(nth) + CHUNK));
+            if (cbuf)
+                cbuf->reserve(buf.capacity());
             std::vector<int> scratch(1024);
 #pragma omp for schedule(dynamic, 1)
             for (int c = 0; c < nchunks; ++c)
-                dualcount<CNT>(c * CHUNK, std::min(na, (c + 1) * CHUNK), as, ad, bs, bd, minshared, excludeself,
-                               cnt.get(), rowsz.get(), scratch);
+            {
+                const int r0 = c * CHUNK, r1 = std::min(na, r0 + CHUNK);
+                long long bound = 0;
+                int rowbound = 0;
+                for (int ra = r0; ra < r1; ++ra)
+                {
+                    const int *pa = ad + as[ra];
+                    const int nka = as[ra + 1] - as[ra];
+                    int rb = 0;
+                    for (int ka = 0; ka < nka; ++ka)
+                        rb += bs[pa[ka] + 1] - bs[pa[ka]];
+                    bound += rb;
+                    rowbound = std::max(rowbound, rb);
+                }
+                if (static_cast<std::size_t>(rowbound) > scratch.size())
+                    scratch.resize(static_cast<std::size_t>(2 * rowbound));
+                const long long off = single ? static_cast<long long>(buf.size()) : 0;
+                buf.resize(static_cast<std::size_t>(off + bound));
+                if (cbuf)
+                    cbuf->resize(static_cast<std::size_t>(off + bound));
+                const long long pos = dualchunk<CNT>(r0, r1, as, ad, bs, bd, minshared, excludeself, cnt.get(), rowsz.get(),
+                                                     buf.data() + off, cbuf ? cbuf->data() + off : nullptr, scratch.data());
+                if (single)
+                {
+                    buf.resize(static_cast<std::size_t>(off + pos));
+                    if (cbuf)
+                        cbuf->resize(static_cast<std::size_t>(off + pos));
+                    rec[static_cast<std::size_t>(c)] = chunkrec{tid, off};
+                }
+            }
         }
         const long long nnz = scan(rowsz.get(), na, res.start.begin());
-        rowsz.reset();
         setsizeexact(res.data, nnz);
         if (counts)
         {
@@ -166,14 +194,55 @@ namespace
         const int *cs = res.start.begin();
         int *cd = res.data.begin();
         int *cc = counts ? counts->data.begin() : nullptr;
-#pragma omp parallel
+        if (single)
         {
-            std::unique_ptr<CNT[]> cnt(new CNT[static_cast<std::size_t>(ncols) + 1]());
-            std::vector<int> scratch(1024);
-#pragma omp for schedule(dynamic, 1)
+#pragma omp parallel for schedule(dynamic, 1)
             for (int c = 0; c < nchunks; ++c)
-                dualfill<CNT>(c * CHUNK, std::min(na, (c + 1) * CHUNK), as, ad, bs, bd, minshared, excludeself,
-                              cnt.get(), cs, cd, cc, scratch);
+            {
+                const int r0 = c * CHUNK, r1 = std::min(na, r0 + CHUNK);
+                const long long n = static_cast<long long>(cs[r1]) - cs[r0];
+                if (n > 0)
+                {
+                    const chunkrec &r = rec[static_cast<std::size_t>(c)];
+                    std::memcpy(cd + cs[r0], bufs[static_cast<std::size_t>(r.tid)].data() + r.off, static_cast<std::size_t>(n) * sizeof(int));
+                    if (cc)
+                        std::memcpy(cc + cs[r0], cbufs[static_cast<std::size_t>(r.tid)].data() + r.off, static_cast<std::size_t>(n) * sizeof(int));
+                }
+            }
+        } else
+        {
+            bufs.clear();
+            cbufs.clear();
+#pragma omp parallel num_threads(nth)
+            {
+                std::unique_ptr<CNT[]> cnt(new CNT[static_cast<std::size_t>(ncols) + 1]());
+                std::vector<int> scratch(1024);
+#pragma omp for schedule(dynamic, 1)
+                for (int c = 0; c < nchunks; ++c)
+                {
+                    const int r0 = c * CHUNK, r1 = std::min(na, r0 + CHUNK);
+                    int rowbound = 0;
+                    for (int ra = r0; ra < r1; ++ra)
+                    {
+                        int rb = 0;
+                        for (int ka = as[ra]; ka < as[ra + 1]; ++ka)
+                            rb += bs[ad[ka] + 1] - bs[ad[ka]];
+                        rowbound = std::max(rowbound, rb);
+                    }
+                    if (static_cast<std::size_t>(rowbound) > scratch.size())
+                        scratch.resize(static_cast<std::size_t>(2 * rowbound));
+                    dualchunk<CNT>(r0, r1, as, ad, bs, bd, minshared, excludeself, cnt.get(), rowsz.get(), cd + cs[r0],
+                                   cc ? cc + cs[r0] : nullptr, scratch.data());
+                }
+            }
+        }
+        if (counts)
+        {
+            int mx = 0;
+#pragma omp parallel for schedule(static) reduction(max : mx)
+            for (long long k = 0; k < nnz; ++k)
+                mx = std::max(mx, cc[k]);
+            counts->maxnode = mx;
         }
         return res;
     }
@@ -368,77 +437,114 @@ int getcomponents(m2m &rel, seque<int> &elementlabel, seque<int> &nodelabel)
     return ncomp;
 }
 
-seque<int> getbfslevels(o2m const &graph, int source)
-{
-    const int n = graph.nelem;
-    seque<int> level(n, -1);
-    if (n == 0 || source < 0 || source >= n)
-        return level;
-    std::vector<int> frontier{source}, next;
-    level[source] = 0;
-    int d = 0;
-    while (!frontier.empty())
-    {
-        ++d;
-        next.clear();
-        for (int u: frontier)
-            for (int v: graph[u])
-                if (level[v] < 0)
-                {
-                    level[v] = d;
-                    next.push_back(v);
-                }
-        frontier.swap(next);
-    }
-    return level;
-}
-
 namespace
 {
-    /** BFS from s returning the levels and the last level's vertices (for the pseudo-peripheral search). */
-    int bfslevels(o2m const &g, int s, std::vector<int> &level, std::vector<int> &last, std::vector<int> &order)
+    /** Level-synchronous breadth-first search from s over a symmetric adjacency: lv must hold -1
+     *  everywhere; on return lv[v] is the hop distance of every reached vertex, last holds the
+     *  vertices of the deepest level (in no particular order) and the depth is returned. The
+     *  frontier is expanded in parallel, a vertex being claimed by the first thread that swaps
+     *  its -1 for the level, so the levels are the same whichever thread wins. */
+    int bfs(o2m const &g, int s, int *M2M_RESTRICT lv, std::vector<int> &last)
     {
-        std::fill(level.begin(), level.end(), -1);
-        order.clear();
-        order.push_back(s);
-        level[static_cast<std::size_t>(s)] = 0;
-        std::size_t head = 0;
-        int depth = 0;
-        while (head < order.size())
+        const int *M2M_RESTRICT gs = g.start.begin();
+        const int *M2M_RESTRICT gd = g.data.begin();
+        std::vector<int> frontier{s}, next;
+        lv[s] = 0;
+        const int nth = numthreads();
+        std::vector<std::vector<int>> local(static_cast<std::size_t>(nth));
+        std::vector<std::size_t> offs(static_cast<std::size_t>(nth) + 1);
+        int d = 0;
+        for (;;)
         {
-            const int u = order[head++];
-            for (int v: g[u])
-                if (level[static_cast<std::size_t>(v)] < 0)
+            const int nf = static_cast<int>(frontier.size());
+            const int dn = d + 1;
+            next.clear();
+            if (nf < 4096 || nth == 1)
+            {
+                for (int i = 0; i < nf; ++i)
                 {
-                    level[static_cast<std::size_t>(v)] = level[static_cast<std::size_t>(u)] + 1;
-                    depth = level[static_cast<std::size_t>(v)];
-                    order.push_back(v);
+                    const int u = frontier[static_cast<std::size_t>(i)];
+                    for (int k = gs[u]; k < gs[u + 1]; ++k)
+                    {
+                        const int v = gd[k];
+                        if (lv[v] < 0)
+                        {
+                            lv[v] = dn;
+                            next.push_back(v);
+                        }
+                    }
                 }
+            } else
+            {
+#pragma omp parallel num_threads(nth)
+                {
+                    const int tid = threadnum();
+                    std::vector<int> &out = local[static_cast<std::size_t>(tid)];
+                    out.clear();
+#pragma omp for schedule(dynamic, 256) nowait
+                    for (int i = 0; i < nf; ++i)
+                    {
+                        const int u = frontier[static_cast<std::size_t>(i)];
+                        for (int k = gs[u]; k < gs[u + 1]; ++k)
+                        {
+                            const int v = gd[k];
+                            if (__atomic_load_n(lv + v, __ATOMIC_RELAXED) < 0)
+                            {
+                                int expected = -1;
+                                if (__atomic_compare_exchange_n(lv + v, &expected, dn, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED))
+                                    out.push_back(v);
+                            }
+                        }
+                    }
+                    offs[static_cast<std::size_t>(tid) + 1] = out.size();
+#pragma omp barrier
+#pragma omp single
+                    {
+                        offs[0] = 0;
+                        for (int t = 0; t < nth; ++t)
+                            offs[static_cast<std::size_t>(t) + 1] += offs[static_cast<std::size_t>(t)];
+                        next.resize(offs[static_cast<std::size_t>(nth)]);
+                    }
+                    if (!out.empty())
+                        std::memcpy(next.data() + offs[static_cast<std::size_t>(tid)], out.data(), out.size() * sizeof(int));
+                }
+            }
+            if (next.empty())
+                break;
+            ++d;
+            frontier.swap(next);
         }
-        last.clear();
-        for (int u: order)
-            if (level[static_cast<std::size_t>(u)] == depth)
-                last.push_back(u);
-        return depth;
+        last.swap(frontier);
+        return d;
     }
 
-    /** George-Liu pseudo-peripheral vertex of the component containing s. */
-    int pseudoperipheral(o2m const &g, int s, std::vector<int> &level, std::vector<int> &last, std::vector<int> &order)
+    void fillminusone(int *p, int n)
     {
-        int depth = bfslevels(g, s, level, last, order);
+#pragma omp parallel for schedule(static) if (n > 100000)
+        for (int i = 0; i < n; ++i)
+            p[i] = -1;
+    }
+
+    /** George-Liu pseudo-peripheral vertex of the component containing s: from the deepest
+     *  level of the search from s, the vertex of least degree (least index among equals)
+     *  restarts the search while the eccentricity grows. */
+    int pseudoperipheral(o2m const &g, int s, int *lv, std::vector<int> &last)
+    {
+        fillminusone(lv, g.nelem);
+        int depth = bfs(g, s, lv, last);
         for (int iter = 0; iter < 10; ++iter)
         {
-            // the vertex of minimal degree in the last level
             int best = last[0];
             for (int u: last)
-                if (g.nnodes(u) < g.nnodes(best))
-                    best = u;
-            const int d2 = bfslevels(g, best, level, last, order);
-            if (d2 <= depth)
             {
-                // restore the levels of s for the caller (not needed) and return best
-                return best;
+                const int du = g.nnodes(u), db = g.nnodes(best);
+                if (du < db || (du == db && u < best))
+                    best = u;
             }
+            fillminusone(lv, g.nelem);
+            const int d2 = bfs(g, best, lv, last);
+            if (d2 <= depth)
+                return best;
             depth = d2;
             s = best;
         }
@@ -446,43 +552,82 @@ namespace
     }
 } // namespace
 
+seque<int> getbfslevels(o2m const &graph, int source)
+{
+    const int n = graph.nelem;
+    seque<int> level(n);
+    fillminusone(level.begin(), n);
+    if (n == 0 || source < 0 || source >= n)
+        return level;
+    std::vector<int> last;
+    bfs(graph, source, level.begin(), last);
+    return level;
+}
+
 seque<int> getrcmorder(o2m const &graph)
 {
     const int n = graph.nelem;
     seque<int> oldfromnew(n);
     if (n == 0)
         return oldfromnew;
+    const int *M2M_RESTRICT gs = graph.start.begin();
+    const int *M2M_RESTRICT gd = graph.data.begin();
     std::vector<unsigned char> visited(static_cast<std::size_t>(n), 0);
-    std::vector<int> level(static_cast<std::size_t>(n)), last, order, nb;
+    std::vector<int> level(static_cast<std::size_t>(n)), last;
+    std::vector<std::uint64_t> nb;
+    int *M2M_RESTRICT q = oldfromnew.begin();
     int pos = 0;
     for (int s0 = 0; s0 < n; ++s0)
     {
         if (visited[static_cast<std::size_t>(s0)])
             continue;
-        const int s = pseudoperipheral(graph, s0, level, last, order);
-        // Cuthill-McKee from s: BFS, neighbours in increasing degree
+        const int s = pseudoperipheral(graph, s0, level.data(), last);
+        // Cuthill-McKee from s: the unvisited neighbours of every dequeued vertex are appended
+        // in increasing degree (ties by index). The queue is known ahead of the head, so the
+        // rows of the vertices that follow are prefetched while the current one is sorted.
         const int first = pos;
-        oldfromnew[pos++] = s;
+        q[pos++] = s;
         visited[static_cast<std::size_t>(s)] = 1;
         for (int head = first; head < pos; ++head)
         {
-            const int u = oldfromnew[head];
+            if (head + 16 < pos)
+                __builtin_prefetch(gs + q[head + 16]);
+            if (head + 8 < pos)
+                __builtin_prefetch(gd + gs[q[head + 8]]);
+            const int u = q[head];
             nb.clear();
-            for (int v: graph[u])
+            for (int k = gs[u]; k < gs[u + 1]; ++k)
+            {
+                const int v = gd[k];
                 if (!visited[static_cast<std::size_t>(v)])
                 {
                     visited[static_cast<std::size_t>(v)] = 1;
-                    nb.push_back(v);
+                    nb.push_back((static_cast<std::uint64_t>(gs[v + 1] - gs[v]) << 32) | static_cast<std::uint32_t>(v));
                 }
-            std::sort(nb.begin(), nb.end(), [&](int a, int b) {
-                const int da = graph.nnodes(a), db = graph.nnodes(b);
-                return da != db ? da < db : a < b;
-            });
-            for (int v: nb)
-                oldfromnew[pos++] = v;
+            }
+            // insertion sort of the (degree, index) keys: the rows are short
+            const int m = static_cast<int>(nb.size());
+            std::uint64_t *p = nb.data();
+            if (m < 32)
+            {
+                for (int i = 1; i < m; ++i)
+                {
+                    const std::uint64_t x = p[i];
+                    int j = i - 1;
+                    while (j >= 0 && p[j] > x)
+                    {
+                        p[j + 1] = p[j];
+                        --j;
+                    }
+                    p[j + 1] = x;
+                }
+            } else
+                std::sort(p, p + m);
+            for (int i = 0; i < m; ++i)
+                q[pos++] = static_cast<int>(p[i] & 0xffffffffu);
         }
         // reverse the component's segment
-        std::reverse(oldfromnew.begin() + first, oldfromnew.begin() + pos);
+        std::reverse(q + first, q + pos);
     }
     return oldfromnew;
 }

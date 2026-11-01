@@ -8,7 +8,7 @@ LIBS := -ltbb
 CORE := $(R)/o2m.cpp $(R)/m2m.cpp $(R)/graph.cpp
 ALL := $(CORE) $(R)/mm2m.cpp $(R)/thing.cpp
 
-all: bench_lib bench_tables bench_graph running_example unittests RemeshProgram test_graph test_synth
+all: bench_lib bench_tables bench_graph running_example unittests RemeshProgram test_graph test_synth test_order
 
 bench_lib: bench_lib.cpp $(CORE) $(R)/o2m.hpp $(R)/m2m.hpp $(R)/seque.hpp
 	$(CXX) $(CXXFLAGS) $(INC) bench_lib.cpp $(CORE) $(LIBS) -o $@
@@ -21,6 +21,9 @@ bench_graph: bench_graph.cpp $(CORE) $(R)/graph.hpp $(R)/o2m.hpp $(R)/m2m.hpp
 
 test_synth: test_synth.cpp $(ALL) $(R)/catalogue.hpp $(R)/zoo.hpp $(R)/graph.hpp
 	$(CXX) $(CXXFLAGS) $(INC) test_synth.cpp $(ALL) $(LIBS) -o $@
+
+test_order: test_order.cpp $(CORE) $(R)/o2m.hpp $(R)/seque.hpp
+	$(CXX) $(CXXFLAGS) $(INC) test_order.cpp $(CORE) $(LIBS) -o $@
 
 test_graph: test_graph.cpp $(CORE) $(R)/graph.hpp $(R)/o2m.hpp $(R)/m2m.hpp
 	$(CXX) $(CXXFLAGS) $(INC) test_graph.cpp $(CORE) $(LIBS) -o $@
@@ -35,4 +38,4 @@ RemeshProgram: $(R)/remesh_main.cpp $(R)/remesh.cpp $(R)/meshquality.cpp $(ALL) 
 	$(CXX) $(CXXFLAGS) $(INC) $(R)/remesh_main.cpp $(R)/remesh.cpp $(R)/meshquality.cpp $(ALL) $(LIBS) -o $@
 
 clean:
-	rm -f bench_lib bench_tables bench_graph running_example unittests RemeshProgram test_graph test_synth
+	rm -f bench_lib bench_tables bench_graph running_example unittests RemeshProgram test_graph test_synth test_order

@@ -1,0 +1,5 @@
+{"group": "order", "kind": "H8", "threads": 16, "nee": 100, "nel": 1000000, "nn": 1030301, "t_lexiorder": 0.0115922, "t_indicesfromorder": 0.00355286, "t_compression": 0.016103, "nunique": 1000000}
+{"group": "order", "kind": "H8", "threads": 16, "nee": 200, "nel": 8000000, "nn": 8120601, "t_lexiorder": 0.11681, "t_indicesfromorder": 0.0413284, "t_compression": 0.175561, "nunique": 8000000}
+{"group": "order", "kind": "H8", "threads": 16, "nee": 300, "nel": 27000000, "nn": 27270901, "t_lexiorder": 0.392336, "t_indicesfromorder": 0.22922, "t_compression": 0.534169, "nunique": 27000000}
+{"group": "order", "kind": "H8", "threads": 16, "nee": 400, "nel": 64000000, "nn": 64481201, "t_lexiorder": 0.889492, "t_indicesfromorder": 0.573024, "t_compression": 1.34507, "nunique": 64000000}
+{"group": "order", "kind": "H8", "threads": 16, "nee": 500, "nel": 125000000, "nn": 125751501, "t_lexiorder": 1.72942, "t_indicesfromorder": 1.16971, "t_compression": 2.65384, "nunique": 125000000}
