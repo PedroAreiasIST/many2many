@@ -251,16 +251,12 @@ void eraseelements(mm2m &m, int elementtype, seque<int> const &elements)
 
 void compress(mm2m &m)
 {
-    m.listofmarked = getmarkedclosure(m);
-
-    seque<seque<int> > nodes(m.ntypes);
-    for (int counter = 0; counter < getsize(m.listofmarked); ++counter)
-    {
-        auto pair = m.listofmarked[counter];
-        int type = pair.first;
-        int node = pair.second;
-        append(nodes[type], node);
-    }
+    // the closure reads the transposes: bring every relation appended since the last
+    // synchronization up to date first
+    for (int type = 0; type < m.ntypes; ++type)
+        for (int otype = 0; otype < m.ntypes; ++otype)
+            if (!m(type, otype).isupdated)
+                synchronize(m(type, otype));
     for (int type = 0; type < m.ntypes; ++type)
     {
         int nnmax = 0;
@@ -283,6 +279,17 @@ void compress(mm2m &m)
                 setrow(diag.nfrome, i, {i});
         }
     }
+    // the closure walks the diagonal relations, so it is taken after every entity has its identity row
+    m.listofmarked = getmarkedclosure(m);
+
+    seque<seque<int> > nodes(m.ntypes);
+    for (int counter = 0; counter < getsize(m.listofmarked); ++counter)
+    {
+        auto pair = m.listofmarked[counter];
+        int type = pair.first;
+        int node = pair.second;
+        append(nodes[type], node);
+    }
     for (int type = 0; type < m.ntypes; ++type)
     {
         for (int lelement = 0; lelement < getsize(nodes[type]); ++lelement)
@@ -290,6 +297,9 @@ void compress(mm2m &m)
             auto element = nodes[type][lelement];
             for (int otype = 0; otype < m.ntypes; ++otype)
             {
+                // a relation that never recorded this entity has no row to clear
+                if (element < 0 || element >= m(type, otype).nfrome.nelems())
+                    continue;
                 clearrow(m(type, otype).nfrome, element);
                 m(type, otype).isupdated = false;
             }
