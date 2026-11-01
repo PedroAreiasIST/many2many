@@ -549,16 +549,4 @@ The library itself depends on cereal and the bundled PFR reflection library (non
 
 To exercise the library on unstructured, evolving connectivity, a production simplex mesh splitter (part of the SimPlas finite-element solver, driving adaptive remeshing for fracture and contact) was ported to the `m2m`, `o2m` and `seque` containers. Given a tetrahedral mesh and a list of marked edges, every marked edge is bisected and the adjacent points, bars, triangles and tetrahedra are subdivided; a tetrahedron admits eleven splitting configurations over 0 to 6 marked edges. Six library call-sites replace the hand-managed CSR arrays, the merge sort and the linear edge scans of the original: lookup of the unique edge between two nodes in a number of operations independent of the mesh size, elements containing a face for boundary detection, node neighbors for Laplacian smoothing, the synchronized transpose for the stencil. The port reproduces the original's nodes and tetrahedron count on a 5.8×10⁵-element mesh, and the container checks caught a parent-slot collision that raw CSR arrays would not have reported.
 
-## Citation, license, acknowledgments
 
-If you use the library, please cite the paper:
-
-```
-P. Areias, T. Rabczuk, M. F. Vaz. A software library for type-safe management of many-to-many
-relations and dependencies in computational mechanics. International Journal for Numerical
-Methods in Engineering, revised version, 2026.
-```
-
-Written by Pedro Areias (Instituto Superior Técnico, University of Lisbon). GPL-3.0.
-
-Pedro Areias and Maria de Fátima Vaz acknowledge the support of Fundação para a Ciência e a Tecnologia (FCT, Portugal). The node measurements were run on the Deucalion supercomputer (Minho Advanced Computing Centre) under FCT I.P. project 2026.002.CNCA.IST_UL, jointly funded by EuroHPC JU and Portugal. The kernels of the 2026 revision, the comparison drivers and the scripts were written with the help of a generative AI tool (Claude, Anthropic), as disclosed in the paper; every number here is the stored output of the scripts in `bench/`.
