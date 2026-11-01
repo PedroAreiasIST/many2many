@@ -1,49 +1,49 @@
-{"backend": "fortran-ifx", "threads": 16, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose":  2.10190E-02, "t_product":  7.29241E-02, "nnz_product": 27270901}
-{"backend": "fortran-gfortran", "threads": 16, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose":  4.11496E-02, "t_product":  7.30436E-02, "nnz_product": 27270901}
-{"backend": "library-icpx", "threads": 16, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.0112869, "t_product": 0.0202335, "nnz_product": 27270901, "t_lookup_us": 0.367648, "found": 100000}
-{"backend": "library-gcc", "threads": 16, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.0117285, "t_product": 0.0205355, "nnz_product": 27270901, "t_lookup_us": 0.360957, "found": 100000}
-{"backend": "graphblas", "threads": 16, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.012524141930043697, "t_product": 0.04237310402095318, "nnz_product": 27270901, "t_lookup_us": 170.33845908008516, "version": "2025.2.0"}
-{"backend": "fortran-ifx", "threads": 32, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose":  1.99251E-02, "t_product":  9.06279E-02, "nnz_product": 27270901}
-{"backend": "fortran-gfortran", "threads": 32, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose":  3.56165E-02, "t_product":  7.67049E-02, "nnz_product": 27270901}
-{"backend": "library-icpx", "threads": 32, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.0122626, "t_product": 0.0208271, "nnz_product": 27270901, "t_lookup_us": 0.498805, "found": 100000}
-{"backend": "library-gcc", "threads": 32, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.0123831, "t_product": 0.0217115, "nnz_product": 27270901, "t_lookup_us": 0.361137, "found": 100000}
-{"backend": "graphblas", "threads": 32, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.013415247900411487, "t_product": 0.0414467619266361, "nnz_product": 27270901, "t_lookup_us": 183.5602519568056, "version": "2025.2.0"}
-{"backend": "fortran-ifx", "threads": 1, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose":  5.09911E-02, "t_product":  1.07871E-01, "nnz_product": 27270901}
-{"backend": "fortran-gfortran", "threads": 1, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose":  6.53155E-02, "t_product":  1.11882E-01, "nnz_product": 27270901}
-{"backend": "library-icpx", "threads": 1, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.0243225, "t_product": 0.0817616, "nnz_product": 27270901, "t_lookup_us": 0.339406, "found": 100000}
-{"backend": "library-gcc", "threads": 1, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.024052, "t_product": 0.0913392, "nnz_product": 27270901, "t_lookup_us": 0.349102, "found": 100000}
-{"backend": "graphblas", "threads": 1, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.03640217497013509, "t_product": 0.2094377160537988, "nnz_product": 27270901, "t_lookup_us": 157.40404417738318, "version": "2025.2.0"}
-{"backend": "scipy", "threads": 1, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.026498230872675776, "t_product": 0.1252109140623361, "nnz_product": 27270901, "t_lookup_us": 12.5504310708493}
-{"backend": "fortran-ifx", "threads": 16, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose":  2.50882E-01, "t_product":  8.44981E-01, "nnz_product": 217081801}
-{"backend": "fortran-gfortran", "threads": 16, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose":  3.69306E-01, "t_product":  8.58871E-01, "nnz_product": 217081801}
-{"backend": "library-icpx", "threads": 16, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.112452, "t_product": 0.256486, "nnz_product": 217081801, "t_lookup_us": 0.594304, "found": 100000}
-{"backend": "library-gcc", "threads": 16, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.127017, "t_product": 0.181888, "nnz_product": 217081801, "t_lookup_us": 0.525527, "found": 100000}
-{"backend": "graphblas", "threads": 16, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.1447913150768727, "t_product": 0.48585202102549374, "nnz_product": 217081801, "t_lookup_us": 307.67828109674156, "version": "2025.2.0"}
-{"backend": "fortran-ifx", "threads": 32, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose":  2.70957E-01, "t_product":  9.00776E-01, "nnz_product": 217081801}
-{"backend": "fortran-gfortran", "threads": 32, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose":  3.62061E-01, "t_product":  8.25630E-01, "nnz_product": 217081801}
-{"backend": "library-icpx", "threads": 32, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.115989, "t_product": 0.198079, "nnz_product": 217081801, "t_lookup_us": 0.740897, "found": 100000}
-{"backend": "library-gcc", "threads": 32, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.114851, "t_product": 0.157841, "nnz_product": 217081801, "t_lookup_us": 0.521835, "found": 100000}
-{"backend": "graphblas", "threads": 32, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.14752616710029542, "t_product": 0.3630630399566144, "nnz_product": 217081801, "t_lookup_us": 333.32019904628396, "version": "2025.2.0"}
-{"backend": "fortran-ifx", "threads": 1, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose":  5.33847E-01, "t_product":  1.14250E+00, "nnz_product": 217081801}
-{"backend": "fortran-gfortran", "threads": 1, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose":  5.61396E-01, "t_product":  1.14404E+00, "nnz_product": 217081801}
-{"backend": "library-icpx", "threads": 1, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.240596, "t_product": 0.871819, "nnz_product": 217081801, "t_lookup_us": 0.527422, "found": 100000}
-{"backend": "library-gcc", "threads": 1, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.255516, "t_product": 0.909098, "nnz_product": 217081801, "t_lookup_us": 0.526199, "found": 100000}
-{"backend": "graphblas", "threads": 1, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.32042458513751626, "t_product": 2.7839778950437903, "nnz_product": 217081801, "t_lookup_us": 273.69325514882803, "version": "2025.2.0"}
-{"backend": "scipy", "threads": 1, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.29246387304738164, "t_product": 1.7707518190145493, "nnz_product": 217081801, "t_lookup_us": 12.403344037011266}
-{"backend": "fortran-ifx", "threads": 16, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose":  9.41292E-01, "t_product":  5.06817E+00, "nnz_product": 731432701}
-{"backend": "fortran-gfortran", "threads": 16, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose":  1.58656E+00, "t_product":  5.57578E+00, "nnz_product": 731432701}
-{"backend": "library-icpx", "threads": 16, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 0.375723, "t_product": 0.88964, "nnz_product": 731432701, "t_lookup_us": 0.576752, "found": 100000}
-{"backend": "library-gcc", "threads": 16, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 0.444383, "t_product": 0.711741, "nnz_product": 731432701, "t_lookup_us": 0.572799, "found": 100000}
-{"backend": "graphblas", "threads": 16, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 0.5470919869840145, "t_product": 1.7571868270169944, "nnz_product": 731432701, "t_lookup_us": 620.946218026802, "version": "2025.2.0"}
-{"backend": "fortran-ifx", "threads": 32, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose":  9.54041E-01, "t_product":  4.94783E+00, "nnz_product": 731432701}
-{"backend": "fortran-gfortran", "threads": 32, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose":  1.58167E+00, "t_product":  5.45947E+00, "nnz_product": 731432701}
-{"backend": "library-icpx", "threads": 32, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 0.410164, "t_product": 0.795419, "nnz_product": 731432701, "t_lookup_us": 0.856107, "found": 100000}
-{"backend": "library-gcc", "threads": 32, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 0.403912, "t_product": 0.657343, "nnz_product": 731432701, "t_lookup_us": 0.57171, "found": 100000}
-{"backend": "graphblas", "threads": 32, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 0.5705400919541717, "t_product": 1.3631145351100713, "nnz_product": 731432701, "t_lookup_us": 621.8799750786275, "version": "2025.2.0"}
-{"backend": "fortran-ifx", "threads": 1, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose":  1.81154E+00, "t_product":  8.20768E+00, "nnz_product": 731432701}
-{"backend": "fortran-gfortran", "threads": 1, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose":  2.24270E+00, "t_product":  8.66804E+00, "nnz_product": 731432701}
-{"backend": "library-icpx", "threads": 1, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 0.893885, "t_product": 5.01931, "nnz_product": 731432701, "t_lookup_us": 0.568649, "found": 100000}
-{"backend": "library-gcc", "threads": 1, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 0.992786, "t_product": 6.15849, "nnz_product": 731432701, "t_lookup_us": 0.560888, "found": 100000}
-{"backend": "graphblas", "threads": 1, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 1.3196070310659707, "t_product": 17.410738467937335, "nnz_product": 731432701, "t_lookup_us": 572.9021858423948, "version": "2025.2.0"}
-{"backend": "scipy", "threads": 1, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 1.1513988329097629, "t_product": 11.060441886074841, "nnz_product": 731432701, "t_lookup_us": 12.407564092427492}
+{"backend": "fortran-ifx", "threads": 16, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose":  2.30579E-02, "t_product":  7.32701E-02, "nnz_product": 27270901}
+{"backend": "fortran-gfortran", "threads": 16, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose":  4.11861E-02, "t_product":  7.36080E-02, "nnz_product": 27270901}
+{"backend": "library-icpx", "threads": 16, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.0115177, "t_product": 0.0207718, "nnz_product": 27270901, "t_lookup_us": 0.376256, "found": 100000}
+{"backend": "library-gcc", "threads": 16, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.0114426, "t_product": 0.0214104, "nnz_product": 27270901, "t_lookup_us": 0.36001, "found": 100000}
+{"backend": "graphblas", "threads": 16, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.012632098980247974, "t_product": 0.04243913013488054, "nnz_product": 27270901, "t_lookup_us": 170.78795796260238, "version": "2025.2.0"}
+{"backend": "fortran-ifx", "threads": 32, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose":  2.07679E-02, "t_product":  9.30259E-02, "nnz_product": 27270901}
+{"backend": "fortran-gfortran", "threads": 32, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose":  3.60695E-02, "t_product":  7.49746E-02, "nnz_product": 27270901}
+{"backend": "library-icpx", "threads": 32, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.0128153, "t_product": 0.0213868, "nnz_product": 27270901, "t_lookup_us": 0.49124, "found": 100000}
+{"backend": "library-gcc", "threads": 32, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.0121271, "t_product": 0.021303, "nnz_product": 27270901, "t_lookup_us": 0.357802, "found": 100000}
+{"backend": "graphblas", "threads": 32, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.013526991941034794, "t_product": 0.04073532694019377, "nnz_product": 27270901, "t_lookup_us": 183.0229409970343, "version": "2025.2.0"}
+{"backend": "fortran-ifx", "threads": 1, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose":  5.02939E-02, "t_product":  1.10339E-01, "nnz_product": 27270901}
+{"backend": "fortran-gfortran", "threads": 1, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose":  6.47752E-02, "t_product":  1.08738E-01, "nnz_product": 27270901}
+{"backend": "library-icpx", "threads": 1, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.0245141, "t_product": 0.0832811, "nnz_product": 27270901, "t_lookup_us": 0.364564, "found": 100000}
+{"backend": "library-gcc", "threads": 1, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.0236761, "t_product": 0.0923521, "nnz_product": 27270901, "t_lookup_us": 0.347296, "found": 100000}
+{"backend": "graphblas", "threads": 1, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.03446429595351219, "t_product": 0.2060562160331756, "nnz_product": 27270901, "t_lookup_us": 158.0718201585114, "version": "2025.2.0"}
+{"backend": "scipy", "threads": 1, "nee": 100, "nel": 1000000, "nn": 1030301, "t_transpose": 0.026920082978904247, "t_product": 0.1255041400436312, "nnz_product": 27270901, "t_lookup_us": 12.510019820183516}
+{"backend": "fortran-ifx", "threads": 16, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose":  2.49749E-01, "t_product":  8.53461E-01, "nnz_product": 217081801}
+{"backend": "fortran-gfortran", "threads": 16, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose":  3.69912E-01, "t_product":  8.67279E-01, "nnz_product": 217081801}
+{"backend": "library-icpx", "threads": 16, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.10684, "t_product": 0.251171, "nnz_product": 217081801, "t_lookup_us": 0.59499, "found": 100000}
+{"backend": "library-gcc", "threads": 16, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.124882, "t_product": 0.176758, "nnz_product": 217081801, "t_lookup_us": 0.524555, "found": 100000}
+{"backend": "graphblas", "threads": 16, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.14472108986228704, "t_product": 0.48552164784632623, "nnz_product": 217081801, "t_lookup_us": 303.1349128577858, "version": "2025.2.0"}
+{"backend": "fortran-ifx", "threads": 32, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose":  2.69287E-01, "t_product":  8.52336E-01, "nnz_product": 217081801}
+{"backend": "fortran-gfortran", "threads": 32, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose":  3.63007E-01, "t_product":  8.19529E-01, "nnz_product": 217081801}
+{"backend": "library-icpx", "threads": 32, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.120425, "t_product": 0.20186, "nnz_product": 217081801, "t_lookup_us": 0.749197, "found": 100000}
+{"backend": "library-gcc", "threads": 32, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.117862, "t_product": 0.157117, "nnz_product": 217081801, "t_lookup_us": 0.526721, "found": 100000}
+{"backend": "graphblas", "threads": 32, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.14741338090971112, "t_product": 0.36720754601992667, "nnz_product": 217081801, "t_lookup_us": 319.6806409396231, "version": "2025.2.0"}
+{"backend": "fortran-ifx", "threads": 1, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose":  5.38842E-01, "t_product":  1.12713E+00, "nnz_product": 217081801}
+{"backend": "fortran-gfortran", "threads": 1, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose":  5.62566E-01, "t_product":  1.16650E+00, "nnz_product": 217081801}
+{"backend": "library-icpx", "threads": 1, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.238853, "t_product": 0.877224, "nnz_product": 217081801, "t_lookup_us": 0.58929, "found": 100000}
+{"backend": "library-gcc", "threads": 1, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.249977, "t_product": 0.925372, "nnz_product": 217081801, "t_lookup_us": 0.530934, "found": 100000}
+{"backend": "graphblas", "threads": 1, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.3250684200320393, "t_product": 2.7502409419976175, "nnz_product": 217081801, "t_lookup_us": 272.65350613743067, "version": "2025.2.0"}
+{"backend": "scipy", "threads": 1, "nee": 200, "nel": 8000000, "nn": 8120601, "t_transpose": 0.2927911158185452, "t_product": 1.7661928760353476, "nnz_product": 217081801, "t_lookup_us": 12.550326064229012}
+{"backend": "fortran-ifx", "threads": 16, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose":  9.55731E-01, "t_product":  5.08934E+00, "nnz_product": 731432701}
+{"backend": "fortran-gfortran", "threads": 16, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose":  1.59607E+00, "t_product":  5.53442E+00, "nnz_product": 731432701}
+{"backend": "library-icpx", "threads": 16, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 0.382029, "t_product": 0.89597, "nnz_product": 731432701, "t_lookup_us": 0.625842, "found": 100000}
+{"backend": "library-gcc", "threads": 16, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 0.450478, "t_product": 0.714774, "nnz_product": 731432701, "t_lookup_us": 0.591462, "found": 100000}
+{"backend": "graphblas", "threads": 16, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 0.5473335310816765, "t_product": 1.75950298900716, "nnz_product": 731432701, "t_lookup_us": 626.2913099490106, "version": "2025.2.0"}
+{"backend": "fortran-ifx", "threads": 32, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose":  9.27549E-01, "t_product":  4.95651E+00, "nnz_product": 731432701}
+{"backend": "fortran-gfortran", "threads": 32, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose":  1.57541E+00, "t_product":  5.50845E+00, "nnz_product": 731432701}
+{"backend": "library-icpx", "threads": 32, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 0.411778, "t_product": 0.79563, "nnz_product": 731432701, "t_lookup_us": 0.827244, "found": 100000}
+{"backend": "library-gcc", "threads": 32, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 0.399832, "t_product": 0.654957, "nnz_product": 731432701, "t_lookup_us": 0.572497, "found": 100000}
+{"backend": "graphblas", "threads": 32, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 0.5677918249275535, "t_product": 1.3564970979932696, "nnz_product": 731432701, "t_lookup_us": 616.0323910880834, "version": "2025.2.0"}
+{"backend": "fortran-ifx", "threads": 1, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose":  1.81980E+00, "t_product":  8.17635E+00, "nnz_product": 731432701}
+{"backend": "fortran-gfortran", "threads": 1, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose":  2.23364E+00, "t_product":  8.85562E+00, "nnz_product": 731432701}
+{"backend": "library-icpx", "threads": 1, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 0.894472, "t_product": 5.0822, "nnz_product": 731432701, "t_lookup_us": 0.648344, "found": 100000}
+{"backend": "library-gcc", "threads": 1, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 0.990845, "t_product": 6.17328, "nnz_product": 731432701, "t_lookup_us": 0.56402, "found": 100000}
+{"backend": "graphblas", "threads": 1, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 1.3186508838552982, "t_product": 17.410727384965867, "nnz_product": 731432701, "t_lookup_us": 570.7701840437949, "version": "2025.2.0"}
+{"backend": "scipy", "threads": 1, "nee": 300, "nel": 27000000, "nn": 27270901, "t_transpose": 1.15679050097242, "t_product": 11.254047031048685, "nnz_product": 731432701, "t_lookup_us": 12.382270069792867}
 DONE
